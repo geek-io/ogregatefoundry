@@ -1,0 +1,108 @@
+<form class="ogre-gate-form item" autocomplete="off">
+  <header class="sheet-header item-header">
+    <img class="profile-img" src="{{item.img}}" data-edit="img" data-action="showPortraitArtwork" title="{{item.name}}" />
+    <section>
+      <label>Name <input type="text" name="name" value="{{item.name}}" /></label>
+      <label>Type <input type="text" value="{{item.type}}" disabled /></label>
+      <label>Source <input type="text" name="system.source" value="{{system.source}}" /></label>
+      <label>Cost <input type="text" name="system.cost" value="{{system.cost}}" /></label>
+    </section>
+  </header>
+
+  {{#if (eq item.type "weapon")}}
+    <section class="panel">
+      <h2>Weapon</h2>
+      <label>Category <input type="text" name="system.category" value="{{system.category}}" /></label>
+      <label>Attack Skill <input type="text" name="system.attackSkill" value="{{system.attackSkill}}" /></label>
+      <label>Target Defense <input type="text" name="system.targetDefense" value="{{system.targetDefense}}" /></label>
+      <label>Damage Skill <input type="text" name="system.damageSkill" value="{{system.damageSkill}}" /></label>
+      <label>Damage Dice <input type="number" name="system.damageDice" value="{{system.damageDice}}" min="0" max="10" /></label>
+      <label>Reach <input type="text" name="system.reach" value="{{system.reach}}" /></label>
+      <label>Open Damage <input type="checkbox" name="system.openDamage" {{checked system.openDamage}} /></label>
+      <label>Qualities <input type="text" name="system.qualities" value="{{system.qualities}}" /></label>
+    </section>
+  {{/if}}
+
+  {{#if (eq item.type "technique")}}
+    <section class="panel">
+      <h2>Kung Fu Technique</h2>
+      <label>Discipline <input type="text" name="system.discipline" value="{{system.discipline}}" /></label>
+      <label>Type <input type="text" name="system.techniqueType" value="{{system.techniqueType}}" /></label>
+      <label>Activation Skill <input type="text" name="system.activationSkill" value="{{system.activationSkill}}" /></label>
+      <label>Qi Rank <input type="number" name="system.qiRank" value="{{system.qiRank}}" min="0" /></label>
+      <label>Qi Cost <input type="number" name="system.qiCost" value="{{system.qiCost}}" min="0" /></label>
+      <label>Damage <input type="text" name="system.damage" value="{{system.damage}}" /></label>
+      <label>Open Damage <input type="checkbox" name="system.openDamage" {{checked system.openDamage}} /></label>
+      <label>Counter <input type="text" name="system.counter" value="{{system.counter}}" /></label>
+    </section>
+  {{/if}}
+
+  {{#if (eq item.type "combatTechnique")}}
+    <section class="panel">
+      <h2>Combat Technique</h2>
+      <label>Group
+        <select name="system.group">
+          <option value=""></option>
+          {{#each combatTechniqueGroups as |group|}}
+            <option value="{{group.key}}" {{#if (eq ../system.group group.key)}}selected{{/if}}>{{group.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Skill <input type="text" name="system.skill" value="{{system.skill}}" /></label>
+      <label>Bonus <input type="text" name="system.bonus" value="{{system.bonus}}" /></label>
+      <label>XP Cost <input type="number" name="system.xpCost" value="{{system.xpCost}}" min="0" /></label>
+      <label>Damage Effect <input type="text" name="system.damageEffect" value="{{system.damageEffect}}" /></label>
+    </section>
+  {{/if}}
+
+  {{#if (eq item.type "armor")}}
+    <section class="panel">
+      <h2>Armor</h2>
+      <label>Defense Modifier <input type="number" name="system.defenseModifier" value="{{system.defenseModifier}}" /></label>
+      <label>Penalty <input type="number" name="system.penalty" value="{{system.penalty}}" /></label>
+      <label>Qualities <input type="text" name="system.qualities" value="{{system.qualities}}" /></label>
+    </section>
+  {{/if}}
+
+  {{#if (eq item.type "equipment")}}
+    <section class="panel">
+      <h2>Equipment</h2>
+      <label>Quantity <input type="number" name="system.quantity" value="{{system.quantity}}" min="0" /></label>
+      <label>Weight <input type="text" name="system.weight" value="{{system.weight}}" /></label>
+    </section>
+  {{/if}}
+
+  {{#if (eq item.type "ritual")}}
+    <section class="panel">
+      <h2>Ritual</h2>
+      <label>Activation <input type="text" name="system.activation" value="{{system.activation}}" /></label>
+      <label>Requirements <input type="text" name="system.requirements" value="{{system.requirements}}" /></label>
+      <label>Effects <input type="text" name="system.effects" value="{{system.effects}}" /></label>
+    </section>
+  {{/if}}
+
+  {{#if (eq item.type "flaw")}}
+    <section class="panel">
+      <h2>Flaw</h2>
+      <label>Flaw Key
+        <select name="system.flawKey">
+          <option value=""></option>
+          {{#each flawRules as |flaw|}}
+            <option value="{{flaw.key}}" {{#if (eq ../system.flawKey flaw.key)}}selected{{/if}}>{{flaw.label}} ({{flaw.points}})</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Category <input type="text" name="system.category" value="{{system.category}}" /></label>
+      <label>Skill Point Value <input type="number" name="system.skillPointValue" value="{{system.skillPointValue}}" min="0" /></label>
+      <label>Acquired at Creation <input type="checkbox" name="system.acquiredAtCreation" {{checked system.acquiredAtCreation}} /></label>
+      <label>Exempt from Creation Limit <input type="checkbox" name="system.exemptFromCreationLimit" {{checked system.exemptFromCreationLimit}} /></label>
+      <label>Requires Resolve Test <input type="checkbox" name="system.requiresResolveTest" {{checked system.requiresResolveTest}} /></label>
+      <label>Penalty <input type="text" name="system.penalty" value="{{system.penalty}}" /></label>
+    </section>
+  {{/if}}
+
+  <section class="panel description">
+    <h2>Description</h2>
+    <textarea name="system.description">{{system.description}}</textarea>
+  </section>
+</form>
