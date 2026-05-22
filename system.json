@@ -5,7 +5,7 @@
   "version": "0.1.0",
   "url": "https://github.com/cjboat/ogregatefoundry",
   "manifest": "https://github.com/cjboat/ogregatefoundry/releases/latest/download/system.json",
-  "download": "https://github.com/cjboat/ogregatefoundry/releases/download/v0.1.0/ogregatefoundry.zip",
+  "download": "https://github.com/cjboat/ogregatefoundry/releases/download/v0.1.0/system.zip",
   "readme": "https://github.com/cjboat/ogregatefoundry/blob/master/README.md",
   "bugs": "https://github.com/cjboat/ogregatefoundry/issues",
   "license": "GPL-3.0-or-later",
