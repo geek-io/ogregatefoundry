@@ -1,0 +1,117 @@
+{
+  "id": "ogregatefoundry",
+  "title": "The Wandering Heroes of Ogre Gate",
+  "description": "A Foundry VTT v13 game system for The Wandering Heroes of Ogre Gate.",
+  "version": "0.1.0",
+  "url": "https://github.com/cjboat/ogregatefoundry",
+  "manifest": "https://github.com/cjboat/ogregatefoundry/releases/latest/download/system.json",
+  "download": "https://github.com/cjboat/ogregatefoundry/releases/download/0.1.0/system.zip",
+  "readme": "https://github.com/cjboat/ogregatefoundry/blob/master/README.md",
+  "bugs": "https://github.com/cjboat/ogregatefoundry/issues",
+  "license": "GPL-3.0-or-later",
+  "compatibility": {
+    "minimum": 13,
+    "verified": 13
+  },
+  "authors": [
+    {
+      "name": "Geek IO Dev Team"
+    }
+  ],
+  "esmodules": [
+    "ogregatefoundry.mjs"
+  ],
+  "styles": [
+    "styles/ogre-gate.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "documentTypes": {
+    "Actor": {
+      "character": {
+        "htmlFields": [
+          "notes.biography",
+          "notes.grudges",
+          "notes.family",
+          "notes.experience",
+          "equipmentNotes",
+          "flaws"
+        ]
+      },
+      "npc": {
+        "htmlFields": [
+          "notes.biography",
+          "notes.goals",
+          "notes.status",
+          "notes.family",
+          "notes.grudges",
+          "notes.experience",
+          "equipmentNotes",
+          "flaws"
+        ]
+      },
+      "monster": {
+        "htmlFields": [
+          "notes.description",
+          "notes.special",
+          "notes.biography",
+          "notes.family",
+          "notes.grudges",
+          "notes.experience",
+          "equipmentNotes",
+          "flaws"
+        ]
+      }
+    },
+    "Item": {
+      "weapon": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "armor": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "equipment": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "technique": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "combatTechnique": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "ritual": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "flaw": {
+        "htmlFields": [
+          "description"
+        ]
+      }
+    }
+  },
+  "socket": false,
+  "initiative": "1d10",
+  "grid": {
+    "distance": 5,
+    "units": "ft"
+  },
+  "primaryTokenAttribute": "resources.wounds",
+  "secondaryTokenAttribute": "resources.qi"
+}

@@ -1,0 +1,402 @@
+<form class="ogre-gate-form actor" autocomplete="off">
+  <header class="sheet-header">
+    <img class="profile-img" src="{{actor.img}}" data-edit="img" data-action="showPortraitArtwork" title="{{actor.name}}" />
+    <section class="identity-grid">
+      <label>Name <input type="text" name="name" value="{{actor.name}}" /></label>
+      <label>Martial Name <input type="text" name="system.identity.martialName" value="{{system.identity.martialName}}" /></label>
+      <label>Nickname <input type="text" name="system.identity.nickname" value="{{system.identity.nickname}}" /></label>
+      <label>Sifu <input type="text" name="system.identity.sifu" value="{{system.identity.sifu}}" /></label>
+      <label>Player <input type="text" name="system.identity.player" value="{{system.identity.player}}" /></label>
+      <label>Ht. / Wt. <input type="text" name="system.identity.heightWeight" value="{{system.identity.heightWeight}}" /></label>
+      <label>Sex <input type="text" name="system.identity.sex" value="{{system.identity.sex}}" /></label>
+      <label>Title(s) <input type="text" name="system.identity.titles" value="{{system.identity.titles}}" /></label>
+      <label>Campaign <input type="text" name="system.identity.campaign" value="{{system.identity.campaign}}" /></label>
+      <label>Homeland/Clan <input type="text" name="system.identity.homelandClan" value="{{system.identity.homelandClan}}" /></label>
+      <label>Sect <input type="text" name="system.identity.sect" value="{{system.identity.sect}}" /></label>
+      <label>Occupation <input type="text" name="system.identity.occupation" value="{{system.identity.occupation}}" /></label>
+      <label>Family <input type="text" name="system.identity.family" value="{{system.identity.family}}" /></label>
+      <label>Reputation <input type="text" name="system.identity.reputation" value="{{system.identity.reputation}}" /></label>
+      <label>Age <input type="text" name="system.identity.age" value="{{system.identity.age}}" /></label>
+    </section>
+    <section class="sheet-title">
+      <h1>The Wandering Heroes of Ogre Gate</h1>
+      <select name="system.identity.martialTier">
+        <option value="martialHero" {{#if (eq system.identity.martialTier "martialHero")}}selected{{/if}}>Martial Hero</option>
+        <option value="profoundMaster" {{#if (eq system.identity.martialTier "profoundMaster")}}selected{{/if}}>Profound Master</option>
+        <option value="immortal" {{#if (eq system.identity.martialTier "immortal")}}selected{{/if}}>Immortal</option>
+      </select>
+    </section>
+  </header>
+
+  <nav class="sheet-tabs" data-group="primary">
+    <a data-action="tab" data-group="primary" data-tab="front">Front</a>
+    <a data-action="tab" data-group="primary" data-tab="creation">Creation</a>
+    <a data-action="tab" data-group="primary" data-tab="rules">Rules</a>
+    <a data-action="tab" data-group="primary" data-tab="martial">Martial</a>
+    <a data-action="tab" data-group="primary" data-tab="gear">Gear</a>
+    <a data-action="tab" data-group="primary" data-tab="notes">Notes</a>
+  </nav>
+
+  <section class="sheet-body">
+    <div class="tab front active" data-group="primary" data-tab="front">
+      <section class="roll-bar panel">
+        <label>Roll TN <input type="number" name="roll-tn" value="6" min="1" max="10" /></label>
+        <label>Expertise <input type="checkbox" name="roll-expertise" /></label>
+        <label>Damage TN <input type="number" name="damage-tn" value="{{system.defenses.hardiness.rating}}" min="1" max="10" /></label>
+        <span>Skill rolls use the highest d10; 0d10 rolls 2d10 and keeps lowest.</span>
+      </section>
+
+      <div class="front-grid">
+        <section class="panel defenses">
+          <h2>Defenses</h2>
+          {{#each defenses as |defense|}}
+            <div class="rank-row">
+              <button type="button" data-action="roll-defense" data-defense="{{defense.key}}">{{defense.label}}</button>
+              <input type="number" name="system.defenses.{{defense.key}}.base" value="{{defense.data.base}}" />
+              <span>+</span>
+              <input type="number" name="system.defenses.{{defense.key}}.ranks" value="{{defense.data.ranks}}" />
+              <span>+</span>
+              <input type="number" name="system.defenses.{{defense.key}}.qiBonus" value="{{defense.data.qiBonus}}" />
+              <span>+</span>
+              <input type="number" name="system.defenses.{{defense.key}}.modifier" value="{{defense.data.modifier}}" />
+              <strong>{{defense.data.rating}}</strong>
+            </div>
+            <div class="expertise-row">
+              <span>Expertise</span>
+              <input type="text" name="system.defenses.{{defense.key}}.expertise" value="{{defense.data.expertise}}" />
+              <input type="text" name="system.defenses.{{defense.key}}.expertiseNote" value="{{defense.data.expertiseNote}}" placeholder="Condition or note" />
+            </div>
+          {{/each}}
+        </section>
+
+        <section class="panel resources">
+          <h2>Wounds</h2>
+          <div class="resource-row">
+            <label>Max <input type="number" name="system.resources.wounds.max" value="{{system.resources.wounds.max}}" disabled /></label>
+            <label>Current <input type="number" name="system.resources.wounds.value" value="{{system.resources.wounds.value}}" min="0" /></label>
+          </div>
+          <div class="status-pill {{system.status.woundState}}">{{system.status.woundState}}</div>
+          <label>Dying <input type="checkbox" name="system.combat.dying" {{checked system.combat.dying}} /></label>
+          <label>Dying Rounds <input type="number" name="system.combat.dyingRoundsElapsed" value="{{system.combat.dyingRoundsElapsed}}" min="0" /> / {{system.status.dyingRoundsMax}}</label>
+          <h2>Qi</h2>
+          <label>Rank <input type="number" name="system.qi.rank" value="{{system.qi.rank}}" min="0" max="12" /></label>
+          <h2>Imbalance</h2>
+          <div class="resource-row">
+            <label>Max <input type="number" name="system.imbalance.max" value="{{system.imbalance.max}}" /></label>
+            <label>Current <input type="number" name="system.imbalance.value" value="{{system.imbalance.value}}" min="0" /></label>
+          </div>
+          <h2>Karma</h2>
+          <input type="number" name="system.karma.value" value="{{system.karma.value}}" min="-10" max="10" />
+        </section>
+
+        {{#each skillGroups as |group|}}
+          <section class="panel skills {{group.key}}">
+            <h2>{{group.label}}</h2>
+            {{#each group.skills as |skill|}}
+              <div class="rank-row">
+                <button type="button" data-action="roll-skill" data-group="{{group.key}}" data-skill="{{skill.key}}">{{skill.data.label}}</button>
+                <input class="skill-label" type="text" name="system.skills.{{group.key}}.{{skill.key}}.label" value="{{skill.data.label}}" />
+                <input type="number" name="system.skills.{{group.key}}.{{skill.key}}.ranks" value="{{skill.data.ranks}}" min="0" max="10" />
+                <input type="number" name="system.skills.{{group.key}}.{{skill.key}}.modifier" value="{{skill.data.modifier}}" min="-10" max="10" />
+              </div>
+              <div class="expertise-row">
+                <span>Expertise</span>
+                <input type="text" name="system.skills.{{group.key}}.{{skill.key}}.expertise" value="{{skill.data.expertise}}" />
+                <input type="text" name="system.skills.{{group.key}}.{{skill.key}}.expertiseNote" value="{{skill.data.expertiseNote}}" placeholder="Condition or note" />
+              </div>
+            {{/each}}
+          </section>
+        {{/each}}
+
+        <section class="panel text-panel">
+          <h2>Combat Techniques</h2>
+          <div class="item-list">
+            {{#each combatTechniques as |item|}}
+              <div class="item-line" data-item-id="{{item.id}}">{{item.name}} <span>{{item.system.bonus}}</span></div>
+            {{/each}}
+          </div>
+        </section>
+
+        <section class="panel text-panel">
+          <h2>Flaws</h2>
+          <div class="item-list">
+            {{#each flaws as |item|}}
+              <div class="item-line" data-item-id="{{item.id}}">{{item.name}}</div>
+            {{/each}}
+          </div>
+          <textarea name="system.flaws">{{system.flaws}}</textarea>
+        </section>
+      </div>
+    </div>
+
+    <div class="tab rules" data-group="primary" data-tab="rules">
+      <div class="rules-grid">
+        <section class="panel">
+          <h2>Combat Round</h2>
+          <label>Action
+            <select name="system.combat.action">
+              {{#each config.combatActions as |action key|}}
+                <option value="{{key}}" {{#if (eq ../system.combat.action key)}}selected{{/if}}>{{action.label}}</option>
+              {{/each}}
+            </select>
+          </label>
+          <label>Attack Mode
+            <select name="system.combat.attackMode">
+              {{#each config.attackModes as |mode key|}}
+                <option value="{{key}}" {{#if (eq ../system.combat.attackMode key)}}selected{{/if}}>{{mode.label}}</option>
+              {{/each}}
+            </select>
+          </label>
+          <label>Situational Dice <input type="number" name="system.combat.situationalDice" value="{{system.combat.situationalDice}}" min="-10" max="10" /></label>
+          <label>Situational Defense <input type="number" name="system.combat.situationalDefense" value="{{system.combat.situationalDefense}}" min="-10" max="10" /></label>
+          <label>Cover
+            <select name="system.combat.cover">
+              {{#each config.cover as |cover key|}}
+                <option value="{{key}}" {{#if (eq ../system.combat.cover key)}}selected{{/if}}>{{cover.label}}</option>
+              {{/each}}
+            </select>
+          </label>
+          <label>Illumination
+            <select name="system.combat.illumination">
+              {{#each config.illumination as |illumination key|}}
+                <option value="{{key}}" {{#if (eq ../system.combat.illumination key)}}selected{{/if}}>{{illumination.label}}</option>
+              {{/each}}
+            </select>
+          </label>
+          <button type="button" data-action="roll-turn-order">Roll Turn Order</button>
+        </section>
+
+        <section class="panel">
+          <h2>Movement</h2>
+          <div class="metric-row"><span>Land</span><strong>{{system.movement.land}} ft</strong></div>
+          <div class="metric-row"><span>Swim</span><strong>{{system.movement.swim}} ft</strong></div>
+          <div class="metric-row"><span>Climb</span><strong>{{system.movement.climb}} ft</strong></div>
+          <div class="metric-row"><span>Fly</span><strong>{{system.movement.fly}} ft</strong></div>
+        </section>
+
+        <section class="panel">
+          <h2>Damage Roll</h2>
+          <label>Damage Modifier <input type="number" name="damage-modifier" value="0" min="-10" max="10" /></label>
+          <label>Extra Wounds <input type="number" name="extra-wounds" value="0" min="0" max="10" /></label>
+          <label>Open Damage <input type="checkbox" name="damage-open" /></label>
+          <label>Controlled Strike <input type="checkbox" name="system.combat.controlledStrike" {{checked system.combat.controlledStrike}} /></label>
+        </section>
+
+        <section class="panel">
+          <h2>Hazards & Objects</h2>
+          <div class="hazard-row">
+            <label>Fall <input type="number" name="fall-distance" value="10" min="1" max="1000" /></label>
+            <button type="button" data-action="roll-falling-damage">Falling</button>
+          </div>
+          <div class="hazard-row">
+            <label>Fire
+              <select name="fire-size">
+                {{#each config.fireDamage as |fire key|}}
+                  <option value="{{key}}">{{fire.label}}</option>
+                {{/each}}
+              </select>
+            </label>
+            <button type="button" data-action="roll-fire-damage">Fire</button>
+          </div>
+          <div class="hazard-row">
+            <label>Rounds <input type="number" name="suffocation-rounds" value="0" min="0" max="20" /></label>
+            <button type="button" data-action="roll-suffocation">Suffocation</button>
+          </div>
+          <div class="hazard-row">
+            <label>Dice <input type="number" name="object-damage-dice" value="1" min="0" max="12" /></label>
+            <label>Object TN
+              <select name="object-tn">
+                {{#each config.objectTns as |object tn|}}
+                  <option value="{{tn}}">{{tn}} {{object.composition}}</option>
+                {{/each}}
+              </select>
+            </label>
+            <label>Open <input type="checkbox" name="object-open" /></label>
+            <button type="button" data-action="roll-object-damage">Object</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Optional Rules</h2>
+          <label>Deep Penalties <input type="checkbox" name="system.combat.deepPenalties" {{checked system.combat.deepPenalties}} /></label>
+          <label>Deadly 10s <input type="checkbox" name="system.combat.deadlyTens" {{checked system.combat.deadlyTens}} /></label>
+        </section>
+
+        <section class="panel wide">
+          <h2>Target Numbers</h2>
+          <div class="tn-grid">
+            {{#each config.targetNumbers as |label tn|}}
+              <div><strong>{{tn}}</strong><span>{{label}}</span></div>
+            {{/each}}
+          </div>
+        </section>
+
+        <section class="panel wide">
+          <h2>Relevant Defenses</h2>
+          {{#each defenses as |defense|}}
+            <div class="metric-row"><span>{{defense.label}}</span><strong>{{defense.data.rating}}</strong></div>
+          {{/each}}
+        </section>
+      </div>
+    </div>
+
+    <div class="tab creation" data-group="primary" data-tab="creation">
+      <div class="creation-grid">
+        <section class="panel">
+          <h2>Character Creation</h2>
+          <label>Race
+            <select name="system.creation.race">
+              {{#each config.races as |label key|}}
+                <option value="{{key}}" {{#if (eq ../system.creation.race key)}}selected{{/if}}>{{label}}</option>
+              {{/each}}
+            </select>
+          </label>
+          <label>Subgroup <input type="text" name="system.creation.subgroup" value="{{system.creation.subgroup}}" /></label>
+          <label>Optional Race Approved <input type="checkbox" name="system.creation.optionalRaceApproved" {{checked system.creation.optionalRaceApproved}} /></label>
+          <label>Scholar Option <input type="checkbox" name="system.creation.scholarOption" {{checked system.creation.scholarOption}} /></label>
+          <label>Primary Group
+            <select name="system.creation.primaryGroup1">
+              {{#each creation.groupOptions as |group|}}
+                <option value="{{group.key}}" {{#if (eq ../system.creation.primaryGroup1 group.key)}}selected{{/if}}>{{group.label}}</option>
+              {{/each}}
+            </select>
+          </label>
+          <label>Second Primary Group
+            <select name="system.creation.primaryGroup2">
+              {{#each creation.groupOptions as |group|}}
+                <option value="{{group.key}}" {{#if (eq ../system.creation.primaryGroup2 group.key)}}selected{{/if}}>{{group.label}}</option>
+              {{/each}}
+            </select>
+          </label>
+          <label>Iron Heroes Option <input type="checkbox" name="system.creation.ironHeroes" {{checked system.creation.ironHeroes}} /></label>
+          <label>Manual Bonus Skill Points <input type="number" name="system.creation.bonusSkillPoints" value="{{system.creation.bonusSkillPoints}}" min="0" /></label>
+        </section>
+
+        <section class="panel">
+          <h2>Creation Checks</h2>
+          <div class="check-list">
+            {{#each creation.checks as |check|}}
+              <div class="check-row {{check.status}}">
+                <span>{{check.label}}</span>
+                <strong>{{check.current}} / {{check.target}}</strong>
+              </div>
+            {{/each}}
+          </div>
+          {{#if creation.expertiseWarnings.length}}
+            <h3>Expertise Review</h3>
+            <div class="warning-list">
+              {{#each creation.expertiseWarnings as |warning|}}
+                <p>{{warning}}</p>
+              {{/each}}
+            </div>
+          {{/if}}
+        </section>
+
+        <section class="panel">
+          <h2>Race Rules</h2>
+          <label>Advantages <input type="text" value="{{creation.raceRule.advantages}}" disabled /></label>
+          <label>Penalties <input type="text" value="{{creation.raceRule.penalties}}" disabled /></label>
+          <label>Gift <input type="text" value="{{creation.raceRule.gift}}" disabled /></label>
+        </section>
+
+        <section class="panel wide">
+          <h2>Skill Point Budgets</h2>
+          <div class="budget-table">
+            <div class="budget-header"><span>Group</span><span>Skills</span><span>Expertise</span><span>Budget</span><span>Remaining</span></div>
+            {{#each creation.groupRows as |row|}}
+              <div class="budget-row {{#if row.over}}warn{{/if}}">
+                <span>{{row.label}}</span>
+                <span>{{row.skillSpent}}</span>
+                <span>{{row.expertiseSpent}}</span>
+                <span>{{row.budget}}</span>
+                <strong>{{row.remaining}}</strong>
+              </div>
+            {{/each}}
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="tab martial" data-group="primary" data-tab="martial">
+      <div class="martial-grid">
+        <section class="panel">
+          <h2>Martial Disciplines</h2>
+          {{#each config.disciplines as |label key|}}
+            <div class="rank-row">
+              <span>{{label}}</span>
+              <input type="number" name="system.disciplines.{{key}}.ranks" value="{{lookup (lookup ../system.disciplines key) 'ranks'}}" min="0" max="12" />
+              <input type="number" name="system.disciplines.{{key}}.modifier" value="{{lookup (lookup ../system.disciplines key) 'modifier'}}" min="-10" max="10" />
+            </div>
+          {{/each}}
+        </section>
+        <section class="panel technique-columns">
+          <h2>Kung Fu Techniques</h2>
+          {{#each config.techniqueTypes as |label key|}}
+            <div>
+              <h3>{{label}}</h3>
+              {{#each ../techniques as |item|}}
+                {{#if (eq item.system.techniqueType ../key)}}
+                  <p>{{item.name}}</p>
+                {{/if}}
+              {{/each}}
+            </div>
+          {{/each}}
+        </section>
+      </div>
+    </div>
+
+    <div class="tab gear" data-group="primary" data-tab="gear">
+      <div class="gear-grid">
+        <section class="panel">
+          <h2>Family</h2>
+          {{#each system.family as |value key|}}
+            <label>{{key}} <input type="text" name="system.family.{{key}}" value="{{value}}" /></label>
+          {{/each}}
+        </section>
+        <section class="panel">
+          <h2>Money</h2>
+          {{#each system.money as |value key|}}
+            <label>{{key}} <input type="{{#if (eq key "paperCurrency")}}text{{else}}number{{/if}}" name="system.money.{{key}}" value="{{value}}" /></label>
+          {{/each}}
+        </section>
+        <section class="panel wide">
+          <h2>Equipment</h2>
+          <div class="item-list">
+            {{#each equipment as |item|}}
+              <div class="item-line" data-item-id="{{item.id}}">
+                <span>{{item.name}}</span>
+                <span>{{item.type}}</span>
+                {{#if (eq item.type "weapon")}}
+                  <button type="button" data-action="roll-weapon-attack" data-item-id="{{item.id}}">Attack</button>
+                  <button type="button" data-action="roll-weapon-damage" data-item-id="{{item.id}}">Damage</button>
+                {{/if}}
+              </div>
+            {{/each}}
+          </div>
+          <textarea name="system.equipmentNotes">{{system.equipmentNotes}}</textarea>
+        </section>
+      </div>
+    </div>
+
+    <div class="tab notes" data-group="primary" data-tab="notes">
+      <div class="notes-grid">
+        <section class="panel">
+          <h2>Biography</h2>
+          <textarea name="system.notes.biography">{{system.notes.biography}}</textarea>
+        </section>
+        <section class="panel">
+          <h2>Family Notes</h2>
+          <textarea name="system.notes.family">{{system.notes.family}}</textarea>
+        </section>
+        <section class="panel">
+          <h2>Grudges</h2>
+          <textarea name="system.notes.grudges">{{system.notes.grudges}}</textarea>
+        </section>
+        <section class="panel">
+          <h2>Experience</h2>
+          <textarea name="system.notes.experience">{{system.notes.experience}}</textarea>
+        </section>
+      </div>
+    </div>
+  </section>
+</form>

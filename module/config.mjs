@@ -1,0 +1,336 @@
+export const OGRE_GATE = {
+  id: "ogregatefoundry",
+  shortName: "Ogre Gate",
+  skillCap: 6,
+  hardCap: 10,
+  creation: {
+    primaryBudget: 12,
+    secondaryBudget: 6,
+    scholarKnowledgeBudget: 24,
+    disciplineRanks: 4,
+    startingKungFuTechniques: 6,
+    startingCombatTechniques: 1,
+    startingQi: 1,
+    startingSpadeCoins: 2000
+  },
+  flawLimit: {
+    standard: 2,
+    exemptFromLimit: ["fated"]
+  },
+  conditionModifiers: {
+    worst: { label: "Worst", dice: -3, defense: -3 },
+    awful: { label: "Awful", dice: -2, defense: -2 },
+    bad: { label: "Bad", dice: -1, defense: -1 },
+    average: { label: "Average", dice: 0, defense: 0 },
+    good: { label: "Good", dice: 1, defense: 1 },
+    ideal: { label: "Ideal", dice: 2, defense: 2 },
+    perfect: { label: "Perfect", dice: 3, defense: 3 }
+  },
+  targetNumbers: {
+    1: "Routine",
+    3: "Simple",
+    5: "Challenging",
+    7: "Hard",
+    9: "Extremely Difficult",
+    10: "Exceptional"
+  },
+  combatActions: {
+    skillAndMove: { label: "Skill Roll and Move", skill: 0, defense: 0, moves: 1 },
+    moveAndSkill: { label: "Move and Skill Roll", skill: 0, defense: 0, moves: 1 },
+    moveTwice: { label: "Move Twice; No Skill Roll", skill: null, defense: 0, moves: 2 },
+    moveDefend: { label: "One Move; No Skill Roll; +1 Defense", skill: null, defense: 1, moves: 1 },
+    focusSkill: { label: "No Move; +1d10 Skill Roll", skill: 1, defense: 0, moves: 0 },
+    fullDefense: { label: "No Move; No Skill Roll; +2 Defense", skill: null, defense: 2, moves: 0 }
+  },
+  attackModes: {
+    normal: { label: "Normal Attack", attack: 0, damage: 0, extraWounds: 0, openDamage: false, nonLethal: false },
+    prepared: { label: "Prepared Strike", attack: 0, damage: 0, extraWounds: 0, openDamage: false, nonLethal: false },
+    targetedVital: { label: "Targeted Strike: Vital", attack: -1, damage: 1, extraWounds: 0, openDamage: false, nonLethal: false },
+    targetedNonVital: { label: "Targeted Strike: Non-Vital", attack: -1, damage: 0, extraWounds: 0, openDamage: false, nonLethal: true },
+    aimed: { label: "Aimed Strike", attack: 1, damage: 0, extraWounds: 0, openDamage: false, nonLethal: false },
+    maim: { label: "Maiming", attack: -1, damage: 0, extraWounds: 0, openDamage: false, nonLethal: false },
+    disarm: { label: "Disarm", attack: 0, damage: 0, extraWounds: 0, openDamage: false, nonLethal: true, damageDefense: "parry" },
+    surprise: { label: "Surprise", attack: 0, damage: 0, extraWounds: 0, openDamage: true, nonLethal: false },
+    mounted: { label: "Mounted Attack", attack: 1, damage: 0, extraWounds: 0, openDamage: false, nonLethal: false },
+    mountedCharge: { label: "Mounted Charge", attack: 1, damage: 0, extraWounds: 1, openDamage: false, nonLethal: false },
+    charge: { label: "Charge on Foot", attack: 0, damage: 1, defense: -1, extraWounds: 0, openDamage: false, nonLethal: false }
+  },
+  cover: {
+    none: { label: "None", evade: 0, parry: 0 },
+    slight: { label: "Slight Cover", evade: 1, parry: 0 },
+    medium: { label: "Medium Cover", evade: 2, parry: 0 },
+    full: { label: "Full Cover", evade: 3, parry: 0 },
+    prone: { label: "Prone", evade: 1, parry: -1 }
+  },
+  reachCategories: {
+    none: "No Reach",
+    normal: "Normal Reach",
+    long: "Long Reach"
+  },
+  combatSkillDefense: {
+    armStrike: "parry",
+    legStrike: "parry",
+    grapple: "parry",
+    throw: "parry",
+    lightMelee: "parry",
+    mediumMelee: "parry",
+    heavyMelee: "parry",
+    smallRanged: "evade",
+    largeRanged: "evade"
+  },
+  objectTns: {
+    1: { evade: "Cannot Miss", composition: "Fragile", hardiness: 1, integrity: 1 },
+    2: { evade: "Large Stationary", composition: "Thin Wood", hardiness: 2, integrity: 2 },
+    3: { evade: "Medium Stationary", composition: "Thin Stone", hardiness: 3, integrity: 3 },
+    4: { evade: "Small Stationary", composition: "Thin Metal", hardiness: 4, integrity: 4 },
+    5: { evade: "Large Moving", composition: "Thick Wood", hardiness: 5, integrity: 5 },
+    6: { evade: "Medium Moving", composition: "Thick Stone", hardiness: 6, integrity: 6 },
+    7: { evade: "Small Moving", composition: "Thick Metal", hardiness: 7, integrity: 7 },
+    8: { evade: "Large Fast-Moving", composition: "Reinforced Wood", hardiness: 8, integrity: 8 },
+    9: { evade: "Medium Fast-Moving", composition: "Reinforced Stone", hardiness: 9, integrity: 9 },
+    10: { evade: "Small Fast-Moving", composition: "Reinforced Metal", hardiness: 10, integrity: 10 }
+  },
+  fireDamage: {
+    candleLamp: { label: "Candle/Lamp", dice: 0 },
+    torch: { label: "Torch", dice: 1 },
+    campfire: { label: "Campfire", dice: 2 },
+    bonfire: { label: "Bonfire", dice: 3 },
+    houseFire: { label: "House Fire", dice: 4 },
+    forestFire: { label: "Forest Fire", dice: 5 },
+    conflagration: { label: "Conflagration", dice: 6 }
+  },
+  illumination: {
+    normal: { label: "Normal", dice: 0, defense: 0, stealth: 0 },
+    dim: { label: "Dim", dice: -1, defense: -1, stealth: 1 },
+    dark: { label: "Dark", dice: -2, defense: -2, stealth: 2 },
+    lightsOut: { label: "Lights-Out", dice: -3, defense: -3, stealth: 3 }
+  },
+  defenses: {
+    hardiness: { label: "Hardiness", base: 3, relevant: ["Damage"] },
+    parry: { label: "Parry", base: 3, relevant: ["Arm Strike", "Throw", "Leg Strike", "Grapple", "Light Melee", "Medium Melee", "Heavy Melee"] },
+    evade: { label: "Evade", base: 3, relevant: ["Small Ranged", "Large Ranged", "Thrown Melee"] },
+    stealth: { label: "Stealth", base: 6, relevant: ["Detect"] },
+    wits: { label: "Wits", base: 6, relevant: ["Empathy", "Deception"] },
+    resolve: { label: "Resolve", base: 6, relevant: ["Persuade", "Command"] }
+  },
+  skillGroups: {
+    defenses: {
+      label: "Defenses",
+      skills: {
+        hardiness: "Hardiness",
+        parry: "Parry",
+        evade: "Evade",
+        stealth: "Stealth",
+        wits: "Wits",
+        resolve: "Resolve"
+      }
+    },
+    combat: {
+      label: "Combat",
+      skills: {
+        armStrike: "Arm Strike",
+        legStrike: "Leg Strike",
+        grapple: "Grapple",
+        throw: "Throw",
+        lightMelee: "Light Melee",
+        mediumMelee: "Medium Melee",
+        heavyMelee: "Heavy Melee",
+        smallRanged: "Small Ranged",
+        largeRanged: "Large Ranged"
+      }
+    },
+    specialist: {
+      label: "Specialist",
+      skills: {
+        medicine: "Medicine",
+        divination: "Divination",
+        meditation: "Meditation",
+        talent1: "Talent",
+        talent2: "Talent",
+        trade1: "Trade",
+        trade2: "Trade",
+        survival1: "Survival",
+        survival2: "Survival",
+        ritual1: "Ritual",
+        ritual2: "Ritual",
+        ritual3: "Ritual"
+      }
+    },
+    mental: {
+      label: "Mental",
+      skills: {
+        command: "Command",
+        persuade: "Persuade",
+        deception: "Deception",
+        empathy: "Empathy",
+        reasoning: "Reasoning",
+        detect: "Detect"
+      }
+    },
+    physical: {
+      label: "Physical",
+      skills: {
+        athletics: "Athletics",
+        swim: "Swim",
+        speed: "Speed",
+        muscle: "Muscle",
+        endurance: "Endurance",
+        ride: "Ride",
+        sail: "Sail"
+      }
+    },
+    knowledge: {
+      label: "Knowledge",
+      skills: {
+        history1: "History",
+        history2: "History",
+        creatures1: "Creatures",
+        creatures2: "Creatures",
+        placesCultures1: "Places/Cultures",
+        placesCultures2: "Places/Cultures",
+        martialDisciplines1: "Martial Disc.",
+        martialDisciplines2: "Martial Disc.",
+        institutions1: "Institutions",
+        institutions2: "Institutions",
+        language1: "Language",
+        language2: "Language",
+        readScript1: "Read Script",
+        readScript2: "Read Script",
+        religionGods1: "Religion/Gods",
+        religionGods2: "Religion/Gods",
+        classics1: "Classics",
+        classics2: "Classics"
+      }
+    }
+  },
+  disciplines: {
+    waijia: "Waijia",
+    qinggong: "Qinggong",
+    neigong: "Neigong",
+    dianxue: "Dianxue"
+  },
+  techniqueTypes: {
+    normal: "Normal",
+    counter: "Counter",
+    stance: "Stance",
+    special: "Special",
+    profound: "Profound",
+    immortal: "Immortal",
+    other: "Other"
+  },
+  itemTypes: {
+    weapon: "Weapon",
+    armor: "Armor",
+    equipment: "Equipment",
+    technique: "Kung Fu Technique",
+    combatTechnique: "Combat Technique",
+    ritual: "Ritual",
+    flaw: "Flaw"
+  },
+  races: {
+    human: "Human",
+    kithiri: "Kithiri",
+    hechi: "Hechi",
+    juren: "Juren",
+    ouyan: "Ouyan"
+  },
+  raceRules: {
+    human: {
+      advantages: "None",
+      penalties: "None",
+      gift: "None"
+    },
+    hechi: {
+      advantages: "+1d10 Endurance",
+      penalties: "-2d10 Athletics and Speed; -1d10 Combat Skills",
+      gift: "Horn of Truth"
+    },
+    juren: {
+      advantages: "Beast Strength x2; free Muscle rank; +1d10 melee damage",
+      penalties: "-2d10 Speed; -1d10 Mental Skills; Wits costs double and caps at 2",
+      gift: "Four Arms"
+    },
+    ouyan: {
+      advantages: "None",
+      penalties: "-1d10 Physical Skills",
+      gift: "Third Eye"
+    },
+    kithiri: {
+      advantages: "Free rank in Empathy, Reasoning, and Wits; half-cost Knowledge",
+      penalties: "-1d10 Command, Deception, and Persuade against non-Kithiri; Multi-Ego",
+      gift: "Flexible Mind"
+    }
+  },
+  expertiseOptions: {
+    armStrike: [],
+    legStrike: [],
+    grapple: [],
+    throw: [],
+    lightMelee: ["Select Weapon"],
+    mediumMelee: ["Select Weapon"],
+    heavyMelee: ["Select Weapon"],
+    smallRanged: ["Select Weapon"],
+    largeRanged: ["Select Weapon"],
+    medicine: ["Diagnose", "Surgery", "Treat"],
+    divination: ["Fortune Telling", "Will of Heaven"],
+    meditation: ["Recover Health", "Insight"],
+    talent: ["Perform", "Composition"],
+    trade: ["Medium"],
+    survival: ["Forage/Shelter", "Harvest/Fish", "Travel"],
+    ritual: [],
+    athletics: ["Climb", "Leap", "Sports"],
+    swim: ["Diving", "Fast"],
+    speed: ["Elude", "Initiative", "Pursue"],
+    muscle: ["Break", "Lift"],
+    endurance: ["Exposure", "Marathon"],
+    ride: ["Maneuver", "Race"],
+    sail: ["Battle", "Navigation"],
+    command: ["Lead", "Extract"],
+    persuade: ["Charm", "Convince"],
+    deception: ["Denial", "Disguise", "Tall Tale"],
+    empathy: ["Emotion", "Intention"],
+    reasoning: ["Information", "Recollection", "Wits"],
+    detect: ["Sense"],
+    history: ["City/Topic"],
+    creatures: ["Specific"],
+    placesCultures: ["City or Tribe"],
+    martialDisciplines: ["Specific Technique"],
+    institutions: ["Formalities", "People", "Symbols"],
+    language: [],
+    readScript: [],
+    religionGods: ["History", "Teachings"],
+    classics: ["Commentary", "Rote Memorization"]
+  },
+  flawRules: {
+    awkward: { label: "Awkward", points: 1, category: "standard" },
+    blind: { label: "Blind", points: 2, category: "standard" },
+    blockedAccupoints: { label: "Blocked Accupoints", points: 1, category: "standard" },
+    cowardly: { label: "Cowardly", points: 1, category: "standard" },
+    enemy: { label: "Enemy", points: 1, category: "standard" },
+    fated: { label: "Fated", points: 2, category: "standard", exemptFromCreationLimit: true },
+    foulTempered: { label: "Foul-Tempered", points: 1, category: "standard" },
+    greedy: { label: "Greedy", points: 1, category: "standard" },
+    hedonist: { label: "Hedonist", points: 1, category: "standard" },
+    lame: { label: "Lame", points: 1, category: "standard" },
+    lazy: { label: "Lazy", points: 2, category: "standard" },
+    missingLimb: { label: "Missing Limb", points: 2, category: "standard" },
+    phoenixSpirit: { label: "Missing/Disrupted Phoenix Spirit", points: 1, category: "standard" },
+    secret: { label: "Secret", points: 1, category: "standard" },
+    secretlyEvil: { label: "Secretly Evil", points: 3, category: "standard" },
+    sickly: { label: "Sickly", points: 1, category: "standard" },
+    ungainly: { label: "Ungainly", points: 1, category: "standard" },
+    unintelligent: { label: "Unintelligent", points: 1, category: "standard" },
+    weakWilled: { label: "Weak-Willed", points: 1, category: "standard" },
+    whiteHair: { label: "White Hair", points: 1, category: "standard" },
+    demon: { label: "Demon Flaw", points: 0, category: "demon" }
+  },
+  combatTechniqueGroups: {
+    unarmed: "Arm Strike, Leg Strike, Grappling, Throwing",
+    generalMelee: "General Melee",
+    lightMelee: "Light Melee",
+    mediumMelee: "Medium Melee",
+    heavyMelee: "Heavy Melee",
+    smallRanged: "Small Ranged",
+    largeRanged: "Large Ranged"
+  }
+};
