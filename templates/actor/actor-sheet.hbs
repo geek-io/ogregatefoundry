@@ -5,31 +5,22 @@
       <label>Name <input type="text" name="name" value="{{actor.name}}" /></label>
       <label>Martial Name <input type="text" name="system.identity.martialName" value="{{system.identity.martialName}}" /></label>
       <label>Nickname <input type="text" name="system.identity.nickname" value="{{system.identity.nickname}}" /></label>
-      <label>Sifu <input type="text" name="system.identity.sifu" value="{{system.identity.sifu}}" /></label>
-      <label>Player <input type="text" name="system.identity.player" value="{{system.identity.player}}" /></label>
-      <label>Ht. / Wt. <input type="text" name="system.identity.heightWeight" value="{{system.identity.heightWeight}}" /></label>
-      <label>Sex <input type="text" name="system.identity.sex" value="{{system.identity.sex}}" /></label>
-      <label>Title(s) <input type="text" name="system.identity.titles" value="{{system.identity.titles}}" /></label>
-      <label>Campaign <input type="text" name="system.identity.campaign" value="{{system.identity.campaign}}" /></label>
-      <label>Homeland/Clan <input type="text" name="system.identity.homelandClan" value="{{system.identity.homelandClan}}" /></label>
       <label>Sect <input type="text" name="system.identity.sect" value="{{system.identity.sect}}" /></label>
-      <label>Occupation <input type="text" name="system.identity.occupation" value="{{system.identity.occupation}}" /></label>
-      <label>Family <input type="text" name="system.identity.family" value="{{system.identity.family}}" /></label>
+      <label>Sifu <input type="text" name="system.identity.sifu" value="{{system.identity.sifu}}" /></label>
       <label>Reputation <input type="text" name="system.identity.reputation" value="{{system.identity.reputation}}" /></label>
-      <label>Age <input type="text" name="system.identity.age" value="{{system.identity.age}}" /></label>
     </section>
     <section class="sheet-title">
       <h1>The Wandering Heroes of Ogre Gate</h1>
       <select name="system.identity.martialTier">
         <option value="martialHero" {{#if (eq system.identity.martialTier "martialHero")}}selected{{/if}}>Martial Hero</option>
-        <option value="profoundMaster" {{#if (eq system.identity.martialTier "profoundMaster")}}selected{{/if}}>Profound Master</option>
-        <option value="immortal" {{#if (eq system.identity.martialTier "immortal")}}selected{{/if}}>Immortal</option>
+        <option value="sertorius" {{#if (eq system.identity.martialTier "sertorius")}}selected{{/if}}>Sertorius</option>
+        <option value="mixed" {{#if (eq system.identity.martialTier "mixed")}}selected{{/if}}>Mixed</option>
       </select>
     </section>
   </header>
 
   <nav class="sheet-tabs" data-group="primary">
-    <a data-action="tab" data-group="primary" data-tab="front">Front</a>
+    <a data-action="tab" data-group="primary" data-tab="front">Main</a>
     <a data-action="tab" data-group="primary" data-tab="creation">Creation</a>
     <a data-action="tab" data-group="primary" data-tab="rules">Rules</a>
     <a data-action="tab" data-group="primary" data-tab="martial">Martial</a>
@@ -40,18 +31,28 @@
   <section class="sheet-body">
     <div class="tab front active" data-group="primary" data-tab="front">
       <section class="roll-bar panel">
-        <label>Roll TN <input type="number" name="roll-tn" value="6" min="1" max="10" /></label>
-        <label>Expertise <input type="checkbox" name="roll-expertise" /></label>
-        <label>Damage TN <input type="number" name="damage-tn" value="{{system.defenses.hardiness.rating}}" min="1" max="10" /></label>
-        <span>Skill rolls use the highest d10; 0d10 rolls 2d10 and keeps lowest.</span>
+        <label data-tooltip="{{help.expertise}}">Defense Expertise <input type="checkbox" name="roll-expertise" /></label>
+        <label data-tooltip="{{help.damageTn}}">Damage TN <input type="number" name="damage-tn" value="{{system.defenses.hardiness.rating}}" min="1" max="10" /></label>
+        <span data-tooltip="{{help.rollTn}}">Skill, defense, and attack rolls prompt for TN when rolled.</span>
       </section>
 
       <div class="front-grid">
         <section class="panel defenses">
           <h2>Defenses</h2>
+          <div class="defense-header">
+            <span>Roll</span>
+            <span>Base</span>
+            <span></span>
+            <span>Rank</span>
+            <span></span>
+            <span>Qi</span>
+            <span></span>
+            <span>Mod</span>
+            <span>Total</span>
+          </div>
           {{#each defenses as |defense|}}
             <div class="rank-row">
-              <button type="button" data-action="roll-defense" data-defense="{{defense.key}}">{{defense.label}}</button>
+              <button class="roll-icon-button" type="button" data-action="roll-defense" data-defense="{{defense.key}}" data-tooltip="{{defense.tooltip}}">{{defense.shortLabel}}</button>
               <input type="number" name="system.defenses.{{defense.key}}.base" value="{{defense.data.base}}" />
               <span>+</span>
               <input type="number" name="system.defenses.{{defense.key}}.ranks" value="{{defense.data.ranks}}" />
@@ -70,61 +71,86 @@
         </section>
 
         <section class="panel resources">
-          <h2>Wounds</h2>
+          <h2 data-tooltip="{{help.health}}">Health</h2>
           <div class="resource-row">
-            <label>Max <input type="number" name="system.resources.wounds.max" value="{{system.resources.wounds.max}}" disabled /></label>
-            <label>Current <input type="number" name="system.resources.wounds.value" value="{{system.resources.wounds.value}}" min="0" /></label>
+            <label data-tooltip="{{help.health}}">Current <input type="number" name="system.resources.wounds.value" value="{{system.resources.wounds.value}}" min="0" /></label>
+            <label data-tooltip="{{help.health}}">Max <input type="number" name="system.resources.wounds.max" value="{{system.resources.wounds.max}}" disabled /></label>
           </div>
-          <div class="status-pill {{system.status.woundState}}">{{system.status.woundState}}</div>
-          <label>Dying <input type="checkbox" name="system.combat.dying" {{checked system.combat.dying}} /></label>
-          <label>Dying Rounds <input type="number" name="system.combat.dyingRoundsElapsed" value="{{system.combat.dyingRoundsElapsed}}" min="0" /> / {{system.status.dyingRoundsMax}}</label>
+          <div class="status-pill {{system.status.woundState}}" data-tooltip="{{help.health}}">{{system.status.woundState}}</div>
+          {{#if system.combat.dying}}
+            <label data-tooltip="{{help.dyingRounds}}">Dying Rounds <input type="number" name="system.combat.dyingRoundsElapsed" value="{{system.combat.dyingRoundsElapsed}}" min="0" /> / {{system.status.dyingRoundsMax}}</label>
+          {{/if}}
           <h2>Qi</h2>
-          <label>Rank <input type="number" name="system.qi.rank" value="{{system.qi.rank}}" min="0" max="12" /></label>
+          <label data-tooltip="{{help.qiRank}}">Rank <input type="number" name="system.qi.rank" value="{{system.qi.rank}}" min="0" max="12" /></label>
           <h2>Imbalance</h2>
+          <div class="metric-row" data-tooltip="{{help.imbalance}}"><span>Rating</span><strong>{{system.status.imbalanceRating}}</strong></div>
           <div class="resource-row">
-            <label>Max <input type="number" name="system.imbalance.max" value="{{system.imbalance.max}}" /></label>
-            <label>Current <input type="number" name="system.imbalance.value" value="{{system.imbalance.value}}" min="0" /></label>
+            <label data-tooltip="{{help.imbalance}}">Max <input type="number" name="system.imbalance.max" value="{{system.imbalance.max}}" /></label>
+            <label data-tooltip="{{help.imbalance}}">Current <input type="number" name="system.imbalance.value" value="{{system.imbalance.value}}" min="0" /></label>
           </div>
-          <h2>Karma</h2>
-          <input type="number" name="system.karma.value" value="{{system.karma.value}}" min="-10" max="10" />
         </section>
 
         {{#each skillGroups as |group|}}
           <section class="panel skills {{group.key}}">
             <h2>{{group.label}}</h2>
+            <div class="skill-header">
+              <span>Roll</span>
+              {{#if (eq group.key "specialist")}}<span>Skill</span>{{/if}}
+              <span>Rank</span>
+              <span>Mod</span>
+              <span>Expertise</span>
+            </div>
             {{#each group.skills as |skill|}}
-              <div class="rank-row">
-                <button type="button" data-action="roll-skill" data-group="{{group.key}}" data-skill="{{skill.key}}">{{skill.data.label}}</button>
-                <input class="skill-label" type="text" name="system.skills.{{group.key}}.{{skill.key}}.label" value="{{skill.data.label}}" />
+              <div class="rank-row skill-row">
+                <button class="roll-icon-button" type="button" data-action="roll-skill" data-group="{{group.key}}" data-skill="{{skill.key}}" data-label="{{skill.displayLabel}}" data-tooltip="{{skill.tooltip}}">{{skill.shortLabel}}</button>
+                {{#if skill.editableLabel}}
+                  <input class="skill-label" type="text" name="system.skills.{{group.key}}.{{skill.key}}.label" value="{{skill.data.label}}" />
+                {{/if}}
                 <input type="number" name="system.skills.{{group.key}}.{{skill.key}}.ranks" value="{{skill.data.ranks}}" min="0" max="10" />
                 <input type="number" name="system.skills.{{group.key}}.{{skill.key}}.modifier" value="{{skill.data.modifier}}" min="-10" max="10" />
-              </div>
-              <div class="expertise-row">
-                <span>Expertise</span>
-                <input type="text" name="system.skills.{{group.key}}.{{skill.key}}.expertise" value="{{skill.data.expertise}}" />
-                <input type="text" name="system.skills.{{group.key}}.{{skill.key}}.expertiseNote" value="{{skill.data.expertiseNote}}" placeholder="Condition or note" />
+                <div class="skill-expertise-cell">
+                  {{#if skill.data.expertise}}
+                    <label data-tooltip="{{skill.data.expertiseNote}}">
+                      <input type="checkbox" data-expertise-toggle="{{group.key}}.{{skill.key}}" />
+                      <span>{{skill.data.expertise}}</span>
+                    </label>
+                    <button type="button" data-action="edit-expertise" data-group="{{group.key}}" data-skill="{{skill.key}}" data-label="{{skill.displayLabel}}" data-tooltip="Edit {{skill.displayLabel}} Expertise">Edit</button>
+                  {{else}}
+                    <button type="button" data-action="edit-expertise" data-group="{{group.key}}" data-skill="{{skill.key}}" data-label="{{skill.displayLabel}}" data-tooltip="Add {{skill.displayLabel}} Expertise">+ Expertise</button>
+                  {{/if}}
+                </div>
               </div>
             {{/each}}
+            {{#if group.budget}}
+              <div class="section-budget {{#if group.budget.over}}warn{{/if}}">
+                <span>Creation Budget</span>
+                <strong>{{group.budget.spent}} / {{group.budget.budget}}</strong>
+                <span>Remaining {{group.budget.remaining}}</span>
+              </div>
+            {{/if}}
           </section>
         {{/each}}
 
         <section class="panel text-panel">
-          <h2>Combat Techniques</h2>
-          <div class="item-list">
-            {{#each combatTechniques as |item|}}
-              <div class="item-line" data-item-id="{{item.id}}">{{item.name}} <span>{{item.system.bonus}}</span></div>
-            {{/each}}
-          </div>
-        </section>
-
-        <section class="panel text-panel">
           <h2>Flaws</h2>
+          <div class="item-actions compact">
+            <button type="button" data-action="create-item" data-type="flaw" data-tooltip="{{help.newFlaw}}">New Flaw</button>
+          </div>
           <div class="item-list">
             {{#each flaws as |item|}}
-              <div class="item-line" data-item-id="{{item.id}}">{{item.name}}</div>
+              <div class="item-line flaw-line" data-item-id="{{item.id}}" data-tooltip="Right-click to edit or delete {{item.name}}.">
+                <span>{{item.name}}</span>
+                <span>{{item.system.skillPointValue}} pt</span>
+                <button type="button" data-action="open-item" data-item-id="{{item.id}}" data-tooltip="{{../help.editItem}}">Edit</button>
+                <button type="button" data-action="delete-item" data-item-id="{{item.id}}" data-tooltip="{{../help.deleteItem}}">Delete</button>
+              </div>
             {{/each}}
           </div>
-          <textarea name="system.flaws">{{system.flaws}}</textarea>
+          <div class="section-budget">
+            <span>Creation Flaws</span>
+            <strong>{{creation.creationFlawCount}} / {{config.flawLimit.standard}}</strong>
+            <span>Points {{creation.flawPoints}}</span>
+          </div>
         </section>
       </div>
     </div>
@@ -134,36 +160,36 @@
         <section class="panel">
           <h2>Combat Round</h2>
           <label>Action
-            <select name="system.combat.action">
-              {{#each config.combatActions as |action key|}}
-                <option value="{{key}}" {{#if (eq ../system.combat.action key)}}selected{{/if}}>{{action.label}}</option>
+            <select name="system.combat.action" data-tooltip="Choose the combat action for movement, skill dice, and defense modifiers.">
+              {{#each combatActions as |action|}}
+                <option value="{{action.key}}" data-tooltip="{{action.tooltip}}" {{#if (eq ../system.combat.action action.key)}}selected{{/if}}>{{action.label}}</option>
               {{/each}}
             </select>
           </label>
           <label>Attack Mode
-            <select name="system.combat.attackMode">
-              {{#each config.attackModes as |mode key|}}
-                <option value="{{key}}" {{#if (eq ../system.combat.attackMode key)}}selected{{/if}}>{{mode.label}}</option>
+            <select name="system.combat.attackMode" data-tooltip="Choose the attack mode for attack dice, damage dice, wounds, and non-lethal/open damage flags.">
+              {{#each attackModes as |mode|}}
+                <option value="{{mode.key}}" data-tooltip="{{mode.tooltip}}" {{#if (eq ../system.combat.attackMode mode.key)}}selected{{/if}}>{{mode.label}}</option>
               {{/each}}
             </select>
           </label>
-          <label>Situational Dice <input type="number" name="system.combat.situationalDice" value="{{system.combat.situationalDice}}" min="-10" max="10" /></label>
-          <label>Situational Defense <input type="number" name="system.combat.situationalDefense" value="{{system.combat.situationalDefense}}" min="-10" max="10" /></label>
+          <label data-tooltip="{{help.situationalDice}}">Situational Dice <input type="number" name="system.combat.situationalDice" value="{{system.combat.situationalDice}}" min="-10" max="10" /></label>
+          <label data-tooltip="{{help.situationalDefense}}">Situational Defense <input type="number" name="system.combat.situationalDefense" value="{{system.combat.situationalDefense}}" min="-10" max="10" /></label>
           <label>Cover
-            <select name="system.combat.cover">
-              {{#each config.cover as |cover key|}}
-                <option value="{{key}}" {{#if (eq ../system.combat.cover key)}}selected{{/if}}>{{cover.label}}</option>
+            <select name="system.combat.cover" data-tooltip="Applies cover modifiers to Evade and Parry.">
+              {{#each coverOptions as |cover|}}
+                <option value="{{cover.key}}" data-tooltip="{{cover.tooltip}}" {{#if (eq ../system.combat.cover cover.key)}}selected{{/if}}>{{cover.label}}</option>
               {{/each}}
             </select>
           </label>
           <label>Illumination
-            <select name="system.combat.illumination">
-              {{#each config.illumination as |illumination key|}}
-                <option value="{{key}}" {{#if (eq ../system.combat.illumination key)}}selected{{/if}}>{{illumination.label}}</option>
+            <select name="system.combat.illumination" data-tooltip="Applies light-level modifiers to skill dice, defenses, and Stealth.">
+              {{#each illuminationOptions as |illumination|}}
+                <option value="{{illumination.key}}" data-tooltip="{{illumination.tooltip}}" {{#if (eq ../system.combat.illumination illumination.key)}}selected{{/if}}>{{illumination.label}}</option>
               {{/each}}
             </select>
           </label>
-          <button type="button" data-action="roll-turn-order">Roll Turn Order</button>
+          <button type="button" data-action="roll-turn-order" data-tooltip="{{help.rollTurnOrder}}">Roll Turn Order</button>
         </section>
 
         <section class="panel">
@@ -176,50 +202,50 @@
 
         <section class="panel">
           <h2>Damage Roll</h2>
-          <label>Damage Modifier <input type="number" name="damage-modifier" value="0" min="-10" max="10" /></label>
-          <label>Extra Wounds <input type="number" name="extra-wounds" value="0" min="0" max="10" /></label>
-          <label>Open Damage <input type="checkbox" name="damage-open" /></label>
-          <label>Controlled Strike <input type="checkbox" name="system.combat.controlledStrike" {{checked system.combat.controlledStrike}} /></label>
+          <label data-tooltip="{{help.damageModifier}}">Damage Modifier <input type="number" name="damage-modifier" value="0" min="-10" max="10" /></label>
+          <label data-tooltip="{{help.extraWounds}}">Extra Wounds <input type="number" name="extra-wounds" value="0" min="0" max="10" /></label>
+          <label data-tooltip="{{help.openDamage}}">Open Damage <input type="checkbox" name="damage-open" /></label>
+          <label data-tooltip="{{help.controlledStrike}}">Controlled Strike <input type="checkbox" name="system.combat.controlledStrike" {{checked system.combat.controlledStrike}} /></label>
         </section>
 
         <section class="panel">
           <h2>Hazards & Objects</h2>
           <div class="hazard-row">
             <label>Fall <input type="number" name="fall-distance" value="10" min="1" max="1000" /></label>
-            <button type="button" data-action="roll-falling-damage">Falling</button>
+            <button type="button" data-action="roll-falling-damage" data-tooltip="{{help.falling}}">Falling</button>
           </div>
           <div class="hazard-row">
             <label>Fire
               <select name="fire-size">
-                {{#each config.fireDamage as |fire key|}}
-                  <option value="{{key}}">{{fire.label}}</option>
+                {{#each fireOptions as |fire|}}
+                  <option value="{{fire.key}}" data-tooltip="{{fire.tooltip}}">{{fire.label}}</option>
                 {{/each}}
               </select>
             </label>
-            <button type="button" data-action="roll-fire-damage">Fire</button>
+            <button type="button" data-action="roll-fire-damage" data-tooltip="{{help.fire}}">Fire</button>
           </div>
           <div class="hazard-row">
             <label>Rounds <input type="number" name="suffocation-rounds" value="0" min="0" max="20" /></label>
-            <button type="button" data-action="roll-suffocation">Suffocation</button>
+            <button type="button" data-action="roll-suffocation" data-tooltip="{{help.suffocation}}">Suffocation</button>
           </div>
           <div class="hazard-row">
             <label>Dice <input type="number" name="object-damage-dice" value="1" min="0" max="12" /></label>
             <label>Object TN
               <select name="object-tn">
-                {{#each config.objectTns as |object tn|}}
-                  <option value="{{tn}}">{{tn}} {{object.composition}}</option>
+                {{#each objectTnOptions as |object|}}
+                  <option value="{{object.tn}}" data-tooltip="{{object.tooltip}}">{{object.tn}} {{object.composition}}</option>
                 {{/each}}
               </select>
             </label>
-            <label>Open <input type="checkbox" name="object-open" /></label>
-            <button type="button" data-action="roll-object-damage">Object</button>
+            <label data-tooltip="{{help.openDamage}}">Open <input type="checkbox" name="object-open" /></label>
+            <button type="button" data-action="roll-object-damage" data-tooltip="{{help.objectDamage}}">Object</button>
           </div>
         </section>
 
         <section class="panel">
           <h2>Optional Rules</h2>
-          <label>Deep Penalties <input type="checkbox" name="system.combat.deepPenalties" {{checked system.combat.deepPenalties}} /></label>
-          <label>Deadly 10s <input type="checkbox" name="system.combat.deadlyTens" {{checked system.combat.deadlyTens}} /></label>
+          <label data-tooltip="{{help.deepPenalties}}">Deep Penalties <input type="checkbox" name="system.combat.deepPenalties" {{checked system.combat.deepPenalties}} /></label>
+          <label data-tooltip="{{help.deadlyTens}}">Deadly 10s <input type="checkbox" name="system.combat.deadlyTens" {{checked system.combat.deadlyTens}} /></label>
         </section>
 
         <section class="panel wide">
@@ -245,31 +271,36 @@
         <section class="panel">
           <h2>Character Creation</h2>
           <label>Race
-            <select name="system.creation.race">
-              {{#each config.races as |label key|}}
-                <option value="{{key}}" {{#if (eq ../system.creation.race key)}}selected{{/if}}>{{label}}</option>
+            <select name="system.creation.race" data-tooltip="Choose ancestry/race. Race effects are displayed and applied where currently automated.">
+              {{#each raceOptions as |race|}}
+                <option value="{{race.key}}" data-tooltip="{{race.tooltip}}" {{#if (eq ../system.creation.race race.key)}}selected{{/if}}>{{race.label}}</option>
               {{/each}}
             </select>
           </label>
           <label>Subgroup <input type="text" name="system.creation.subgroup" value="{{system.creation.subgroup}}" /></label>
-          <label>Optional Race Approved <input type="checkbox" name="system.creation.optionalRaceApproved" {{checked system.creation.optionalRaceApproved}} /></label>
-          <label>Scholar Option <input type="checkbox" name="system.creation.scholarOption" {{checked system.creation.scholarOption}} /></label>
+          <label data-tooltip="{{help.optionalRaceApproved}}">Optional Race Approved <input type="checkbox" name="system.creation.optionalRaceApproved" {{checked system.creation.optionalRaceApproved}} /></label>
+          <label data-tooltip="{{help.scholarOption}}">Scholar Option <input type="checkbox" name="system.creation.scholarOption" {{checked system.creation.scholarOption}} /></label>
+          <label data-tooltip="{{help.kithiriSocialPenalty}}">Kithiri Social Penalty <input type="checkbox" name="system.creation.kithiriSocialPenalty" {{checked system.creation.kithiriSocialPenalty}} /></label>
           <label>Primary Group
-            <select name="system.creation.primaryGroup1">
+            <select name="system.creation.primaryGroup1" data-tooltip="Primary groups receive the larger creation skill point budget.">
               {{#each creation.groupOptions as |group|}}
-                <option value="{{group.key}}" {{#if (eq ../system.creation.primaryGroup1 group.key)}}selected{{/if}}>{{group.label}}</option>
+                <option value="{{group.key}}" data-tooltip="{{group.label}} receives primary-group creation budget." {{#if (eq ../system.creation.primaryGroup1 group.key)}}selected{{/if}}>{{group.label}}</option>
               {{/each}}
             </select>
           </label>
           <label>Second Primary Group
-            <select name="system.creation.primaryGroup2">
+            <select name="system.creation.primaryGroup2" data-tooltip="Second primary group also receives the larger creation skill point budget.">
               {{#each creation.groupOptions as |group|}}
-                <option value="{{group.key}}" {{#if (eq ../system.creation.primaryGroup2 group.key)}}selected{{/if}}>{{group.label}}</option>
+                <option value="{{group.key}}" data-tooltip="{{group.label}} receives primary-group creation budget." {{#if (eq ../system.creation.primaryGroup2 group.key)}}selected{{/if}}>{{group.label}}</option>
               {{/each}}
             </select>
           </label>
-          <label>Iron Heroes Option <input type="checkbox" name="system.creation.ironHeroes" {{checked system.creation.ironHeroes}} /></label>
-          <label>Manual Bonus Skill Points <input type="number" name="system.creation.bonusSkillPoints" value="{{system.creation.bonusSkillPoints}}" min="0" /></label>
+          <label data-tooltip="{{help.ironHeroes}}">Iron Heroes Option <input type="checkbox" name="system.creation.ironHeroes" {{checked system.creation.ironHeroes}} /></label>
+          <label data-tooltip="{{help.bonusSkillPoints}}">Manual Bonus Skill Points <input type="number" name="system.creation.bonusSkillPoints" value="{{system.creation.bonusSkillPoints}}" min="0" /></label>
+          <div class="creation-actions">
+            <button type="button" data-action="apply-creation-defaults" data-tooltip="{{help.applyCreationDefaults}}">Apply Creation Defaults</button>
+            <button type="button" data-action="post-creation-summary" data-tooltip="{{help.postCreationSummary}}">Post Summary</button>
+          </div>
         </section>
 
         <section class="panel">
@@ -297,6 +328,30 @@
           <label>Advantages <input type="text" value="{{creation.raceRule.advantages}}" disabled /></label>
           <label>Penalties <input type="text" value="{{creation.raceRule.penalties}}" disabled /></label>
           <label>Gift <input type="text" value="{{creation.raceRule.gift}}" disabled /></label>
+          <h3>Applied Effects</h3>
+          <div class="creation-list">
+            {{#each creation.raceRollEffects as |effect|}}
+              <p>{{effect}}</p>
+            {{/each}}
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Primary Groups</h2>
+          <div class="creation-list">
+            {{#each creation.primaryGroupLabels as |label|}}
+              <p>{{label}}</p>
+            {{/each}}
+          </div>
+          <p class="creation-note">Primary groups change the skill point budgets below. They do not add ranks by themselves.</p>
+          {{#if creation.nextSteps.length}}
+            <h3>Still Needed</h3>
+            <div class="warning-list">
+              {{#each creation.nextSteps as |step|}}
+                <p>{{step}}</p>
+              {{/each}}
+            </div>
+          {{/if}}
         </section>
 
         <section class="panel wide">
@@ -321,26 +376,86 @@
       <div class="martial-grid">
         <section class="panel">
           <h2>Martial Disciplines</h2>
+          <div class="discipline-header">
+            <span></span>
+            <span>Rank</span>
+            <span>Mod</span>
+          </div>
           {{#each config.disciplines as |label key|}}
-            <div class="rank-row">
+            <div class="discipline-row">
               <span>{{label}}</span>
               <input type="number" name="system.disciplines.{{key}}.ranks" value="{{lookup (lookup ../system.disciplines key) 'ranks'}}" min="0" max="12" />
               <input type="number" name="system.disciplines.{{key}}.modifier" value="{{lookup (lookup ../system.disciplines key) 'modifier'}}" min="-10" max="10" />
             </div>
           {{/each}}
         </section>
+        {{#if isGM}}
+          <section class="panel">
+            <h2>Karma</h2>
+            <label data-tooltip="{{help.karma}}">Value <input type="number" name="system.karma.value" value="{{system.karma.value}}" min="-10" max="10" /></label>
+          </section>
+        {{/if}}
         <section class="panel technique-columns">
           <h2>Kung Fu Techniques</h2>
+          <div class="item-actions">
+            <button type="button" data-action="create-item" data-type="technique" data-tooltip="{{help.newTechnique}}">New Kung Fu Technique</button>
+            <span>Drop technique items anywhere on this sheet.</span>
+          </div>
           {{#each config.techniqueTypes as |label key|}}
             <div>
               <h3>{{label}}</h3>
+              <div class="item-list">
               {{#each ../techniques as |item|}}
                 {{#if (eq item.system.techniqueType ../key)}}
-                  <p>{{item.name}}</p>
+                  <div class="item-line compact" data-item-id="{{item.id}}">
+                    <span>{{item.name}}</span>
+                    <span>Qi {{item.system.qiRank}}</span>
+                    <button type="button" data-action="open-item" data-item-id="{{item.id}}" data-tooltip="{{../../help.editItem}}">Edit</button>
+                    <button type="button" data-action="delete-item" data-item-id="{{item.id}}" data-tooltip="{{../../help.deleteItem}}">Delete</button>
+                  </div>
                 {{/if}}
               {{/each}}
+              </div>
             </div>
           {{/each}}
+          <div class="section-budget">
+            <span>Starting Kung Fu Techniques</span>
+            <strong>{{creation.kungFuCount}} / {{config.creation.startingKungFuTechniques}}</strong>
+            <span>Remaining {{creation.kungFuRemaining}}</span>
+          </div>
+        </section>
+        <section class="panel combat-perk-table">
+          <h2>Combat Perks</h2>
+          <div class="item-actions compact">
+            <button type="button" data-action="create-item" data-type="combatTechnique" data-tooltip="{{help.newCombatPerk}}">New Combat Perk</button>
+          </div>
+          <div class="combat-perk-header">
+            <span>Name</span>
+            <span>Group</span>
+            <span>Skill</span>
+            <span>Bonus</span>
+            <span>XP</span>
+            <span></span>
+            <span></span>
+          </div>
+          <div class="item-list">
+            {{#each combatTechniques as |item|}}
+              <div class="combat-perk-row" data-item-id="{{item.id}}" data-tooltip="Right-click to edit or delete {{item.name}}.">
+                <span>{{item.name}}</span>
+                <span>{{item.system.group}}</span>
+                <span>{{item.system.skill}}</span>
+                <span>{{item.system.bonus}}</span>
+                <span>{{item.system.xpCost}}</span>
+                <button type="button" data-action="open-item" data-item-id="{{item.id}}" data-tooltip="{{../help.editItem}}">Edit</button>
+                <button type="button" data-action="delete-item" data-item-id="{{item.id}}" data-tooltip="{{../help.deleteItem}}">Delete</button>
+              </div>
+            {{/each}}
+          </div>
+          <div class="section-budget">
+            <span>Starting Combat Perks</span>
+            <strong>{{creation.combatTechniqueCount}} / {{config.creation.startingCombatTechniques}}</strong>
+            <span>Remaining {{creation.combatTechniqueRemaining}}</span>
+          </div>
         </section>
       </div>
     </div>
@@ -348,38 +463,58 @@
     <div class="tab gear" data-group="primary" data-tab="gear">
       <div class="gear-grid">
         <section class="panel">
-          <h2>Family</h2>
-          {{#each system.family as |value key|}}
-            <label>{{key}} <input type="text" name="system.family.{{key}}" value="{{value}}" /></label>
-          {{/each}}
-        </section>
-        <section class="panel">
           <h2>Money</h2>
-          {{#each system.money as |value key|}}
-            <label>{{key}} <input type="{{#if (eq key "paperCurrency")}}text{{else}}number{{/if}}" name="system.money.{{key}}" value="{{value}}" /></label>
+          {{#each moneyRows as |row|}}
+            <label>{{row.label}} <input type="{{row.type}}" name="system.money.{{row.key}}" value="{{row.value}}" /></label>
           {{/each}}
         </section>
         <section class="panel wide">
           <h2>Equipment</h2>
-          <div class="item-list">
+          <div class="item-actions compact">
+            <span data-tooltip="{{help.equipmentDrop}}">{{help.equipmentDrop}}</span>
+          </div>
+          <div class="item-list equipment-drop-zone" data-tooltip="{{help.equipmentDrop}}">
             {{#each equipment as |item|}}
-              <div class="item-line" data-item-id="{{item.id}}">
+              <div class="item-line equipment-line" data-item-id="{{item.id}}" data-tooltip="Right-click to edit or delete {{item.name}}.">
                 <span>{{item.name}}</span>
                 <span>{{item.type}}</span>
                 {{#if (eq item.type "weapon")}}
-                  <button type="button" data-action="roll-weapon-attack" data-item-id="{{item.id}}">Attack</button>
-                  <button type="button" data-action="roll-weapon-damage" data-item-id="{{item.id}}">Damage</button>
+                  <button type="button" data-action="roll-weapon-attack" data-item-id="{{item.id}}" data-tooltip="{{../help.weaponAttack}}">Attack</button>
+                  <button type="button" data-action="roll-weapon-damage" data-item-id="{{item.id}}" data-tooltip="{{../help.weaponDamage}}">Damage</button>
+                {{else}}
+                  <span></span>
+                  <span></span>
                 {{/if}}
+                <button type="button" data-action="open-item" data-item-id="{{item.id}}" data-tooltip="{{../help.editItem}}">Edit</button>
+                <button type="button" data-action="delete-item" data-item-id="{{item.id}}" data-tooltip="{{../help.deleteItem}}">Delete</button>
               </div>
             {{/each}}
           </div>
-          <textarea name="system.equipmentNotes">{{system.equipmentNotes}}</textarea>
         </section>
       </div>
     </div>
 
     <div class="tab notes" data-group="primary" data-tab="notes">
       <div class="notes-grid">
+        <section class="panel">
+          <h2>Identity Notes</h2>
+          <label>Player <input type="text" name="system.identity.player" value="{{system.identity.player}}" /></label>
+          <label>Campaign <input type="text" name="system.identity.campaign" value="{{system.identity.campaign}}" /></label>
+          <label>Homeland/Clan <input type="text" name="system.identity.homelandClan" value="{{system.identity.homelandClan}}" /></label>
+          <label>Titles <input type="text" name="system.identity.titles" value="{{system.identity.titles}}" /></label>
+          <label>Occupation <input type="text" name="system.identity.occupation" value="{{system.identity.occupation}}" /></label>
+          <label>Family <input type="text" name="system.identity.family" value="{{system.identity.family}}" /></label>
+          <label>Age <input type="text" name="system.identity.age" value="{{system.identity.age}}" /></label>
+          <label>Sex <input type="text" name="system.identity.sex" value="{{system.identity.sex}}" /></label>
+          <label>Height <input type="text" name="system.identity.height" value="{{system.identity.height}}" /></label>
+          <label>Weight <input type="text" name="system.identity.weight" value="{{system.identity.weight}}" /></label>
+        </section>
+        <section class="panel">
+          <h2>Family</h2>
+          {{#each familyRows as |row|}}
+            <label>{{row.label}} <input type="text" name="system.family.{{row.key}}" value="{{row.value}}" /></label>
+          {{/each}}
+        </section>
         <section class="panel">
           <h2>Biography</h2>
           <textarea name="system.notes.biography">{{system.notes.biography}}</textarea>
@@ -391,10 +526,6 @@
         <section class="panel">
           <h2>Grudges</h2>
           <textarea name="system.notes.grudges">{{system.notes.grudges}}</textarea>
-        </section>
-        <section class="panel">
-          <h2>Experience</h2>
-          <textarea name="system.notes.experience">{{system.notes.experience}}</textarea>
         </section>
       </div>
     </div>

@@ -60,6 +60,13 @@ function getGroupBudget(creation, groupKey) {
     : OGRE_GATE.creation.secondaryBudget;
 }
 
+function getPrimaryGroupLabels(creation) {
+  if (creation.scholarOption) return [OGRE_GATE.skillGroups.knowledge.label];
+  return [creation.primaryGroup1, creation.primaryGroup2]
+    .filter(Boolean)
+    .map((key) => OGRE_GATE.skillGroups[key]?.label ?? key);
+}
+
 function getGroupSpent(actor, groupKey) {
   if (groupKey === "defenses") {
     return Object.entries(actor.system.defenses).reduce((total, [skillKey, defense]) => {
@@ -111,6 +118,7 @@ function buildCheck(label, current, target, { mode = "exact", detail = "" } = {}
 
 export function prepareCharacterCreation(actor) {
   const creation = actor.system.creation;
+  const primaryGroupLabels = getPrimaryGroupLabels(creation);
   const groupRows = GROUP_KEYS.map((groupKey) => {
     const budget = getGroupBudget(creation, groupKey);
     const skillSpent = getGroupSpent(actor, groupKey);
@@ -158,7 +166,7 @@ export function prepareCharacterCreation(actor) {
     buildCheck("Reputation", actor.system.identity.reputation ? 1 : 0, 1, { mode: "min" }),
     buildCheck("Martial discipline ranks", disciplineRanks, OGRE_GATE.creation.disciplineRanks),
     buildCheck("Starting kung fu techniques", kungFuCount, OGRE_GATE.creation.startingKungFuTechniques),
-    buildCheck("Starting combat technique", combatTechniqueCount, OGRE_GATE.creation.startingCombatTechniques),
+    buildCheck("Starting combat perk", combatTechniqueCount, OGRE_GATE.creation.startingCombatTechniques),
     buildCheck("Creation flaw limit", creationFlawCount, OGRE_GATE.flawLimit.standard, { mode: "max" }),
     buildCheck("Starting Qi", actor.system.qi.rank, OGRE_GATE.creation.startingQi, { mode: "min" }),
     buildCheck("Qi defense dots", defenseQiBonus, actor.system.qi.rank),
@@ -169,6 +177,7 @@ export function prepareCharacterCreation(actor) {
 
   return {
     groupOptions: GROUP_KEYS.map((key) => ({ key, label: OGRE_GATE.skillGroups[key].label })),
+    primaryGroupLabels,
     groupRows,
     checks,
     flawPoints,
@@ -176,11 +185,52 @@ export function prepareCharacterCreation(actor) {
     disciplineRanks,
     defenseQiBonus,
     kungFuCount,
+    kungFuRemaining: OGRE_GATE.creation.startingKungFuTechniques - kungFuCount,
     combatTechniqueCount,
+    combatTechniqueRemaining: OGRE_GATE.creation.startingCombatTechniques - combatTechniqueCount,
     creationFlawCount,
     expertiseWarnings: GROUP_KEYS.flatMap((groupKey) => getMissingExpertiseWarnings(actor, groupKey)),
-    raceRule: OGRE_GATE.raceRules[creation.race] ?? OGRE_GATE.raceRules.human
+    raceRule: OGRE_GATE.raceRules[creation.race] ?? OGRE_GATE.raceRules.human,
+    raceRollEffects: getRaceRollEffects(actor),
+    nextSteps: getCreationNextSteps(actor, checks)
   };
 }
 
 export { rankCost };
+
+function getRaceRollEffects(actor) {
+  const race = actor.system.creation.race;
+  if (race === "hechi") {
+    return [
+      "+1d10 Endurance rolls",
+      "-2d10 Athletics and Speed rolls",
+      "-1d10 Combat Skill rolls"
+    ];
+  }
+  if (race === "juren") {
+    return [
+      "Free Muscle rank",
+      "-2d10 Speed rolls",
+      "-1d10 Mental Skill rolls",
+      "+1d10 melee damage"
+    ];
+  }
+  if (race === "ouyan") return ["-1d10 Physical Skill rolls"];
+  if (race === "kithiri") {
+    return [
+      "Free Empathy, Reasoning, and Wits ranks",
+      "Knowledge skills cost half",
+      actor.system.creation.kithiriSocialPenalty ? "-1d10 Command, Deception, and Persuade against non-Kithiri" : "Kithiri social penalty disabled for current scene"
+    ];
+  }
+  return ["No race roll modifiers"];
+}
+
+function getCreationNextSteps(actor, checks) {
+  const nextSteps = checks
+    .filter((check) => check.status !== "ok")
+    .map((check) => check.label);
+  if (actor.system.creation.race === "human") return nextSteps;
+  if (!actor.system.creation.optionalRaceApproved) nextSteps.unshift("Confirm optional race approval with the GM");
+  return Array.from(new Set(nextSteps));
+}

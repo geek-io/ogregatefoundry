@@ -60,7 +60,7 @@ Hooks.once("init", () => {
   CONFIG.Actor.trackableAttributes = {
     character: {
       bar: ["resources.wounds", "resources.qi"],
-      value: ["qi.rank", "karma.value", "imbalance.value"]
+      value: ["qi.rank", "imbalance.value"]
     },
     npc: {
       bar: ["resources.wounds", "resources.qi"],

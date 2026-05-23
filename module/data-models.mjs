@@ -78,7 +78,9 @@ function identitySchema() {
     celestialTitle: textField(""),
     sifu: textField(""),
     player: textField(""),
+    height: textField(""),
     heightWeight: textField(""),
+    weight: textField(""),
     sex: textField(""),
     titles: textField(""),
     campaign: textField(""),
@@ -97,6 +99,7 @@ function creationSchema() {
     subgroup: textField(""),
     optionalRaceApproved: new BooleanField({ required: true, initial: false }),
     scholarOption: new BooleanField({ required: true, initial: false }),
+    kithiriSocialPenalty: new BooleanField({ required: true, initial: true }),
     primaryGroup1: textField("combat"),
     primaryGroup2: textField("physical"),
     bonusSkillPoints: numberField(0, { min: 0 }),
@@ -167,7 +170,7 @@ class OgreGateBaseActorData extends foundry.abstract.TypeDataModel {
       identity: identitySchema(),
       creation: creationSchema(),
       resources: new SchemaField({
-        wounds: resourceSchema(0, 3),
+        wounds: resourceSchema(3, 3),
         qi: resourceSchema(1, 6)
       }),
       qi: new SchemaField({
@@ -196,6 +199,7 @@ class OgreGateBaseActorData extends foundry.abstract.TypeDataModel {
       combat: combatSchema(),
       status: new SchemaField({
         woundState: textField("healthy"),
+        imbalanceRating: numberField(0, { min: 0 }),
         dyingRoundsMax: numberField(0, { min: 0 })
       }),
       notes: notesSchema(),
@@ -251,10 +255,12 @@ class OgreGateBaseActorData extends foundry.abstract.TypeDataModel {
     this.movement.land = 30 + (Math.max(0, speed) * 10);
     this.movement.swim = 10 + (Math.max(0, swim) * 5);
     this.movement.climb = 10 + (Math.max(0, athletics) * 5);
+    this.status.imbalanceRating = Math.max(...Object.values(this.disciplines).map((discipline) => discipline.ranks));
     this.status.dyingRoundsMax = this.defenses.hardiness.rating;
+    this.combat.dying = this.resources.wounds.value <= 0;
     if (this.combat.dying) this.status.woundState = "dying";
-    else if (this.resources.wounds.value >= this.resources.wounds.max) this.status.woundState = "incapacitated";
-    else if (this.resources.wounds.value > 0) this.status.woundState = "wounded";
+    else if (this.resources.wounds.value < (this.resources.wounds.max / 2)) this.status.woundState = "bloodied";
+    else if (this.resources.wounds.value < this.resources.wounds.max) this.status.woundState = "wounded";
     else this.status.woundState = "healthy";
   }
 }

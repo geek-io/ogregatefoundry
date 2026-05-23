@@ -202,7 +202,36 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
 }
 
 .ogre-gate .skills .rank-row {
-  grid-template-columns: 32px minmax(94px, 1fr) 42px 42px;
+  grid-template-columns: 32px 42px 42px minmax(112px, 1fr);
+}
+
+.ogre-gate .skills.specialist .rank-row {
+  grid-template-columns: 32px minmax(90px, 1fr) 42px 42px minmax(112px, 1fr);
+}
+
+.ogre-gate .defense-header,
+.ogre-gate .skill-header {
+  display: grid;
+  gap: 4px;
+  align-items: center;
+  margin-bottom: 4px;
+  color: var(--og-muted);
+  font-size: 10px;
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.ogre-gate .defense-header {
+  grid-template-columns: minmax(88px, 1fr) 42px 12px 42px 12px 42px 12px 42px 34px;
+}
+
+.ogre-gate .skill-header {
+  grid-template-columns: 32px 42px 42px minmax(112px, 1fr);
+}
+
+.ogre-gate .skills.specialist .skill-header {
+  grid-template-columns: 32px minmax(90px, 1fr) 42px 42px minmax(112px, 1fr);
 }
 
 .ogre-gate .expertise-row {
@@ -212,6 +241,28 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
   align-items: center;
   margin: 2px 0 6px;
   font-size: 11px;
+}
+
+.ogre-gate .discipline-header,
+.ogre-gate .discipline-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) 54px 54px;
+  gap: 6px;
+  align-items: center;
+}
+
+.ogre-gate .discipline-header {
+  margin-bottom: 4px;
+  color: var(--og-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.ogre-gate .discipline-row {
+  min-height: 30px;
+  font-weight: 700;
 }
 
 .ogre-gate button[data-action^="roll"] {
@@ -230,8 +281,77 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
   font-weight: 700;
 }
 
+.ogre-gate button.roll-icon-button {
+  width: 32px;
+  height: 24px;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .ogre-gate .skill-label {
   font-size: 12px;
+}
+
+.ogre-gate .skill-label.fixed {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ogre-gate .skill-expertise-cell {
+  display: grid;
+  grid-template-columns: minmax(70px, 1fr) auto;
+  gap: 4px;
+  align-items: center;
+  min-width: 0;
+}
+
+.ogre-gate .skill-expertise-cell label {
+  min-width: 0;
+}
+
+.ogre-gate .skill-expertise-cell span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ogre-gate .skill-expertise-cell button {
+  border: 1px solid var(--og-border);
+  background: var(--og-button);
+  color: var(--og-button-text);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.ogre-gate .skill-expertise-cell button:only-child {
+  grid-column: 1 / -1;
+}
+
+.ogre-gate .section-budget {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+  padding: 5px 6px;
+  border-top: 2px solid var(--og-border);
+  color: var(--og-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.ogre-gate .section-budget.warn {
+  border-left: 4px solid var(--og-accent);
+  color: var(--og-accent);
 }
 
 .ogre-gate .resources {
@@ -268,6 +388,34 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
   gap: 4px;
 }
 
+.ogre-gate .item-actions {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: auto minmax(180px, 1fr);
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.ogre-gate .item-actions.compact {
+  grid-template-columns: 1fr;
+}
+
+.ogre-gate .item-actions button,
+.ogre-gate button[data-action="create-item"],
+.ogre-gate button[data-action="open-item"],
+.ogre-gate button[data-action="delete-item"] {
+  border: 1px solid var(--og-border);
+  background: var(--og-button);
+  color: var(--og-button-text);
+  font-weight: 700;
+}
+
+.ogre-gate .item-actions span {
+  color: var(--og-muted);
+  font-size: 12px;
+}
+
 .ogre-gate .item-line {
   display: grid;
   grid-template-columns: minmax(120px, 1fr) 80px auto auto;
@@ -276,6 +424,33 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
   padding: 4px 6px;
   border-bottom: 1px solid var(--og-line);
   background: color-mix(in srgb, var(--og-panel) 72%, transparent);
+}
+
+.ogre-gate .item-line.compact {
+  grid-template-columns: minmax(110px, 1fr) 52px auto auto;
+}
+
+.ogre-gate .item-line.flaw-line {
+  grid-template-columns: minmax(120px, 1fr) 54px auto auto;
+}
+
+.ogre-gate .item-line.equipment-line {
+  grid-template-columns: minmax(140px, 1fr) 80px auto auto auto auto;
+}
+
+.ogre-gate .equipment-drop-zone {
+  min-height: 72px;
+  padding: 6px;
+  border: 1px dashed var(--og-border);
+  background: color-mix(in srgb, var(--og-field) 78%, transparent);
+}
+
+.ogre-gate .form-note {
+  margin: 0 0 8px;
+  padding: 4px 6px;
+  border-left: 4px solid var(--og-accent);
+  color: var(--og-muted);
+  font-size: 12px;
 }
 
 .ogre-gate .martial-grid,
@@ -334,6 +509,39 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
   background: color-mix(in srgb, var(--og-accent) 14%, transparent);
 }
 
+.ogre-gate .creation-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.ogre-gate .creation-actions button {
+  border: 1px solid var(--og-border);
+  background: var(--og-button);
+  color: var(--og-button-text);
+  font-weight: 700;
+}
+
+.ogre-gate .creation-list {
+  display: grid;
+  gap: 4px;
+}
+
+.ogre-gate .creation-list p,
+.ogre-gate .creation-note {
+  margin: 0;
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--og-line);
+  background: color-mix(in srgb, var(--og-panel) 70%, transparent);
+}
+
+.ogre-gate .creation-note {
+  margin-top: 6px;
+  color: var(--og-muted);
+  font-size: 12px;
+}
+
 .ogre-gate .metric-row {
   display: flex;
   justify-content: space-between;
@@ -382,10 +590,47 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
   color: #c6923d;
 }
 
+.ogre-gate .status-pill.bloodied {
+  border-color: #d46a3c;
+  color: #d46a3c;
+}
+
 .ogre-gate .status-pill.incapacitated,
 .ogre-gate .status-pill.dying {
   border-color: var(--og-accent);
   color: var(--og-accent);
+}
+
+.ogre-gate .combat-perk-table {
+  grid-column: 1 / -1;
+}
+
+.ogre-gate .combat-perk-header,
+.ogre-gate .combat-perk-row {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) 120px 120px 100px 52px auto auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.ogre-gate .combat-perk-header {
+  color: var(--og-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.ogre-gate .combat-perk-row {
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--og-line);
+  background: color-mix(in srgb, var(--og-panel) 72%, transparent);
+}
+
+.ogre-gate-dialog label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 700;
 }
 
 .ogre-gate .technique-columns {
