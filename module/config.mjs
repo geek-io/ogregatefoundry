@@ -44,16 +44,16 @@ export const OGRE_GATE = {
   },
   attackModes: {
     normal: { label: "Normal Attack", attack: 0, damage: 0, extraWounds: 0, openDamage: false, nonLethal: false },
-    prepared: { label: "Prepared Strike", attack: 0, damage: 0, extraWounds: 0, openDamage: false, nonLethal: false },
+    prepared: { label: "Prepared Strike", attack: 0, damage: 0, extraWounds: 0, openDamage: false, nonLethal: false, workflow: "Forgo your normal attack to ready one attack against an anticipated zone; interrupt when a target enters it." },
     targetedVital: { label: "Targeted Strike: Vital", attack: -1, damage: 1, extraWounds: 0, openDamage: false, nonLethal: false },
     targetedNonVital: { label: "Targeted Strike: Non-Vital", attack: -1, damage: 0, extraWounds: 0, openDamage: false, nonLethal: true },
-    aimed: { label: "Aimed Strike", attack: 1, damage: 0, extraWounds: 0, openDamage: false, nonLethal: false },
-    maim: { label: "Maiming", attack: -1, damage: 0, extraWounds: 0, openDamage: false, nonLethal: false },
-    disarm: { label: "Disarm", attack: 0, damage: 0, extraWounds: 0, openDamage: false, nonLethal: true, damageDefense: "parry" },
+    aimed: { label: "Aimed Strike", attack: 1, damage: 0, extraWounds: 0, openDamage: false, nonLethal: false, workflow: "Spend a full round aiming; if uninterrupted, attack next round with +1d10." },
+    maim: { label: "Maiming", attack: -1, damage: 0, extraWounds: 0, openDamage: false, nonLethal: false, outcome: "maim", workflow: "Declare before attacking. If the attack succeeds and damage rolls two total successes, apply an appropriate flaw such as Blind or Missing Limb." },
+    disarm: { label: "Disarm", attack: 0, damage: 0, extraWounds: 0, openDamage: false, nonLethal: true, damageDefense: "parry", outcome: "disarm", workflow: "Roll damage against Parry instead of Hardiness. If the weapon is not suited for disarming, add a -3d10 attack penalty manually." },
     surprise: { label: "Surprise", attack: 0, damage: 0, extraWounds: 0, openDamage: true, nonLethal: false },
-    mounted: { label: "Mounted Attack", attack: 1, damage: 0, extraWounds: 0, openDamage: false, nonLethal: false },
-    mountedCharge: { label: "Mounted Charge", attack: 1, damage: 0, extraWounds: 1, openDamage: false, nonLethal: false },
-    charge: { label: "Charge on Foot", attack: 0, damage: 1, defense: -1, extraWounds: 0, openDamage: false, nonLethal: false }
+    mounted: { label: "Mounted Attack", attack: 1, damage: 0, extraWounds: 0, openDamage: false, nonLethal: false, workflow: "Mounted attackers gain +1d10 against unmounted foes; mounted bow shots take -1d10 unless a rule overrides it." },
+    mountedCharge: { label: "Mounted Charge", attack: 1, damage: 0, extraWounds: 1, openDamage: false, nonLethal: false, workflow: "Move at least 25 feet in a straight line and continue past the target; add one extra wound if damage succeeds." },
+    charge: { label: "Charge on Foot", attack: 0, damage: 1, defense: -1, extraWounds: 0, openDamage: false, nonLethal: false, workflow: "Move at least 20 feet in a straight line and engage; reach rules still apply." }
   },
   cover: {
     none: { label: "None", evade: 0, parry: 0 },
@@ -66,6 +66,17 @@ export const OGRE_GATE = {
     none: "No Reach",
     normal: "Normal Reach",
     long: "Long Reach"
+  },
+  reachValues: {
+    none: 0,
+    normal: 1,
+    long: 2
+  },
+  reachSituations: {
+    none: { label: "No Reach Adjustment", tooltip: "No closing or inside-reach modifier applies." },
+    closing: { label: "Closing This Round", tooltip: "Compare weapon reach categories when combatants first close. Higher reach gains +1d10; lower reach takes -1d10." },
+    longAdjacent: { label: "Long Reach Adjacent", tooltip: "A long-reach weapon attacking an adjacent foe after closing takes -1d10." },
+    insideLong: { label: "No Reach Inside Long Reach", tooltip: "A no-reach attacker adjacent to a long-reach weapon gains +1d10." }
   },
   combatSkillDefense: {
     armStrike: "parry",
@@ -98,6 +109,16 @@ export const OGRE_GATE = {
     houseFire: { label: "House Fire", dice: 4 },
     forestFire: { label: "Forest Fire", dice: 5 },
     conflagration: { label: "Conflagration", dice: 6 }
+  },
+  afflictionTypes: {
+    poison: "Poison",
+    disease: "Disease"
+  },
+  afflictionIntervals: {
+    minutes: "Minutes",
+    hours: "Hours",
+    days: "Days",
+    weeks: "Weeks"
   },
   illumination: {
     normal: { label: "Normal", dice: 0, defense: 0, stealth: 0 },

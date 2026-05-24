@@ -31,6 +31,7 @@ function rankSchema(label = "", max = 6, hardMax = 10) {
     label: textField(label),
     ranks: numberField(0, { min: 0, max: hardMax }),
     modifier: numberField(0, { min: -10, max: 10 }),
+    drain: numberField(0, { min: 0, max: 20 }),
     expertise: textField(""),
     expertiseNote: textField(""),
     max: numberField(max, { min: 0, max: hardMax })
@@ -45,6 +46,7 @@ function defenseSchema(key) {
     ranks: numberField(0, { min: 0, max: 10 }),
     qiBonus: numberField(0, { min: 0, max: 10 }),
     modifier: numberField(0, { min: -10, max: 10 }),
+    drain: numberField(0, { min: 0, max: 20 }),
     expertise: textField(""),
     expertiseNote: textField(""),
     rating: numberField(defense.base, { min: 0, max: 10 })
@@ -134,15 +136,46 @@ function combatSchema() {
   return new SchemaField({
     action: textField("skillAndMove"),
     attackMode: textField("normal"),
+    activeDefense: textField("parry"),
+    activeDefenseRating: numberField(0, { min: 0, max: 20 }),
+    pendingDamageBonus: numberField(0, { min: 0, max: 20 }),
+    opponentReach: textField("normal"),
+    reachSituation: textField("none"),
+    chargeDistance: numberField(0, { min: 0, max: 1000 }),
+    mountedBowShot: new BooleanField({ required: true, initial: false }),
     situationalDice: numberField(0, { min: -10, max: 10 }),
     situationalDefense: numberField(0, { min: -10, max: 10 }),
     cover: textField("none"),
     illumination: textField("normal"),
     dying: new BooleanField({ required: true, initial: false }),
+    stabilized: new BooleanField({ required: true, initial: false }),
     dyingRoundsElapsed: numberField(0, { min: 0 }),
+    fasterHealing: new BooleanField({ required: true, initial: false }),
+    healingAmount: numberField(1, { min: 1, max: 99 }),
     controlledStrike: new BooleanField({ required: true, initial: false }),
     deadlyTens: new BooleanField({ required: true, initial: false }),
     deepPenalties: new BooleanField({ required: true, initial: false })
+  });
+}
+
+function preparedStrikeSchema() {
+  return new SchemaField({
+    ready: new BooleanField({ required: true, initial: false }),
+    zone: textField(""),
+    trigger: textField("")
+  });
+}
+
+function afflictionSchema() {
+  return new SchemaField({
+    name: textField(""),
+    type: textField("poison"),
+    medicineTn: numberField(6, { min: 1, max: 10 }),
+    interval: textField("hours"),
+    antidoteRequired: new BooleanField({ required: true, initial: false }),
+    antidoteApplied: new BooleanField({ required: true, initial: false }),
+    status: textField("untreated"),
+    notes: textField("")
   });
 }
 
@@ -197,8 +230,11 @@ class OgreGateBaseActorData extends foundry.abstract.TypeDataModel {
         fly: numberField(0, { min: 0 })
       }),
       combat: combatSchema(),
+      preparedStrike: preparedStrikeSchema(),
+      affliction: afflictionSchema(),
       status: new SchemaField({
         woundState: textField("healthy"),
+        effectiveQi: numberField(1, { min: 0 }),
         imbalanceRating: numberField(0, { min: 0 }),
         dyingRoundsMax: numberField(0, { min: 0 })
       }),
@@ -223,7 +259,8 @@ class OgreGateBaseActorData extends foundry.abstract.TypeDataModel {
 
   prepareDerivedData() {
     super.prepareDerivedData();
-    this.resources.qi.value = this.qi.rank;
+    this.status.effectiveQi = Math.max(0, this.qi.rank - this.qi.temporary);
+    this.resources.qi.value = this.status.effectiveQi;
     this.resources.qi.max = Math.max(6, this.qi.rank);
     this.resources.wounds.max = this.creation.ironHeroes
       ? (this.qi.rank * 3) + 3
@@ -234,7 +271,7 @@ class OgreGateBaseActorData extends foundry.abstract.TypeDataModel {
     this.imbalance.value = Math.clamp(this.imbalance.value, 0, this.imbalance.max);
 
     for (const defense of Object.values(this.defenses)) {
-      defense.rating = Math.clamp(defense.base + defense.ranks + defense.qiBonus + defense.modifier, 1, 10);
+      defense.rating = Math.clamp(defense.base + defense.ranks + defense.qiBonus + defense.modifier - defense.drain, 0, 10);
     }
 
     const action = OGRE_GATE.combatActions[this.combat.action] ?? OGRE_GATE.combatActions.skillAndMove;
@@ -245,20 +282,22 @@ class OgreGateBaseActorData extends foundry.abstract.TypeDataModel {
       + Number(attackMode.defense ?? 0)
       + Number(this.combat.situationalDefense ?? 0)
       + Number(illumination.defense ?? 0);
-    this.defenses.parry.rating = Math.clamp(this.defenses.parry.rating + defenseModifier + cover.parry, 1, 10);
-    this.defenses.evade.rating = Math.clamp(this.defenses.evade.rating + defenseModifier + cover.evade, 1, 10);
-    this.defenses.stealth.rating = Math.clamp(this.defenses.stealth.rating + Number(illumination.stealth ?? 0), 1, 10);
+    this.defenses.parry.rating = Math.clamp(this.defenses.parry.rating + defenseModifier + cover.parry, 0, 10);
+    this.defenses.evade.rating = Math.clamp(this.defenses.evade.rating + defenseModifier + cover.evade, 0, 10);
+    this.defenses.stealth.rating = Math.clamp(this.defenses.stealth.rating + Number(illumination.stealth ?? 0), 0, 10);
 
-    const speed = this.skills.physical.speed.ranks + this.skills.physical.speed.modifier;
-    const swim = this.skills.physical.swim.ranks + this.skills.physical.swim.modifier;
-    const athletics = this.skills.physical.athletics.ranks + this.skills.physical.athletics.modifier;
+    const speed = Math.max(0, this.skills.physical.speed.ranks - this.skills.physical.speed.drain) + this.skills.physical.speed.modifier;
+    const swim = Math.max(0, this.skills.physical.swim.ranks - this.skills.physical.swim.drain) + this.skills.physical.swim.modifier;
+    const athletics = Math.max(0, this.skills.physical.athletics.ranks - this.skills.physical.athletics.drain) + this.skills.physical.athletics.modifier;
     this.movement.land = 30 + (Math.max(0, speed) * 10);
     this.movement.swim = 10 + (Math.max(0, swim) * 5);
     this.movement.climb = 10 + (Math.max(0, athletics) * 5);
     this.status.imbalanceRating = Math.max(...Object.values(this.disciplines).map((discipline) => discipline.ranks));
     this.status.dyingRoundsMax = this.defenses.hardiness.rating;
-    this.combat.dying = this.resources.wounds.value <= 0;
+    if (this.resources.wounds.value > 0) this.combat.stabilized = false;
+    this.combat.dying = this.resources.wounds.value <= 0 && !this.combat.stabilized;
     if (this.combat.dying) this.status.woundState = "dying";
+    else if (this.resources.wounds.value <= 0) this.status.woundState = "incapacitated";
     else if (this.resources.wounds.value < (this.resources.wounds.max / 2)) this.status.woundState = "bloodied";
     else if (this.resources.wounds.value < this.resources.wounds.max) this.status.woundState = "wounded";
     else this.status.woundState = "healthy";

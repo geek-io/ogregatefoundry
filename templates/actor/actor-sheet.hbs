@@ -82,6 +82,7 @@
           {{/if}}
           <h2>Qi</h2>
           <label data-tooltip="{{help.qiRank}}">Rank <input type="number" name="system.qi.rank" value="{{system.qi.rank}}" min="0" max="12" /></label>
+          <div class="metric-row" data-tooltip="{{help.drain}}"><span>Effective Qi</span><strong>{{system.status.effectiveQi}}</strong></div>
           <h2>Imbalance</h2>
           <div class="metric-row" data-tooltip="{{help.imbalance}}"><span>Rating</span><strong>{{system.status.imbalanceRating}}</strong></div>
           <div class="resource-row">
@@ -193,6 +194,56 @@
         </section>
 
         <section class="panel">
+          <h2>Active Defense</h2>
+          <label data-tooltip="{{help.activeDefense}}">Defense
+            <select name="system.combat.activeDefense">
+              {{#each activeDefenseOptions as |defense|}}
+                <option value="{{defense.key}}" {{#if (eq ../system.combat.activeDefense defense.key)}}selected{{/if}}>{{defense.label}} {{defense.rating}}</option>
+              {{/each}}
+            </select>
+          </label>
+          <div class="metric-row" data-tooltip="{{help.activeDefense}}"><span>Active Rating</span><strong>{{system.combat.activeDefenseRating}}</strong></div>
+          <button type="button" data-action="roll-active-defense" data-tooltip="{{help.activeDefense}}">Roll Active Defense</button>
+        </section>
+
+        <section class="panel">
+          <h2>Reach & Closing</h2>
+          <label data-tooltip="{{help.reach}}">Opponent Reach
+            <select name="system.combat.opponentReach">
+              {{#each reachOptions as |reach|}}
+                <option value="{{reach.key}}" {{#if (eq ../system.combat.opponentReach reach.key)}}selected{{/if}}>{{reach.label}}</option>
+              {{/each}}
+            </select>
+          </label>
+          <label data-tooltip="{{help.reach}}">Reach Situation
+            <select name="system.combat.reachSituation">
+              {{#each reachSituations as |situation|}}
+                <option value="{{situation.key}}" data-tooltip="{{situation.tooltip}}" {{#if (eq ../system.combat.reachSituation situation.key)}}selected{{/if}}>{{situation.label}}</option>
+              {{/each}}
+            </select>
+          </label>
+          <p class="form-note">Weapon attack rolls apply the selected reach modifier automatically.</p>
+        </section>
+
+        <section class="panel">
+          <h2>Prepared Strike</h2>
+          <label data-tooltip="{{help.preparedStrike}}">Ready <input type="checkbox" name="system.preparedStrike.ready" {{checked system.preparedStrike.ready}} /></label>
+          <label data-tooltip="{{help.preparedStrike}}">Zone <input type="text" name="system.preparedStrike.zone" value="{{system.preparedStrike.zone}}" /></label>
+          <label data-tooltip="{{help.preparedStrike}}">Trigger <input type="text" name="system.preparedStrike.trigger" value="{{system.preparedStrike.trigger}}" /></label>
+          <div class="creation-actions">
+            <button type="button" data-action="arm-prepared-strike" data-tooltip="{{help.preparedStrike}}">Arm</button>
+            <button type="button" data-action="clear-prepared-strike" data-tooltip="{{help.preparedStrike}}">Clear</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Charge & Mounted</h2>
+          <label data-tooltip="{{help.charge}}">Distance <input type="number" name="system.combat.chargeDistance" value="{{system.combat.chargeDistance}}" min="0" max="1000" /></label>
+          <label data-tooltip="{{help.charge}}">Mounted Bow Shot <input type="checkbox" name="system.combat.mountedBowShot" {{checked system.combat.mountedBowShot}} /></label>
+          <button type="button" data-action="validate-charge" data-tooltip="{{help.charge}}">Validate</button>
+        </section>
+
+        <section class="panel">
           <h2>Movement</h2>
           <div class="metric-row"><span>Land</span><strong>{{system.movement.land}} ft</strong></div>
           <div class="metric-row"><span>Swim</span><strong>{{system.movement.swim}} ft</strong></div>
@@ -202,10 +253,65 @@
 
         <section class="panel">
           <h2>Damage Roll</h2>
+          <label data-tooltip="{{help.pendingDamageBonus}}">Damage Bonus <input type="number" name="system.combat.pendingDamageBonus" value="{{system.combat.pendingDamageBonus}}" min="0" max="20" /></label>
           <label data-tooltip="{{help.damageModifier}}">Damage Modifier <input type="number" name="damage-modifier" value="0" min="-10" max="10" /></label>
           <label data-tooltip="{{help.extraWounds}}">Extra Wounds <input type="number" name="extra-wounds" value="0" min="0" max="10" /></label>
           <label data-tooltip="{{help.openDamage}}">Open Damage <input type="checkbox" name="damage-open" /></label>
           <label data-tooltip="{{help.controlledStrike}}">Controlled Strike <input type="checkbox" name="system.combat.controlledStrike" {{checked system.combat.controlledStrike}} /></label>
+        </section>
+
+        <section class="panel">
+          <h2>Healing & Dying</h2>
+          <label data-tooltip="{{help.healing}}">Heal Amount <input type="number" name="system.combat.healingAmount" value="{{system.combat.healingAmount}}" min="1" max="99" /></label>
+          <label data-tooltip="{{help.healing}}">Faster Healing Option <input type="checkbox" name="system.combat.fasterHealing" {{checked system.combat.fasterHealing}} /></label>
+          <button type="button" data-action="heal-wounds" data-tooltip="{{help.healing}}">Heal</button>
+          <button type="button" data-action="natural-healing" data-tooltip="{{help.healing}}">Natural Healing</button>
+          <button type="button" data-action="stabilize-dying" data-method="medicine" data-tooltip="{{help.healing}}">Medicine TN 7</button>
+          <button type="button" data-action="stabilize-dying" data-method="meditation" data-tooltip="{{help.healing}}">Meditation TN 7</button>
+        </section>
+
+        <section class="panel">
+          <h2>Poison & Disease</h2>
+          <label data-tooltip="{{help.affliction}}">Name <input type="text" name="system.affliction.name" value="{{system.affliction.name}}" /></label>
+          <label data-tooltip="{{help.affliction}}">Type
+            <select name="system.affliction.type">
+              {{#each afflictionTypes as |type|}}
+                <option value="{{type.key}}" {{#if (eq ../system.affliction.type type.key)}}selected{{/if}}>{{type.label}}</option>
+              {{/each}}
+            </select>
+          </label>
+          <label data-tooltip="{{help.affliction}}">Medicine TN <input type="number" name="system.affliction.medicineTn" value="{{system.affliction.medicineTn}}" min="1" max="10" /></label>
+          <label data-tooltip="{{help.affliction}}">Cadence
+            <select name="system.affliction.interval">
+              {{#each afflictionIntervals as |interval|}}
+                <option value="{{interval.key}}" {{#if (eq ../system.affliction.interval interval.key)}}selected{{/if}}>{{interval.label}}</option>
+              {{/each}}
+            </select>
+          </label>
+          <label data-tooltip="{{help.affliction}}">Remedy Required <input type="checkbox" name="system.affliction.antidoteRequired" {{checked system.affliction.antidoteRequired}} /></label>
+          <label data-tooltip="{{help.affliction}}">Remedy Applied <input type="checkbox" name="system.affliction.antidoteApplied" {{checked system.affliction.antidoteApplied}} /></label>
+          <div class="metric-row"><span>Status</span><strong>{{system.affliction.status}}</strong></div>
+          <label data-tooltip="{{help.affliction}}">Notes <input type="text" name="system.affliction.notes" value="{{system.affliction.notes}}" /></label>
+          <button type="button" data-action="treat-affliction" data-tooltip="{{help.affliction}}">Medicine</button>
+        </section>
+
+        <section class="panel">
+          <h2>Drains</h2>
+          <div class="metric-row" data-tooltip="{{help.drain}}"><span>Qi Drain</span><strong>{{system.qi.temporary}}</strong></div>
+          <div class="drain-list">
+            {{#each activeDrains as |drain|}}
+              <div class="metric-row"><span>{{drain.label}} -{{drain.amount}}</span><strong>{{drain.note}}</strong></div>
+            {{/each}}
+          </div>
+          <div class="creation-actions">
+            <button type="button" data-action="apply-drain" data-tooltip="{{help.drain}}">Apply Drain</button>
+            <button type="button" data-action="recover-drain" data-tooltip="{{help.drain}}">Recover 1 Drain</button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Attack Mode Reminder</h2>
+          <div class="metric-row"><span>{{selectedAttackMode.label}}</span><strong>{{selectedAttackMode.workflow}}</strong></div>
         </section>
 
         <section class="panel">

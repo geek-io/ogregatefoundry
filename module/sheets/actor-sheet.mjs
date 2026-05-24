@@ -20,6 +20,14 @@ const ACTOR_HELP = {
   rollTn: "Target number for skill, defense, and attack rolls. A kept die equal to or above this number succeeds.",
   expertise: "When checked, defense rolls with a filled Expertise entry gain +1d10 and show the expertise name in chat. Skill Expertise is selected on each skill row.",
   damageTn: "Target number for damage rolls. This usually matches the target's Hardiness.",
+  pendingDamageBonus: "Damage bonus dice from attack total successes. Use the button on an attack chat card to fill this, or enter it manually. The next weapon damage roll consumes it.",
+  activeDefense: "Optional active defense helper. Roll the selected defense and use the higher of the roll result or static rating as the TN attackers must meet.",
+  reach: "Applies Chapter 2 closing and reach modifiers to weapon attack rolls.",
+  preparedStrike: "Ready one attack against a designated zone and trigger. The system tracks whether it is armed and posts the reminder to chat.",
+  charge: "Checks the declared straight-line movement for mounted charge or charge on foot and reminds you about mounted bow penalties.",
+  drain: "Temporary drains reduce skill ranks, defense ratings, or effective Qi. Temporary drain usually recovers one point per day unless a rule says otherwise.",
+  healing: "Heal a manual amount, apply natural healing, or roll Medicine/Meditation to stabilize a dying character.",
+  affliction: "Medicine treatment for poisons and diseases: success stabilizes, total success cures, and failure resumes or continues the effect. Roll once per listed cadence.",
   health: "Current Health / Max Health. Damage lowers current Health. Below half Health the actor is Bloodied; at 0 Health the actor is automatically Dying.",
   dyingRounds: "Track rounds spent Dying. The limit shown is based on current Hardiness.",
   qiRank: "Qi rank drives Health, Qi resource maximums, and many martial requirements.",
@@ -112,8 +120,15 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       defenses: this.#prepareDefenses(actor),
       combatActions: this.#prepareCombatActions(),
       attackModes: this.#prepareAttackModes(),
+      selectedAttackMode: this.#prepareSelectedAttackMode(actor),
       coverOptions: this.#prepareCoverOptions(),
       illuminationOptions: this.#prepareIlluminationOptions(),
+      activeDefenseOptions: this.#prepareActiveDefenseOptions(actor),
+      reachOptions: this.#prepareReachOptions(),
+      reachSituations: this.#prepareReachSituations(),
+      afflictionTypes: this.#prepareAfflictionTypes(),
+      afflictionIntervals: this.#prepareAfflictionIntervals(),
+      activeDrains: this.#prepareActiveDrains(actor),
       fireOptions: this.#prepareFireOptions(),
       objectTnOptions: this.#prepareObjectTnOptions(),
       raceOptions: this.#prepareRaceOptions(),
@@ -139,6 +154,9 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     this.element.querySelectorAll("[data-action='roll-turn-order']").forEach((button) => {
       button.addEventListener("click", (event) => this.#onRollTurnOrder(event));
     });
+    this.element.querySelectorAll("[data-action='roll-active-defense']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onRollActiveDefense(event));
+    });
     this.element.querySelectorAll("[data-action='roll-weapon-attack']").forEach((button) => {
       button.addEventListener("click", (event) => this.#onRollWeaponAttack(event));
     });
@@ -156,6 +174,33 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     });
     this.element.querySelectorAll("[data-action='roll-object-damage']").forEach((button) => {
       button.addEventListener("click", (event) => this.#onRollObjectDamage(event));
+    });
+    this.element.querySelectorAll("[data-action='arm-prepared-strike']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onArmPreparedStrike(event));
+    });
+    this.element.querySelectorAll("[data-action='clear-prepared-strike']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onClearPreparedStrike(event));
+    });
+    this.element.querySelectorAll("[data-action='validate-charge']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onValidateCharge(event));
+    });
+    this.element.querySelectorAll("[data-action='treat-affliction']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onTreatAffliction(event));
+    });
+    this.element.querySelectorAll("[data-action='heal-wounds']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onHealWounds(event));
+    });
+    this.element.querySelectorAll("[data-action='natural-healing']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onNaturalHealing(event));
+    });
+    this.element.querySelectorAll("[data-action='stabilize-dying']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onStabilizeDying(event));
+    });
+    this.element.querySelectorAll("[data-action='apply-drain']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onApplyDrain(event));
+    });
+    this.element.querySelectorAll("[data-action='recover-drain']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onRecoverDrain(event));
     });
     this.element.querySelectorAll("[data-action='apply-creation-defaults']").forEach((button) => {
       button.addEventListener("click", (event) => this.#onApplyCreationDefaults(event));
@@ -231,9 +276,75 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
         `Attack ${signed(mode.attack, "d10")}; damage ${signed(mode.damage, "d10")}; fixed wounds ${signed(mode.extraWounds)}.`,
         mode.openDamage ? "Uses open damage." : "Uses closed damage unless another rule opens it.",
         mode.nonLethal ? "Non-lethal." : "",
-        mode.damageDefense ? `Damage TN can use ${OGRE_GATE.defenses[mode.damageDefense]?.label ?? mode.damageDefense}.` : ""
+        mode.damageDefense ? `Damage TN can use ${OGRE_GATE.defenses[mode.damageDefense]?.label ?? mode.damageDefense}.` : "",
+        mode.workflow ?? ""
       ].filter(Boolean).join(" ")
     }));
+  }
+
+  #prepareSelectedAttackMode(actor) {
+    const mode = OGRE_GATE.attackModes[actor.system.combat.attackMode] ?? OGRE_GATE.attackModes.normal;
+    return {
+      ...mode,
+      workflow: mode.workflow ?? "No special workflow reminder for this attack mode."
+    };
+  }
+
+  #prepareActiveDefenseOptions(actor) {
+    return Object.entries(OGRE_GATE.defenses).map(([key, definition]) => ({
+      key,
+      label: definition.label,
+      rating: actor.system.defenses[key]?.rating ?? definition.base
+    }));
+  }
+
+  #prepareReachOptions() {
+    return Object.entries(OGRE_GATE.reachCategories).map(([key, label]) => ({ key, label }));
+  }
+
+  #prepareReachSituations() {
+    return Object.entries(OGRE_GATE.reachSituations).map(([key, situation]) => ({ key, ...situation }));
+  }
+
+  #prepareAfflictionTypes() {
+    return Object.entries(OGRE_GATE.afflictionTypes).map(([key, label]) => ({ key, label }));
+  }
+
+  #prepareAfflictionIntervals() {
+    return Object.entries(OGRE_GATE.afflictionIntervals).map(([key, label]) => ({ key, label }));
+  }
+
+  #prepareActiveDrains(actor) {
+    const drains = [];
+    if (actor.system.qi.temporary) {
+      drains.push({
+        label: "Qi",
+        amount: actor.system.qi.temporary,
+        note: actor.system.status.effectiveQi <= 0 ? "No Kung Fu Techniques while Qi is 0." : `Effective Qi ${actor.system.status.effectiveQi}`
+      });
+    }
+    for (const [key, defense] of Object.entries(actor.system.defenses ?? {})) {
+      if (!defense.drain) continue;
+      const note = key === "hardiness" && defense.rating <= 0
+        ? "At 0 Hardiness, roll Endurance TN 7 every hour or die."
+        : key === "wits" && defense.rating <= 0
+          ? "At 0 Wits, roll Reasoning TN 7 to communicate or act."
+          : key === "resolve" && defense.rating <= 0
+            ? "At 0 Resolve, the character responds positively to requests."
+            : `Rating ${defense.rating}`;
+      drains.push({ label: defense.label, amount: defense.drain, note });
+    }
+    for (const [groupKey, group] of Object.entries(actor.system.skills ?? {})) {
+      for (const [skillKey, skill] of Object.entries(group)) {
+        if (!skill.drain) continue;
+        drains.push({
+          label: skill.label || OGRE_GATE.skillGroups[groupKey]?.skills?.[skillKey] || skillKey,
+          amount: skill.drain,
+          note: `${OGRE_GATE.skillGroups[groupKey]?.label ?? groupKey} skill`
+        });
+      }
+    }
+    return drains;
   }
 
   #prepareCoverOptions() {
@@ -309,7 +420,7 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
   #defenseTooltip(definition, defense) {
     return [
       `Roll ${definition.label}: ranks ${defense.ranks} + modifier ${signed(defense.modifier, "d10")}.`,
-      `Rating is Base ${defense.base} + Rank ${defense.ranks} + Qi ${defense.qiBonus} + Mod ${signed(defense.modifier)} = ${defense.rating}.`,
+      `Rating is Base ${defense.base} + Rank ${defense.ranks} + Qi ${defense.qiBonus} + Mod ${signed(defense.modifier)}${defense.drain ? ` - Drain ${defense.drain}` : ""} = ${defense.rating}.`,
       definition.relevant?.length ? `Relevant against: ${definition.relevant.join(", ")}.` : ""
     ].filter(Boolean).join(" ");
   }
@@ -323,6 +434,7 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     return [
       `${label}: ${description}`,
       `Roll pool: ranks ${skill.ranks} + modifier ${signed(skill.modifier, "d10")}.`,
+      skill.drain ? `Current drain: -${skill.drain} rank(s).` : "",
       raceModifier ? `Current race modifier: ${signed(raceModifier, "d10")}.` : "",
       expertise,
       "Situational dice, action, illumination, and Expertise may also modify the roll.",
@@ -448,6 +560,12 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     return this.actor.rollTurnOrder({ modifier: this.actor.system.combat.situationalDice });
   }
 
+  async #onRollActiveDefense(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    return this.actor.rollActiveDefense(this.actor.system.combat.activeDefense);
+  }
+
   async #onRollWeaponAttack(event) {
     event.preventDefault();
     await this.#submitActorFields();
@@ -466,6 +584,8 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       hardiness: this.#getDamageTarget(),
       open: Boolean(this.element.querySelector("[name='damage-open']")?.checked),
       modifier: Number(this.element.querySelector("[name='damage-modifier']")?.value ?? 0),
+      damageBonus: Number(this.actor.system.combat.pendingDamageBonus ?? 0),
+      consumeDamageBonus: true,
       extraWounds: Number(this.element.querySelector("[name='extra-wounds']")?.value ?? 0)
     });
   }
@@ -496,6 +616,106 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       objectTn: this.#getNumberInput("object-tn", 5, { min: 1, max: 10 }),
       open: Boolean(this.element.querySelector("[name='object-open']")?.checked)
     });
+  }
+
+  async #onArmPreparedStrike(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    return this.actor.armPreparedStrike();
+  }
+
+  async #onClearPreparedStrike(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    await this.actor.clearPreparedStrike();
+    ui.notifications.info(`${this.actor.name}'s prepared strike is cleared.`);
+  }
+
+  async #onValidateCharge(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    return this.actor.postChargeValidation();
+  }
+
+  async #onTreatAffliction(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    return this.actor.rollAfflictionTreatment();
+  }
+
+  async #onHealWounds(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    return this.actor.healWounds(this.actor.system.combat.healingAmount);
+  }
+
+  async #onNaturalHealing(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    return this.actor.applyNaturalHealing();
+  }
+
+  async #onStabilizeDying(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    return this.actor.stabilizeDying(event.currentTarget.dataset.method);
+  }
+
+  async #onApplyDrain(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    return new Promise((resolve) => {
+      new Dialog({
+        title: "Apply Drain",
+        content: `
+          <form class="ogre-gate-dialog">
+            <label>Type
+              <select name="type">
+                <option value="skill">Skill</option>
+                <option value="defense">Defense</option>
+                <option value="qi">Qi</option>
+              </select>
+            </label>
+            <label>Key or Name
+              <input type="text" name="key" placeholder="speed, hardiness, parry, medicine..." />
+            </label>
+            <label>Amount
+              <input type="number" name="amount" value="1" min="1" max="20" />
+            </label>
+          </form>
+        `,
+        buttons: {
+          apply: {
+            label: "Apply",
+            callback: async (html) => {
+              const root = html instanceof HTMLElement ? html : html?.[0];
+              const updates = await this.actor.applyDrain({
+                type: root?.querySelector("[name='type']")?.value ?? "skill",
+                key: root?.querySelector("[name='key']")?.value ?? "",
+                amount: root?.querySelector("[name='amount']")?.value ?? 1
+              });
+              if (!Object.keys(updates).length) ui.notifications.warn("No matching drain target found.");
+              resolve(true);
+            }
+          },
+          cancel: {
+            label: "Cancel",
+            callback: () => resolve(false)
+          }
+        },
+        default: "apply",
+        close: () => resolve(false)
+      }).render(true);
+    });
+  }
+
+  async #onRecoverDrain(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    const updates = await this.actor.recoverDrains(1);
+    if (Object.keys(updates).length) ui.notifications.info(`Recovered 1 drain point for ${this.actor.name}.`);
+    else ui.notifications.info(`${this.actor.name} has no active drains.`);
+    return updates;
   }
 
   async #onApplyCreationDefaults(event) {

@@ -17,7 +17,13 @@
       <label data-tooltip="{{help.targetDefense}}">Target Defense <input type="text" name="system.targetDefense" value="{{system.targetDefense}}" /></label>
       <label data-tooltip="{{help.damageSkill}}">Damage Skill <input type="text" name="system.damageSkill" value="{{system.damageSkill}}" /></label>
       <label data-tooltip="{{help.damageDice}}">Damage Dice <input type="number" name="system.damageDice" value="{{system.damageDice}}" min="0" max="10" /></label>
-      <label>Reach <input type="text" name="system.reach" value="{{system.reach}}" /></label>
+      <label data-tooltip="{{help.weaponReach}}">Reach
+        <select name="system.reach">
+          {{#each reachOptions as |reach|}}
+            <option value="{{reach.key}}" {{#if (eq ../system.reach reach.key)}}selected{{/if}}>{{reach.label}}</option>
+          {{/each}}
+        </select>
+      </label>
       <label data-tooltip="{{help.openDamage}}">Open Damage <input type="checkbox" name="system.openDamage" {{checked system.openDamage}} /></label>
       <label>Qualities <input type="text" name="system.qualities" value="{{system.qualities}}" /></label>
     </section>

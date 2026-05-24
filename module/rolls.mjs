@@ -62,13 +62,13 @@ export class OgreGateRoll {
     return { selected, success, successes, totalSuccesses, tens };
   }
 
-  static async skill({ actor, label, ranks, modifier = 0, tn = 6, rollMode, deepPenalties = false, extra = "" } = {}) {
+  static async skill({ actor, label, ranks, modifier = 0, tn = 6, rollMode, deepPenalties = false, extra = "", returnOutcome = false } = {}) {
     const pool = this.resolvePool(ranks, modifier, { deepPenalties });
     const roll = await new Roll(pool.formula).evaluate();
     const results = getDiceResults(roll);
     const outcome = this.evaluateResults(results, tn, pool.keep);
 
-    return createRollMessage({
+    const message = await createRollMessage({
       actor,
       label,
       roll,
@@ -81,6 +81,7 @@ export class OgreGateRoll {
       rollMode,
       extra
     });
+    return returnOutcome ? { message, outcome, results, selected: outcome.selected } : message;
   }
 
   static async attack({ actor, label = "Attack", ranks, modifier = 0, defense = "Parry", mode = "", tn = 6, deadlyTens = false, rollMode } = {}) {
@@ -94,6 +95,7 @@ export class OgreGateRoll {
       ${mode ? `<div class="ogre-gate-chat-row"><strong>Mode</strong><span>${mode}</span></div>` : ""}
       <div class="ogre-gate-chat-row"><strong>Defense</strong><span>${defense}</span></div>
       <div class="ogre-gate-chat-row"><strong>Damage Bonus</strong><span>+${damageBonus}d10</span></div>
+      ${damageBonus ? `<button type="button" class="ogre-gate-chat-button" data-action="ogre-bank-damage-bonus" data-actor-uuid="${actor?.uuid ?? ""}" data-actor-id="${actor?.id ?? ""}" data-bonus="${damageBonus}">Use +${damageBonus}d10 Damage Bonus</button>` : ""}
       ${deadlyWounds ? `<div class="ogre-gate-chat-row"><strong>Deadly 10s</strong><span>${deadlyWounds} extra Wound(s)</span></div>` : ""}
     `;
 
@@ -112,17 +114,23 @@ export class OgreGateRoll {
     });
   }
 
-  static async damage({ actor, label = "Damage", dice, hardiness = 6, open = false, modifier = 0, extraWounds = 0, note = "", rollMode } = {}) {
+  static async damage({ actor, label = "Damage", dice, hardiness = 6, open = false, modifier = 0, extraWounds = 0, note = "", outcomeHint = "", rollMode } = {}) {
     const pool = this.resolvePool(dice ?? 1, modifier, { deepPenalties: actor?.system?.combat?.deepPenalties });
     const roll = await new Roll(pool.formula).evaluate();
     const results = getDiceResults(roll);
     const outcome = this.evaluateResults(results, hardiness, pool.keep, { open });
     const baseWounds = open ? outcome.successes + outcome.totalSuccesses : (outcome.success ? 1 + outcome.totalSuccesses : 0);
     const wounds = Math.max(0, baseWounds + Number(extraWounds ?? 0));
+    const outcomeText = outcomeHint === "maim"
+      ? (outcome.totalSuccesses >= 2 ? "Maiming condition met: apply an appropriate flaw if the attack succeeded." : "Maiming needs two total successes on the damage roll.")
+      : outcomeHint === "disarm"
+        ? (outcome.success ? "Disarm succeeds if this damage roll used the target's Parry as TN." : "Disarm fails unless the damage roll succeeds against the target's Parry.")
+        : "";
     const extra = `
       <div class="ogre-gate-chat-row"><strong>Wounds</strong><span>${wounds}</span></div>
       ${extraWounds ? `<div class="ogre-gate-chat-row"><strong>Wound Modifier</strong><span>${extraWounds}</span></div>` : ""}
       ${note ? `<div class="ogre-gate-chat-row"><strong>Note</strong><span>${note}</span></div>` : ""}
+      ${outcomeText ? `<div class="ogre-gate-chat-row"><strong>Special Outcome</strong><span>${outcomeText}</span></div>` : ""}
       ${wounds ? `<button type="button" class="ogre-gate-chat-button" data-action="ogre-apply-wounds" data-wounds="${wounds}">Apply Wounds</button>` : ""}
     `;
 

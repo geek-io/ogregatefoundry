@@ -15,6 +15,7 @@ const ITEM_HELP = {
   targetDefense: "Defense the target uses against this weapon, usually Parry for melee or Evade for ranged.",
   damageSkill: "Optional skill key whose ranks add dice to this weapon's damage roll.",
   damageDice: "Base damage dice rolled by this weapon before skill ranks and modifiers.",
+  weaponReach: "Reach category used by the Chapter 2 closing and reach helper.",
   openDamage: "Open damage counts every success, rather than only the kept die result.",
   techniqueDiscipline: "Martial discipline required or associated with this technique.",
   techniqueType: "Technique bucket used to organize it on the actor sheet.",
@@ -75,6 +76,10 @@ export class OgreGateItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
         key,
         label,
         tooltip: `Combat Perk group: ${label}.`
+      })),
+      reachOptions: Object.entries(OGRE_GATE.reachCategories).map(([key, label]) => ({
+        key,
+        label
       }))
     };
   }

@@ -6,6 +6,24 @@ A Foundry VTT v13 game system for *The Wandering Heroes of Ogre Gate* by Bedrock
 ***This projrect uses copyright material owned by Bedrock Games, under their Bedrock Games Community Use Policy. This is not an official product of Bedrock Games. ***
 
 
+# v 0.1.2
+## Rules pass 1
+- Bug fixes
+- Attack roll chat cards now offer a button to carry natural-10 damage bonus dice into the actor's next weapon damage roll.
+- The Rules tab now shows the pending Damage Bonus, which can also be edited manually.
+- Weapon damage rolls consume pending Damage Bonus dice after rolling and show the bonus in the chat note.
+- Rules tab now includes active defense, reach/closing, drain, healing, natural healing, and dying stabilization controls.
+- Effective Qi display.
+- Attack-mode reminder text for Prepared Strike, Aimed Strike, Maiming, Disarm, Mounted, Mounted Charge, and Charge.
+- Prepared Strike arming/clearing helper.
+- Charge and mounted attack validation reminders.
+- Poison and disease Medicine treatment helper with cadence, remedy, and status tracking.
+- Weapon reach is now a dropdown item field instead of free text.
+- Prepared Strike tracker with Zone, Trigger, Arm, and Clear.
+- Charge and Mounted validation reminders, including straight-line distance thresholds and mounted bow penalty reminder.
+- Poison/Disease Medicine helper with TN, cadence, remedy required/applied, and treatment status.
+- Maiming and Disarm outcome reminders on damage chat cards.
+
 # v 0.1.1
 ## Character sheet pass 1
 - Bug fixes

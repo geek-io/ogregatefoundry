@@ -550,6 +550,26 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
   border-bottom: 1px solid var(--og-line);
 }
 
+.ogre-gate .metric-row strong {
+  min-width: 0;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.ogre-gate .rules-grid button {
+  min-height: 25px;
+  border: 1px solid var(--og-border);
+  background: var(--og-button);
+  color: var(--og-button-text);
+  font-weight: 700;
+}
+
+.ogre-gate .drain-list {
+  display: grid;
+  gap: 4px;
+  margin: 6px 0;
+}
+
 .ogre-gate .hazard-row {
   display: grid;
   grid-template-columns: minmax(90px, 1fr) auto;
