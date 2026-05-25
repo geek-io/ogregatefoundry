@@ -17,6 +17,34 @@
         <option value="mixed" {{#if (eq system.identity.martialTier "mixed")}}selected{{/if}}>Mixed</option>
       </select>
     </section>
+    <section class="header-vitals" aria-label="Character resources">
+      <div class="vital-group">
+        <h2 data-tooltip="{{help.health}}">Health</h2>
+        <div class="resource-row">
+          <label data-tooltip="{{help.health}}">Current <input type="number" name="system.resources.wounds.value" value="{{system.resources.wounds.value}}" min="0" /></label>
+          <label data-tooltip="{{help.health}}">Max <input type="number" name="system.resources.wounds.max" value="{{system.resources.wounds.max}}" disabled /></label>
+        </div>
+        <div class="status-pill {{system.status.woundState}}" data-tooltip="{{help.health}}">{{system.status.woundState}}</div>
+        {{#if system.combat.dying}}
+          <label data-tooltip="{{help.dyingRounds}}">Dying Rounds <input type="number" name="system.combat.dyingRoundsElapsed" value="{{system.combat.dyingRoundsElapsed}}" min="0" /> / {{system.status.dyingRoundsMax}}</label>
+        {{/if}}
+      </div>
+
+      <div class="vital-group">
+        <h2>Qi</h2>
+        <label data-tooltip="{{help.qiRank}}">Rank <input type="number" name="system.qi.rank" value="{{system.qi.rank}}" min="0" max="12" /></label>
+        <div class="metric-row" data-tooltip="{{help.drain}}"><span>Effective Qi</span><strong>{{system.status.effectiveQi}}</strong></div>
+      </div>
+
+      <div class="vital-group">
+        <h2>Imbalance</h2>
+        <div class="metric-row" data-tooltip="{{help.imbalance}}"><span>Rating</span><strong>{{system.status.imbalanceRating}}</strong></div>
+        <div class="resource-row">
+          <label data-tooltip="{{help.imbalance}}">Current <input type="number" name="system.imbalance.value" value="{{system.imbalance.value}}" min="0" /></label>
+          <label data-tooltip="{{help.imbalance}}">Max <input type="number" name="system.imbalance.max" value="{{system.imbalance.max}}" /></label>
+        </div>
+      </div>
+    </section>
   </header>
 
   <nav class="sheet-tabs" data-group="primary">
@@ -74,27 +102,6 @@
               <span>Remaining {{defenseBudget.remaining}}</span>
             </div>
           {{/if}}
-        </section>
-
-        <section class="panel resources">
-          <h2 data-tooltip="{{help.health}}">Health</h2>
-          <div class="resource-row">
-            <label data-tooltip="{{help.health}}">Current <input type="number" name="system.resources.wounds.value" value="{{system.resources.wounds.value}}" min="0" /></label>
-            <label data-tooltip="{{help.health}}">Max <input type="number" name="system.resources.wounds.max" value="{{system.resources.wounds.max}}" disabled /></label>
-          </div>
-          <div class="status-pill {{system.status.woundState}}" data-tooltip="{{help.health}}">{{system.status.woundState}}</div>
-          {{#if system.combat.dying}}
-            <label data-tooltip="{{help.dyingRounds}}">Dying Rounds <input type="number" name="system.combat.dyingRoundsElapsed" value="{{system.combat.dyingRoundsElapsed}}" min="0" /> / {{system.status.dyingRoundsMax}}</label>
-          {{/if}}
-          <h2>Qi</h2>
-          <label data-tooltip="{{help.qiRank}}">Rank <input type="number" name="system.qi.rank" value="{{system.qi.rank}}" min="0" max="12" /></label>
-          <div class="metric-row" data-tooltip="{{help.drain}}"><span>Effective Qi</span><strong>{{system.status.effectiveQi}}</strong></div>
-          <h2>Imbalance</h2>
-          <div class="metric-row" data-tooltip="{{help.imbalance}}"><span>Rating</span><strong>{{system.status.imbalanceRating}}</strong></div>
-          <div class="resource-row">
-            <label data-tooltip="{{help.imbalance}}">Current <input type="number" name="system.imbalance.value" value="{{system.imbalance.value}}" min="0" /></label>
-            <label data-tooltip="{{help.imbalance}}">Max <input type="number" name="system.imbalance.max" value="{{system.imbalance.max}}" /></label>
-          </div>
         </section>
 
         {{#each skillGroups as |group|}}

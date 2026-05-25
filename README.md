@@ -12,6 +12,7 @@ A Foundry VTT v13 game system for *The Wandering Heroes of Ogre Gate* by Bedrock
 - Ritual skill entries now include their individual Chapter 4 procedure text and shared Ritual rules.
 - Added the missing Zun Forest Shaping Ritual skill entry.
 - Improved actor and item sheet resizing behavior and tab readability.
+- Moved Health, Qi, and Imbalance into the persistent character header.
 
 # v 0.1.3
 ## Rules pass 2

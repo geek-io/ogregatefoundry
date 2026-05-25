@@ -206,6 +206,10 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
   grid-column: 1 / -1;
 }
 
+.ogre-gate .front-grid .defenses {
+  grid-column: 1 / -1;
+}
+
 .ogre-gate .panel {
   position: relative;
   min-width: 0;
@@ -396,6 +400,37 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.ogre-gate .header-vitals {
+  grid-column: 2 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 10px;
+  padding: 8px 10px;
+  border: 2px solid var(--og-border);
+  background: var(--og-panel);
+}
+
+.ogre-gate .header-vitals h2 {
+  margin: 0 0 4px;
+  border-bottom: 1px solid var(--og-line);
+  font-size: 13px;
+  line-height: 1.15;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.ogre-gate .header-vitals .vital-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.ogre-gate .header-vitals .vital-group + .vital-group {
+  padding-left: 10px;
+  border-left: 1px solid var(--og-line);
 }
 
 .ogre-gate .resource-row {
@@ -927,6 +962,10 @@ body.ogre-gate-dark-sheets .ogre-gate-chat-button {
     grid-column: 1 / -1;
   }
 
+  .ogre-gate-form.actor .header-vitals {
+    grid-column: 1 / -1;
+  }
+
   .ogre-gate-form.actor .identity-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -944,6 +983,17 @@ body.ogre-gate-dark-sheets .ogre-gate-chat-button {
 }
 
 @container ogre-sheet (max-width: 680px) {
+  .ogre-gate-form.actor .header-vitals {
+    grid-template-columns: 1fr;
+  }
+
+  .ogre-gate-form.actor .header-vitals .vital-group + .vital-group {
+    padding-top: 8px;
+    padding-left: 0;
+    border-top: 1px solid var(--og-line);
+    border-left: 0;
+  }
+
   .ogre-gate .skills .rank-row,
   .ogre-gate .skill-header {
     grid-template-columns: 32px minmax(74px, 1fr) 38px 38px;
