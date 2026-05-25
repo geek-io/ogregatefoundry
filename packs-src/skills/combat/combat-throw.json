@@ -1,0 +1,26 @@
+{
+  "_id": "cd7f03a101970ef8",
+  "name": "Throw",
+  "type": "skills",
+  "img": "icons/svg/book.svg",
+  "system": {
+    "description": "This is used to throw and sweep your enemies. It functions like the Throw maneuver of the restrain rule except it is more effective.\n\nYou can try to throw anyone as long as you are close enough to reach them (adjacent or within five feet). On a Success you unbalance the target and place them on the ground, or you throw your foe onto the ground up to ten feet away from you. Roll your Muscle against his Hardiness to see if he takes Damage. In addition, he lands on his back and must spend one move to get up (treat as prone position). On a Total Success the person is conclusively thrown or tripped and must use a Move and Skill action to return to a standing position (in addition to the other effects).",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 1: Skills",
+    "cost": "",
+    "group": "combat",
+    "skillKey": "throw",
+    "ranks": 0,
+    "modifier": 0,
+    "drain": 0,
+    "expertise": "",
+    "expertiseNote": "",
+    "expertiseList": []
+  },
+  "effects": [],
+  "folder": "710ad0bb00fac06d",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!cd7f03a101970ef8"
+}

@@ -5,8 +5,9 @@
   "TYPES.Item.weapon": "Weapon",
   "TYPES.Item.armor": "Armor",
   "TYPES.Item.equipment": "Equipment",
+  "TYPES.Item.skills": "Skills",
   "TYPES.Item.technique": "Kung Fu Technique",
-  "TYPES.Item.combatTechnique": "Combat Technique",
+  "TYPES.Item.combatTechnique": "Combat Perk",
   "TYPES.Item.ritual": "Ritual",
   "TYPES.Item.flaw": "Flaw"
 }

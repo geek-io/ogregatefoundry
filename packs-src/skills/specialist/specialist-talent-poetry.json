@@ -1,0 +1,26 @@
+{
+  "_id": "5993e1c4c49651d3",
+  "name": "Talent: Poetry",
+  "type": "skills",
+  "img": "icons/svg/book.svg",
+  "system": {
+    "description": "Talent is a Skill acquired through extensive training not covered by the other Specialist Skills. It includes such things as playing a musical instrument, brewing Poison, thievery and appreciating fine food.\n\nBelow is a list of potential talents, but Gamemasters and players can elaborate or make new ones. Because it is so vital to play, the Poisoning Talent Sub-Skill is fully described after the list. Disguise and Snake Charming are also described in some detail.\n\n- Brewing (Alcohol)\n- Calligraphy\n- Cooking\n- Dancing\n- Disguise\n- Hawk Handling\n- Instrument (simply name the instrument)\n- Painting\n- Poetry\n- Poisoning\n- Reciting\n- Scribing\n- Sculpting\n- Shadow Puppetry\n- Singing\n- Snake Charming\n- Tattooing\n- Tea Preparation\n- Theft (lock picking and purse snatching)\n- Writing\n\nDisguise (Talent): This is for putting together a disguise to change a person's appearance (for yourself or another person). It uses make-up, false hair, clothing, jewelry, and so on. It can make someone look exactly like another person or like a member of the opposite sex. It takes one hour to achieve and the result is the TN for Detect rolls to discern the disguise. This is just for the disguise itself. To actively pretend to be another person one must use the Deception Skill.\n\nPoison (Talent): This includes the art of creating and administering deadly Poisons, as well as the art of brewing herbal cures. It can be used to make a Poison or cure. Brewing takes at least an hour and requires a Talent: Poison roll (TN set by the Poison or Herbal Remedy). On a Normal Success, the Poison functions as desired. On a Total Success, the Poison is more effective than normal, so its Lethality and Speed increase by an increment. On a Failure, the Poison has no effect but the brewer risks being harmed by the raw materials. If you roll all 1s on the dice on your failed result, then you accidentally ingested or inhaled enough of the raw components to suffer the Poison's effects. Creating a cure or salve is similar to making a Poison. On a Success, the cure works as intended and can be administered in congress with a Medicine roll. On a Total Success, the cure is so potent that it bestows a +1d10 to any Medicine rolls made while administering it.\n\nTalent (Snake Charming): This allows one to control snakes through various means. If rolled against the Resolve of a Snake, on a Success it is non-hostile and even friendly toward the Snake Charmer. Once charmed, an individual snake will remain loyal. While some use music or other means in these efforts, this is mainly a matter of knowing how to handle and communicate with the snakes. Variations on this talent are possible for different animals. Hawk Handling functions like Snake Charming for example.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 1: Skills",
+    "cost": "",
+    "group": "specialist",
+    "skillKey": "talent.poetry",
+    "ranks": 0,
+    "modifier": 0,
+    "drain": 0,
+    "expertise": "",
+    "expertiseNote": "",
+    "expertiseList": []
+  },
+  "effects": [],
+  "folder": "b78bff304a61cc20",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!5993e1c4c49651d3"
+}

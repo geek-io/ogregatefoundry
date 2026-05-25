@@ -3,8 +3,29 @@
 A Foundry VTT v13 game system for *The Wandering Heroes of Ogre Gate* by Bedrock Games.
 - System by: Geek IO Dev Team
 
-***This projrect uses copyright material owned by Bedrock Games, under their Bedrock Games Community Use Policy. This is not an official product of Bedrock Games. ***
+***This projrect uses copyright material owned by Bedrock Games, under their Bedrock Games Community Use Policy. This is not an official product of Bedrock Games.***
 
+
+# v 0.1.4
+## Skills compendium and sheet display
+- Replaced condensed Skill compendium descriptions with full rules text from the source book.
+- Ritual skill entries now include their individual Chapter 4 procedure text and shared Ritual rules.
+- Added the missing Zun Forest Shaping Ritual skill entry.
+- Improved actor and item sheet resizing behavior and tab readability.
+
+# v 0.1.3
+## Rules pass 2
+- Bug fixes
+- Deep Penalties and Deadly 10s are now GM world settings instead of character-sheet toggles.
+- Skill Expertise now supports multiple entries per skill.
+- Defenses now show their creation budget summary on the Main tab.
+- Weapon sheets now use dropdowns for category, attack skill, target defense, damage skill, reach, and damage type.
+- Armor sheets now include book armor/shield presets, equipped state, damage-type reductions, Speed penalties, and shield defense bonuses.
+- Added customizable Skills items that can be dragged onto actor sheets and grouped by primary skill type.
+- Added an Ogre Gate Skills compendium of book-listed skill choices, organized into draggable skill-group folders.
+- Actor sheets accept folders of Skill items and import their non-duplicate entries.
+- Weapon Reach and Damage Type are weapon item fields; weapon Damage Bonus Dice supports the book's `-1d10` entries.
+- Gear section now has a New Gear button for local embedded equipment.
 
 # v 0.1.2
 ## Rules pass 1
@@ -12,7 +33,7 @@ A Foundry VTT v13 game system for *The Wandering Heroes of Ogre Gate* by Bedrock
 - Attack roll chat cards now offer a button to carry natural-10 damage bonus dice into the actor's next weapon damage roll.
 - The Rules tab now shows the pending Damage Bonus, which can also be edited manually.
 - Weapon damage rolls consume pending Damage Bonus dice after rolling and show the bonus in the chat note.
-- Rules tab now includes active defense, reach/closing, drain, healing, natural healing, and dying stabilization controls.
+- Rules tab now includes: reach/closing, drain, healing, natural healing, and dying stabilization controls.
 - Effective Qi display.
 - Attack-mode reminder text for Prepared Strike, Aimed Strike, Maiming, Disarm, Mounted, Mounted Charge, and Charge.
 - Prepared Strike arming/clearing helper.

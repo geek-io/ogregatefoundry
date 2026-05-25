@@ -84,8 +84,8 @@ export class OgreGateRoll {
     return returnOutcome ? { message, outcome, results, selected: outcome.selected } : message;
   }
 
-  static async attack({ actor, label = "Attack", ranks, modifier = 0, defense = "Parry", mode = "", tn = 6, deadlyTens = false, rollMode } = {}) {
-    const pool = this.resolvePool(ranks, modifier, { deepPenalties: actor?.system?.combat?.deepPenalties });
+  static async attack({ actor, label = "Attack", ranks, modifier = 0, defense = "Parry", mode = "", tn = 6, deadlyTens = false, deepPenalties = false, rollMode } = {}) {
+    const pool = this.resolvePool(ranks, modifier, { deepPenalties });
     const roll = await new Roll(pool.formula).evaluate();
     const results = getDiceResults(roll);
     const outcome = this.evaluateResults(results, tn, pool.keep);
@@ -114,8 +114,8 @@ export class OgreGateRoll {
     });
   }
 
-  static async damage({ actor, label = "Damage", dice, hardiness = 6, open = false, modifier = 0, extraWounds = 0, note = "", outcomeHint = "", rollMode } = {}) {
-    const pool = this.resolvePool(dice ?? 1, modifier, { deepPenalties: actor?.system?.combat?.deepPenalties });
+  static async damage({ actor, label = "Damage", dice, hardiness = 6, open = false, modifier = 0, extraWounds = 0, note = "", outcomeHint = "", deepPenalties = false, rollMode } = {}) {
+    const pool = this.resolvePool(dice ?? 1, modifier, { deepPenalties });
     const roll = await new Roll(pool.formula).evaluate();
     const results = getDiceResults(roll);
     const outcome = this.evaluateResults(results, hardiness, pool.keep, { open });

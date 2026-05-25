@@ -19,10 +19,7 @@ function escapeHtml(value = "") {
 const ACTOR_HELP = {
   rollTn: "Target number for skill, defense, and attack rolls. A kept die equal to or above this number succeeds.",
   expertise: "When checked, defense rolls with a filled Expertise entry gain +1d10 and show the expertise name in chat. Skill Expertise is selected on each skill row.",
-  damageTn: "Target number for damage rolls. This usually matches the target's Hardiness.",
   pendingDamageBonus: "Damage bonus dice from attack total successes. Use the button on an attack chat card to fill this, or enter it manually. The next weapon damage roll consumes it.",
-  activeDefense: "Optional active defense helper. Roll the selected defense and use the higher of the roll result or static rating as the TN attackers must meet.",
-  reach: "Applies Chapter 2 closing and reach modifiers to weapon attack rolls.",
   preparedStrike: "Ready one attack against a designated zone and trigger. The system tracks whether it is armed and posts the reminder to chat.",
   charge: "Checks the declared straight-line movement for mounted charge or charge on foot and reminds you about mounted bow penalties.",
   drain: "Temporary drains reduce skill ranks, defense ratings, or effective Qi. Temporary drain usually recovers one point per day unless a rule says otherwise.",
@@ -39,8 +36,7 @@ const ACTOR_HELP = {
   extraWounds: "Adds fixed wounds after a successful damage calculation.",
   openDamage: "Open damage counts every success, rather than only the kept die result.",
   controlledStrike: "Marks the attack as controlled; weapon damage applies the controlled strike wound reduction.",
-  deepPenalties: "When enabled, negative pools roll more than 2d10 and keep the lowest.",
-  deadlyTens: "When enabled, total successes on attack rolls can add extra wounds.",
+  systemRules: "These are world-level system settings configured by the GM in Foundry settings.",
   optionalRaceApproved: "Marks the selected non-human race as approved for creation checks.",
   scholarOption: "Uses the scholar-style Knowledge budget during creation checks.",
   kithiriSocialPenalty: "Applies the Kithiri -1d10 penalty to Command, Deception, and Persuade against non-Kithiri targets.",
@@ -49,6 +45,8 @@ const ACTOR_HELP = {
   applyCreationDefaults: "Applies starting Qi, money, and race-granted ranks where this system can automate them.",
   postCreationSummary: "Posts the current creation checks and race/primary group summary to chat.",
   newFlaw: "Create an embedded Flaw item. Drag/drop flaw items onto the sheet to add them too.",
+  newSkill: "Create an embedded Skill item in this group. Drag/drop Skills items onto the sheet to add them too.",
+  newGear: "Create an embedded Equipment item.",
   newTechnique: "Create an embedded Kung Fu Technique item.",
   newCombatPerk: "Create an embedded Combat Perk item.",
   equipmentDrop: "Drop weapon, armor, and equipment items here. Right-click an item to edit or delete it.",
@@ -75,6 +73,38 @@ function signed(value, suffix = "") {
   const number = Number(value ?? 0);
   if (!number) return "0";
   return `${number > 0 ? "+" : ""}${number}${suffix}`;
+}
+
+function getExpertiseEntries(entry) {
+  const entries = Array.from(entry?.expertiseList ?? [])
+    .map((expertise) => ({
+      name: String(expertise?.name ?? "").trim(),
+      note: String(expertise?.note ?? "").trim()
+    }))
+    .filter((expertise) => expertise.name);
+  const legacyName = String(entry?.expertise ?? "").trim();
+  if (legacyName && !entries.some((expertise) => expertise.name === legacyName)) {
+    entries.unshift({
+      name: legacyName,
+      note: String(entry?.expertiseNote ?? "").trim()
+    });
+  }
+  return entries;
+}
+
+function stripHtml(value = "") {
+  const div = document.createElement("div");
+  div.innerHTML = String(value ?? "");
+  return div.textContent?.trim() ?? "";
+}
+
+function normalizeKey(value = "") {
+  return String(value).trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function getSkillIdentity(itemData) {
+  const system = itemData?.system ?? {};
+  return `${system.group ?? ""}:${normalizeKey(system.skillKey || itemData?.name || "")}`;
 }
 
 export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
@@ -116,6 +146,11 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       familyRows: this.#prepareFamilyRows(actor),
       moneyRows: this.#prepareMoneyRows(actor),
       creation,
+      defenseBudget: creation.groupRows.find((row) => row.key === "defenses"),
+      systemRules: {
+        deepPenalties: game.settings.get(OGRE_GATE.id, "deepPenalties"),
+        deadlyTens: game.settings.get(OGRE_GATE.id, "deadlyTens")
+      },
       skillGroups: this.#prepareSkillGroups(actor, creation),
       defenses: this.#prepareDefenses(actor),
       combatActions: this.#prepareCombatActions(),
@@ -123,9 +158,6 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       selectedAttackMode: this.#prepareSelectedAttackMode(actor),
       coverOptions: this.#prepareCoverOptions(),
       illuminationOptions: this.#prepareIlluminationOptions(),
-      activeDefenseOptions: this.#prepareActiveDefenseOptions(actor),
-      reachOptions: this.#prepareReachOptions(),
-      reachSituations: this.#prepareReachSituations(),
       afflictionTypes: this.#prepareAfflictionTypes(),
       afflictionIntervals: this.#prepareAfflictionIntervals(),
       activeDrains: this.#prepareActiveDrains(actor),
@@ -141,104 +173,114 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
 
   async _onRender(context, options) {
     await super._onRender(context, options);
+    this._ogreGateListeners?.abort();
+    this._ogreGateListeners = new AbortController();
+    const listenerOptions = { signal: this._ogreGateListeners.signal };
     this.element.querySelectorAll("input[name], select[name], textarea[name]").forEach((input) => {
       if (!this.#isActorField(input.name)) return;
-      input.addEventListener("change", (event) => this.#onFieldChange(event));
+      input.addEventListener("change", (event) => this.#onFieldChange(event), listenerOptions);
+    });
+    this.element.querySelectorAll("[data-item-field]").forEach((input) => {
+      input.addEventListener("change", (event) => this.#onItemFieldChange(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='roll-skill']").forEach((button) => {
-      button.addEventListener("click", (event) => this.#onRollSkill(event));
+      button.addEventListener("click", (event) => this.#onRollSkill(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='roll-defense']").forEach((button) => {
-      button.addEventListener("click", (event) => this.#onRollDefense(event));
+      button.addEventListener("click", (event) => this.#onRollDefense(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='roll-turn-order']").forEach((button) => {
-      button.addEventListener("click", (event) => this.#onRollTurnOrder(event));
-    });
-    this.element.querySelectorAll("[data-action='roll-active-defense']").forEach((button) => {
-      button.addEventListener("click", (event) => this.#onRollActiveDefense(event));
+      button.addEventListener("click", (event) => this.#onRollTurnOrder(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='roll-weapon-attack']").forEach((button) => {
-      button.addEventListener("click", (event) => this.#onRollWeaponAttack(event));
+      button.addEventListener("click", (event) => this.#onRollWeaponAttack(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='roll-weapon-damage']").forEach((button) => {
-      button.addEventListener("click", (event) => this.#onRollWeaponDamage(event));
+      button.addEventListener("click", (event) => this.#onRollWeaponDamage(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='roll-falling-damage']").forEach((button) => {
-      button.addEventListener("click", (event) => this.#onRollFallingDamage(event));
+      button.addEventListener("click", (event) => this.#onRollFallingDamage(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='roll-fire-damage']").forEach((button) => {
-      button.addEventListener("click", (event) => this.#onRollFireDamage(event));
+      button.addEventListener("click", (event) => this.#onRollFireDamage(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='roll-suffocation']").forEach((button) => {
-      button.addEventListener("click", (event) => this.#onRollSuffocation(event));
+      button.addEventListener("click", (event) => this.#onRollSuffocation(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='roll-object-damage']").forEach((button) => {
-      button.addEventListener("click", (event) => this.#onRollObjectDamage(event));
+      button.addEventListener("click", (event) => this.#onRollObjectDamage(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='arm-prepared-strike']").forEach((button) => {
-      button.addEventListener("click", (event) => this.#onArmPreparedStrike(event));
+      button.addEventListener("click", (event) => this.#onArmPreparedStrike(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='clear-prepared-strike']").forEach((button) => {
-      button.addEventListener("click", (event) => this.#onClearPreparedStrike(event));
+      button.addEventListener("click", (event) => this.#onClearPreparedStrike(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='validate-charge']").forEach((button) => {
-      button.addEventListener("click", (event) => this.#onValidateCharge(event));
+      button.addEventListener("click", (event) => this.#onValidateCharge(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='treat-affliction']").forEach((button) => {
-      button.addEventListener("click", (event) => this.#onTreatAffliction(event));
+      button.addEventListener("click", (event) => this.#onTreatAffliction(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='heal-wounds']").forEach((button) => {
-      button.addEventListener("click", (event) => this.#onHealWounds(event));
+      button.addEventListener("click", (event) => this.#onHealWounds(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='natural-healing']").forEach((button) => {
-      button.addEventListener("click", (event) => this.#onNaturalHealing(event));
+      button.addEventListener("click", (event) => this.#onNaturalHealing(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='stabilize-dying']").forEach((button) => {
-      button.addEventListener("click", (event) => this.#onStabilizeDying(event));
+      button.addEventListener("click", (event) => this.#onStabilizeDying(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='apply-drain']").forEach((button) => {
-      button.addEventListener("click", (event) => this.#onApplyDrain(event));
+      button.addEventListener("click", (event) => this.#onApplyDrain(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='recover-drain']").forEach((button) => {
-      button.addEventListener("click", (event) => this.#onRecoverDrain(event));
+      button.addEventListener("click", (event) => this.#onRecoverDrain(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='apply-creation-defaults']").forEach((button) => {
-      button.addEventListener("click", (event) => this.#onApplyCreationDefaults(event));
+      button.addEventListener("click", (event) => this.#onApplyCreationDefaults(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='post-creation-summary']").forEach((button) => {
-      button.addEventListener("click", (event) => this.#onPostCreationSummary(event));
+      button.addEventListener("click", (event) => this.#onPostCreationSummary(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='create-item']").forEach((button) => {
-      button.addEventListener("click", (event) => this.#onCreateItem(event));
+      button.addEventListener("click", (event) => this.#onCreateItem(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='open-item']").forEach((button) => {
-      button.addEventListener("click", (event) => this.#onOpenItem(event));
+      button.addEventListener("click", (event) => this.#onOpenItem(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='delete-item']").forEach((button) => {
-      button.addEventListener("click", (event) => this.#onDeleteItem(event));
+      button.addEventListener("click", (event) => this.#onDeleteItem(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='edit-expertise']").forEach((button) => {
-      button.addEventListener("click", (event) => this.#onEditExpertise(event));
+      button.addEventListener("click", (event) => this.#onEditExpertise(event), listenerOptions);
     });
     this.element.querySelectorAll(".item-line[data-item-id], .combat-perk-row[data-item-id]").forEach((row) => {
-      row.addEventListener("contextmenu", (event) => this.#onItemContextMenu(event));
+      row.addEventListener("contextmenu", (event) => this.#onItemContextMenu(event), listenerOptions);
     });
-    this.element.addEventListener("dragover", (event) => event.preventDefault());
-    this.element.addEventListener("drop", (event) => this.#onDropItem(event));
+    this.element.addEventListener("dragover", (event) => event.preventDefault(), listenerOptions);
+    this.element.addEventListener("drop", (event) => this.#onDropItem(event), listenerOptions);
     this.element.querySelectorAll("[data-action='tab']").forEach((tab) => {
-      tab.addEventListener("click", (event) => this.#onChangeTab(event));
+      tab.addEventListener("click", (event) => this.#onChangeTab(event), listenerOptions);
     });
     this.#activateTab(this._activeTab ?? "front", "primary");
   }
 
   #prepareDefenses(actor) {
-    return Object.entries(OGRE_GATE.defenses).map(([key, definition]) => ({
-      key,
-      ...definition,
-      shortLabel: this.#shortSkillLabel(definition.label),
-      tooltip: this.#defenseTooltip(definition, actor.system.defenses[key]),
-      data: actor.system.defenses[key]
-    }));
+    return Object.entries(OGRE_GATE.defenses).map(([key, definition]) => {
+      const data = actor.system.defenses[key];
+      const armorBonus = actor.getArmorDefenseBonus(key);
+      const rating = Math.clamp(Number(data.rating ?? 0) + armorBonus, 0, 10);
+      return {
+        key,
+        ...definition,
+        shortLabel: this.#shortSkillLabel(definition.label),
+        tooltip: this.#defenseTooltip(definition, data, armorBonus, rating),
+        rating,
+        armorBonus,
+        data
+      };
+    });
   }
 
   #prepareSkillGroups(actor, creation) {
@@ -247,15 +289,27 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       key: groupKey,
       label: group.label,
       budget: budgetRows[groupKey],
-      skills: Object.entries(group.skills).map(([skillKey, label]) => ({
-        key: skillKey,
-        label,
-        displayLabel: groupKey === "specialist" ? actor.system.skills[groupKey][skillKey].label : label,
-        shortLabel: this.#shortSkillLabel(label),
-        tooltip: this.#skillTooltip(actor, groupKey, skillKey, label),
-        editableLabel: groupKey === "specialist",
-        data: actor.system.skills[groupKey][skillKey]
-      }))
+      skills: Array.from(new Map(actor.items
+        .filter((item) => item.type === "skills" && item.system.group === groupKey)
+        .map((item) => [getSkillIdentity(item.toObject()), item])).values()).map((item) => {
+        const skill = item.system;
+        const expertiseEntries = getExpertiseEntries(skill).map((expertise) => ({
+          ...expertise,
+          toggleKey: item.id
+        }));
+        const description = stripHtml(skill.description);
+        return {
+          item,
+          key: item.id,
+          label: item.name,
+          displayLabel: item.name,
+          shortLabel: this.#shortSkillLabel(item.name),
+          tooltip: this.#skillTooltip(item, description),
+          expertiseEntries,
+          hasExpertise: expertiseEntries.length > 0,
+          data: skill
+        };
+      })
     }));
   }
 
@@ -288,22 +342,6 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       ...mode,
       workflow: mode.workflow ?? "No special workflow reminder for this attack mode."
     };
-  }
-
-  #prepareActiveDefenseOptions(actor) {
-    return Object.entries(OGRE_GATE.defenses).map(([key, definition]) => ({
-      key,
-      label: definition.label,
-      rating: actor.system.defenses[key]?.rating ?? definition.base
-    }));
-  }
-
-  #prepareReachOptions() {
-    return Object.entries(OGRE_GATE.reachCategories).map(([key, label]) => ({ key, label }));
-  }
-
-  #prepareReachSituations() {
-    return Object.entries(OGRE_GATE.reachSituations).map(([key, situation]) => ({ key, ...situation }));
   }
 
   #prepareAfflictionTypes() {
@@ -343,6 +381,13 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
           note: `${OGRE_GATE.skillGroups[groupKey]?.label ?? groupKey} skill`
         });
       }
+    }
+    for (const item of actor.items.filter((candidate) => candidate.type === "skills" && candidate.system.drain)) {
+      drains.push({
+        label: item.name,
+        amount: item.system.drain,
+        note: `${OGRE_GATE.skillGroups[item.system.group]?.label ?? item.system.group} skill`
+      });
     }
     return drains;
   }
@@ -417,29 +462,16 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     }));
   }
 
-  #defenseTooltip(definition, defense) {
+  #defenseTooltip(definition, defense, armorBonus = 0, rating = defense.rating) {
     return [
       `Roll ${definition.label}: ranks ${defense.ranks} + modifier ${signed(defense.modifier, "d10")}.`,
-      `Rating is Base ${defense.base} + Rank ${defense.ranks} + Qi ${defense.qiBonus} + Mod ${signed(defense.modifier)}${defense.drain ? ` - Drain ${defense.drain}` : ""} = ${defense.rating}.`,
+      `Rating is Base ${defense.base} + Rank ${defense.ranks} + Qi ${defense.qiBonus} + Mod ${signed(defense.modifier)}${defense.drain ? ` - Drain ${defense.drain}` : ""}${armorBonus ? ` + Armor/Shield ${armorBonus}` : ""} = ${rating}.`,
       definition.relevant?.length ? `Relevant against: ${definition.relevant.join(", ")}.` : ""
     ].filter(Boolean).join(" ");
   }
 
-  #skillTooltip(actor, groupKey, skillKey, label) {
-    const skill = actor.system.skills[groupKey][skillKey];
-    const raceModifier = actor.getRaceSkillModifier(groupKey, skillKey);
-    const baseKey = skillKey.replace(/[0-9]+$/, "");
-    const description = OGRE_GATE.skillDescriptions[baseKey] ?? OGRE_GATE.skillDescriptions[skillKey] ?? "Use this skill when the situation matches its specialty.";
-    const expertise = skill.expertise ? `Expertise: ${skill.expertise}.` : "No Expertise selected yet.";
-    return [
-      `${label}: ${description}`,
-      `Roll pool: ranks ${skill.ranks} + modifier ${signed(skill.modifier, "d10")}.`,
-      skill.drain ? `Current drain: -${skill.drain} rank(s).` : "",
-      raceModifier ? `Current race modifier: ${signed(raceModifier, "d10")}.` : "",
-      expertise,
-      "Situational dice, action, illumination, and Expertise may also modify the roll.",
-      "At 0d10 or lower, roll 2d10 and keep the lowest unless Deep Penalties is enabled."
-    ].filter(Boolean).join(" ");
+  #skillTooltip(item, description = "") {
+    return description || `${item.name}: No skill description entered yet.`;
   }
 
   #shortSkillLabel(label) {
@@ -473,6 +505,13 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     return this.actor.update({ [input.name]: getInputValue(input) });
   }
 
+  async #onItemFieldChange(event) {
+    const input = event.currentTarget;
+    const item = this.actor.items.get(input.dataset.itemId);
+    if (!item) return null;
+    return item.update({ [input.dataset.itemField]: getInputValue(input) });
+  }
+
   async #promptTargetNumber(label, initial = 6) {
     return new Promise((resolve) => {
       new Dialog({
@@ -504,11 +543,6 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     });
   }
 
-  #getDamageTarget() {
-    const value = Number(this.element.querySelector("[name='damage-tn']")?.value ?? 6);
-    return Math.clamp(value, 1, 10);
-  }
-
   #getNumberInput(name, initial = 0, { min = -Infinity, max = Infinity } = {}) {
     const value = Number(this.element.querySelector(`[name='${name}']`)?.value ?? initial);
     return Math.clamp(value, min, max);
@@ -527,16 +561,19 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     event.preventDefault();
     await this.#submitActorFields();
     const button = event.currentTarget;
-    const skill = this.actor.getSkill(button.dataset.group, button.dataset.skill);
-    const useInlineExpertise = Boolean(this.element.querySelector(`[data-expertise-toggle='${button.dataset.group}.${button.dataset.skill}']`)?.checked);
-    const useExpertise = useInlineExpertise && skill?.expertise;
-    const label = button.dataset.label || skill?.label;
+    const item = this.actor.items.get(button.dataset.itemId);
+    if (!item) return null;
+    const selectedExpertise = Array.from(this.element.querySelectorAll(`[data-expertise-toggle='${item.id}']:checked`))
+      .map((input) => input.dataset.expertiseName)
+      .filter(Boolean);
+    const useExpertise = selectedExpertise.length > 0;
+    const label = button.dataset.label || item.name;
     const tn = await this.#promptTargetNumber(label, 6);
     if (!tn) return null;
-    return this.actor.rollSkill(button.dataset.group, button.dataset.skill, {
+    return this.actor.rollSkillItem(item, {
       tn,
       modifier: this.#getRollModifier() + (useExpertise ? 1 : 0),
-      label: useExpertise ? `${label} (${skill.expertise})` : label
+      label: useExpertise ? `${label} (${selectedExpertise.join(", ")})` : label
     });
   }
 
@@ -560,12 +597,6 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     return this.actor.rollTurnOrder({ modifier: this.actor.system.combat.situationalDice });
   }
 
-  async #onRollActiveDefense(event) {
-    event.preventDefault();
-    await this.#submitActorFields();
-    return this.actor.rollActiveDefense(this.actor.system.combat.activeDefense);
-  }
-
   async #onRollWeaponAttack(event) {
     event.preventDefault();
     await this.#submitActorFields();
@@ -580,8 +611,11 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
   async #onRollWeaponDamage(event) {
     event.preventDefault();
     await this.#submitActorFields();
+    const item = this.actor.items.get(event.currentTarget.dataset.itemId);
+    const hardiness = await this.#promptTargetNumber(`${item?.name ?? "Weapon"} Damage TN`, this.actor.system.defenses.hardiness.rating);
+    if (!hardiness) return null;
     return this.actor.rollWeaponDamage(event.currentTarget.dataset.itemId, {
-      hardiness: this.#getDamageTarget(),
+      hardiness,
       open: Boolean(this.element.querySelector("[name='damage-open']")?.checked),
       modifier: Number(this.element.querySelector("[name='damage-modifier']")?.value ?? 0),
       damageBonus: Number(this.actor.system.combat.pendingDamageBonus ?? 0),
@@ -590,17 +624,21 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     });
   }
 
-  #onRollFallingDamage(event) {
+  async #onRollFallingDamage(event) {
     event.preventDefault();
+    const hardiness = await this.#promptTargetNumber("Falling Damage TN", this.actor.system.defenses.hardiness.rating);
+    if (!hardiness) return null;
     return this.actor.rollFallingDamage(this.#getNumberInput("fall-distance", 10, { min: 1, max: 1000 }), {
-      hardiness: this.#getDamageTarget()
+      hardiness
     });
   }
 
-  #onRollFireDamage(event) {
+  async #onRollFireDamage(event) {
     event.preventDefault();
+    const hardiness = await this.#promptTargetNumber("Fire Damage TN", this.actor.system.defenses.hardiness.rating);
+    if (!hardiness) return null;
     return this.actor.rollFireDamage(this.element.querySelector("[name='fire-size']")?.value ?? "torch", {
-      hardiness: this.#getDamageTarget()
+      hardiness
     });
   }
 
@@ -736,22 +774,22 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
   async #onEditExpertise(event) {
     event.preventDefault();
     const button = event.currentTarget;
-    const groupKey = button.dataset.group;
-    const skillKey = button.dataset.skill;
-    const skill = this.actor.getSkill(groupKey, skillKey);
-    if (!skill) return null;
+    const item = this.actor.items.get(button.dataset.itemId);
+    if (!item) return null;
+    const skill = item.system;
+    const expertiseText = getExpertiseEntries(skill)
+      .map((entry) => `${entry.name}${entry.note ? ` | ${entry.note}` : ""}`)
+      .join("\n");
 
     return new Promise((resolve) => {
       new Dialog({
-        title: `${button.dataset.label ?? skill.label} Expertise`,
+        title: `${button.dataset.label ?? item.name} Expertise`,
         content: `
           <form class="ogre-gate-dialog">
-            <label>Expertise
-              <input type="text" name="expertise" value="${escapeHtml(skill.expertise ?? "")}" autofocus />
+            <label>Expertise Entries
+              <textarea name="expertiseList" autofocus placeholder="Expertise name | Optional note">${escapeHtml(expertiseText)}</textarea>
             </label>
-            <label>Note
-              <input type="text" name="expertiseNote" value="${escapeHtml(skill.expertiseNote ?? "")}" />
-            </label>
+            <p class="form-note">Enter one Expertise per line. Use a vertical bar to add an optional note.</p>
           </form>
         `,
         buttons: {
@@ -759,9 +797,21 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
             label: "Save",
             callback: async (html) => {
               const root = html instanceof HTMLElement ? html : html?.[0];
-              await this.actor.update({
-                [`system.skills.${groupKey}.${skillKey}.expertise`]: root?.querySelector("[name='expertise']")?.value ?? "",
-                [`system.skills.${groupKey}.${skillKey}.expertiseNote`]: root?.querySelector("[name='expertiseNote']")?.value ?? ""
+              const entries = String(root?.querySelector("[name='expertiseList']")?.value ?? "")
+                .split(/\r?\n/)
+                .map((line) => {
+                  const [name, ...noteParts] = line.split("|");
+                  return {
+                    name: String(name ?? "").trim(),
+                    note: noteParts.join("|").trim()
+                  };
+                })
+                .filter((entry) => entry.name);
+              const first = entries[0] ?? { name: "", note: "" };
+              await item.update({
+                "system.expertise": first.name,
+                "system.expertiseNote": first.note,
+                "system.expertiseList": entries
               });
               resolve(true);
             }
@@ -769,9 +819,10 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
           clear: {
             label: "Clear",
             callback: async () => {
-              await this.actor.update({
-                [`system.skills.${groupKey}.${skillKey}.expertise`]: "",
-                [`system.skills.${groupKey}.${skillKey}.expertiseNote`]: ""
+              await item.update({
+                "system.expertise": "",
+                "system.expertiseNote": "",
+                "system.expertiseList": []
               });
               resolve(true);
             }
@@ -789,15 +840,40 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
 
   async #onCreateItem(event) {
     event.preventDefault();
+    event.stopPropagation();
     const type = event.currentTarget.dataset.type;
     if (!type) return;
 
-    const label = OGRE_GATE.itemTypes[type] ?? "Item";
-    const [item] = await this.actor.createEmbeddedDocuments("Item", [{
-      name: `New ${label}`,
+    const label = type === "skills" ? "Skill" : OGRE_GATE.itemTypes[type] ?? "Item";
+    const groupKey = event.currentTarget.dataset.group;
+    const baseName = type === "skills" && groupKey
+      ? `New ${OGRE_GATE.skillGroups[groupKey]?.label ?? ""} Skill`.trim()
+      : `New ${label}`;
+    const itemData = {
+      name: this.#getUniqueItemName(baseName, type, groupKey),
       type
-    }]);
+    };
+    if (groupKey) itemData.system = { group: groupKey };
+    const [item] = await this.actor.createEmbeddedDocuments("Item", [itemData]);
     item?.sheet?.render(true);
+  }
+
+  #getUniqueItemName(baseName, type, groupKey = "") {
+    const used = new Set(this.actor.items
+      .filter((item) => item.type === type && (!groupKey || item.system?.group === groupKey))
+      .map((item) => item.name));
+    if (!used.has(baseName)) return baseName;
+    for (let index = 2; index < 1000; index += 1) {
+      const candidate = `${baseName} ${index}`;
+      if (!used.has(candidate)) return candidate;
+    }
+    return `${baseName} ${Date.now()}`;
+  }
+
+  #findExistingSkillItem(itemData) {
+    const identity = getSkillIdentity(itemData);
+    if (!identity || identity.endsWith(":")) return null;
+    return this.actor.items.find((item) => item.type === "skills" && getSkillIdentity(item.toObject()) === identity) ?? null;
   }
 
   #onOpenItem(event) {
@@ -853,6 +929,7 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
 
   async #onDropItem(event) {
     event.preventDefault();
+    event.stopPropagation();
     const raw = event.dataTransfer?.getData("text/plain");
     if (!raw) return;
 
@@ -863,15 +940,76 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       return;
     }
 
+    if (data.type === "Folder") {
+      const folder = await fromUuid(data.uuid);
+      if (!folder || folder.type !== "Item") {
+        ui.notifications.warn("Only folders of Item documents can be dropped onto an Ogre Gate sheet.");
+        return;
+      }
+      return this.#onDropItemFolder(folder, event.target);
+    }
+
     if (data.type !== "Item") return;
 
     const item = await Item.implementation.fromDropData(data);
     if (!item) return;
 
+    const skillGroup = event.target?.closest?.("[data-skill-group]")?.dataset?.skillGroup;
+    return this.#addDroppedItem(item, skillGroup);
+  }
+
+  async #addDroppedItem(item, skillGroup = "") {
     const itemData = item.toObject();
     delete itemData._id;
+    if (itemData.type === "skills" && skillGroup) itemData.system = { ...itemData.system, group: skillGroup };
+    const existing = itemData.type === "skills" ? this.#findExistingSkillItem(itemData) : null;
+    if (existing) {
+      ui.notifications.info(`${existing.name} is already on ${this.actor.name}.`);
+      return existing.sheet?.render(true);
+    }
     await this.actor.createEmbeddedDocuments("Item", [itemData]);
     ui.notifications.info(`Added ${item.name} to ${this.actor.name}.`);
+  }
+
+  async #onDropItemFolder(folder, target) {
+    const skillGroup = target?.closest?.("[data-skill-group]")?.dataset?.skillGroup ?? "";
+    const items = await this.#collectFolderItems(folder);
+    const skills = items.filter((item) => item?.type === "skills");
+    if (!skills.length) {
+      ui.notifications.warn(`${folder.name} does not contain Ogre Gate Skill items.`);
+      return;
+    }
+
+    const itemData = [];
+    const seen = new Set(this.actor.items.filter((item) => item.type === "skills").map((item) => getSkillIdentity(item.toObject())));
+    for (const item of skills) {
+      const data = item.toObject();
+      delete data._id;
+      if (skillGroup) data.system = { ...data.system, group: skillGroup };
+      const identity = getSkillIdentity(data);
+      if (seen.has(identity)) continue;
+      seen.add(identity);
+      itemData.push(data);
+    }
+
+    if (!itemData.length) {
+      ui.notifications.info(`All Skills in ${folder.name} are already on ${this.actor.name}.`);
+      return;
+    }
+    await this.actor.createEmbeddedDocuments("Item", itemData);
+    ui.notifications.info(`Added ${itemData.length} Skill item(s) from ${folder.name} to ${this.actor.name}.`);
+  }
+
+  async #collectFolderItems(folder) {
+    const entries = [...(folder.contents ?? [])];
+    for (const child of folder.getSubfolders?.() ?? []) {
+      entries.push(...await this.#collectFolderItems(child));
+    }
+    return Promise.all(entries.map(async (entry) => {
+      if (entry?.documentName === "Item" && typeof entry.toObject === "function") return entry;
+      if (entry?.uuid) return fromUuid(entry.uuid);
+      return null;
+    }));
   }
 
   #activateTab(tab, group) {

@@ -1,0 +1,26 @@
+{
+  "_id": "7dcb3ae8486acb27",
+  "name": "Meditation",
+  "type": "skills",
+  "img": "icons/svg/book.svg",
+  "system": {
+    "description": "This is a basic skill for any Martial Hero. It is used in many Kung Fu Techniques, but perhaps most importantly, for recovering and eliminating Imbalance Points when you overexert yourself. It also is used for staving off the effects of Qi Spirit Possession (TN 7+Imbalance Rating). Characters can also use Meditation to stabilize themselves when they are dying, on a Meditation Skill roll TN 7. Meditation is also used for certain abilities and rituals related to Internal Alchemy and Cultivation.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 1: Skills",
+    "cost": "",
+    "group": "specialist",
+    "skillKey": "meditation",
+    "ranks": 0,
+    "modifier": 0,
+    "drain": 0,
+    "expertise": "",
+    "expertiseNote": "",
+    "expertiseList": []
+  },
+  "effects": [],
+  "folder": "b78bff304a61cc20",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!7dcb3ae8486acb27"
+}

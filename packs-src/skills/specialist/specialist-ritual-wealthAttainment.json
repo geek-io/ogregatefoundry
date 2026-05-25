@@ -1,0 +1,26 @@
+{
+  "_id": "7c8c5f93299e11f2",
+  "name": "Ritual: Wealth Attainment",
+  "type": "skills",
+  "img": "icons/svg/book.svg",
+  "system": {
+    "description": "These are a range of practices that involve mudra, offerings, recitations and the creation of various focus objects or talismans. Most religions have Rituals of some form, but they are largely associated with Yen-Li. The Ritual Skill in Wandering Heroes of Ogre Gate is open, meaning you take it multiple times allowing for Ranks in individual Rituals (see Rituals in CHAPTER FOUR: RITUALS for a listing of available Rituals). You must take ranks in each Ritual separately.\n\nRitual includes forms of sorcery but also more common rites such as ancestor veneration. The Ritual Skill is also powerful and dangerous, as spirits, demons, ancestors and other magical forces respond to users who perform Rituals correctly. However, Rituals almost always take at least an hour to perform (many rituals take longer and this is stated in their entry). Unless otherwise stated Ritual rolls are TN 6.\n\nRituals are divided into two basic types: Rites and Magic. Rites are common rituals performed for regular religious observance or tradition such as venerating ancestors. Magic is more dangerous and taps into potentially unstable sources of power. All rituals take time to perform to achieve magical effect and can be done by anyone who knows them.\n\nUnless stated otherwise in the individual Ritual entry, Rituals take one hour to perform. They can be learned in hours from manuals or a teacher. All Rites and Magic use the Ritual Skill. Some Rituals require the use of other Skills like Meditation or Talent, in addition to the original Ritual roll.\n\nPerforming Rites is generally safe (though failing to perform them in the right circumstances can have consequences) but Magic poses a danger to the user. There are various forms of Magic, some good, some evil, but all Magic potentially exposes users to dangerous mental effects as the powers they draw on warp their mind. Anytime you fail a Ritual roll for Magic by rolling all 3 or less on all your dice (any combination of 3s, 2s, or 1s) you gain a mental affliction from the MENTAL AFFLICTION chart (pg 164).\n\nWEALTH ATTAINMENT (TN 7)\n\nThis Ritual recruits the work of a Gui or other supernatural entity to help the caster increase his or her personal wealth. The Gui does so unseen as a guiding force, creating new opportunities for the beneficiary of the ritual. A person can grow quite rich by use of this magic but it comes with some risk and requires a terrible act to be performed.\n\nFirst the caster must create the Gui or spirit. This can only be done by killing another human being. Once this is achieved, the ritual requires the creation of special scrolls to be placed on the body, then the body placed somewhere no one will find it. If the ritual is successful the caster will encounter a golden opportunity in the next month to increase his or her wealth. If the casting is not successful, the victim becomes a Gui hostile to the caster (the type of Gui the victim becomes should be determined by the GM based on the manner in which the person died). Also if the body is ever discovered or disturbed it rises as a Gui and seeks to destroy the caster or take his or her wealth.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 4: Rituals",
+    "cost": "",
+    "group": "specialist",
+    "skillKey": "ritual.wealthAttainment",
+    "ranks": 0,
+    "modifier": 0,
+    "drain": 0,
+    "expertise": "",
+    "expertiseNote": "",
+    "expertiseList": []
+  },
+  "effects": [],
+  "folder": "b78bff304a61cc20",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!7c8c5f93299e11f2"
+}

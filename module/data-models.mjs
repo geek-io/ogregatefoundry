@@ -26,6 +26,13 @@ function resourceSchema(value = 0, max = 0) {
   });
 }
 
+function expertiseEntrySchema() {
+  return new SchemaField({
+    name: textField(""),
+    note: textField("")
+  });
+}
+
 function rankSchema(label = "", max = 6, hardMax = 10) {
   return new SchemaField({
     label: textField(label),
@@ -34,6 +41,7 @@ function rankSchema(label = "", max = 6, hardMax = 10) {
     drain: numberField(0, { min: 0, max: 20 }),
     expertise: textField(""),
     expertiseNote: textField(""),
+    expertiseList: new ArrayField(expertiseEntrySchema()),
     max: numberField(max, { min: 0, max: hardMax })
   });
 }
@@ -136,11 +144,7 @@ function combatSchema() {
   return new SchemaField({
     action: textField("skillAndMove"),
     attackMode: textField("normal"),
-    activeDefense: textField("parry"),
-    activeDefenseRating: numberField(0, { min: 0, max: 20 }),
     pendingDamageBonus: numberField(0, { min: 0, max: 20 }),
-    opponentReach: textField("normal"),
-    reachSituation: textField("none"),
     chargeDistance: numberField(0, { min: 0, max: 1000 }),
     mountedBowShot: new BooleanField({ required: true, initial: false }),
     situationalDice: numberField(0, { min: -10, max: 10 }),
@@ -152,9 +156,7 @@ function combatSchema() {
     dyingRoundsElapsed: numberField(0, { min: 0 }),
     fasterHealing: new BooleanField({ required: true, initial: false }),
     healingAmount: numberField(1, { min: 1, max: 99 }),
-    controlledStrike: new BooleanField({ required: true, initial: false }),
-    deadlyTens: new BooleanField({ required: true, initial: false }),
-    deepPenalties: new BooleanField({ required: true, initial: false })
+    controlledStrike: new BooleanField({ required: true, initial: false })
   });
 }
 
@@ -344,7 +346,11 @@ export class OgreGateWeaponData extends OgreGateBaseItemData {
       attackSkill: textField("mediumMelee"),
       targetDefense: textField("parry"),
       damageSkill: textField("muscle"),
-      damageDice: numberField(1, { min: 0, max: 10 }),
+      damageDice: numberField(1, { min: -1, max: 10 }),
+      accuracyModifier: numberField(0, { min: -10, max: 10 }),
+      muscleRequirement: numberField(0, { min: 0, max: 10 }),
+      lethal: new BooleanField({ required: true, initial: true }),
+      damageType: textField("sharp"),
       reach: textField("normal"),
       openDamage: new BooleanField({ required: true, initial: false }),
       qualities: textField("")
@@ -356,8 +362,19 @@ export class OgreGateArmorData extends OgreGateBaseItemData {
   static defineSchema() {
     return {
       ...super.defineSchema(),
+      armorKey: textField("custom"),
+      equipped: new BooleanField({ required: true, initial: false }),
       defenseModifier: numberField(0, { min: -10, max: 10 }),
       penalty: numberField(0, { min: -10, max: 10 }),
+      sharpReduction: numberField(0, { min: 0, max: 10 }),
+      bluntReduction: numberField(0, { min: 0, max: 10 }),
+      mightyReduction: numberField(0, { min: 0, max: 10 }),
+      arrowReduction: numberField(0, { min: 0, max: 10 }),
+      speedPenalty: numberField(0, { min: 0, max: 10 }),
+      parryBonus: numberField(0, { min: 0, max: 10 }),
+      evadeBonus: numberField(0, { min: 0, max: 10 }),
+      muscleRequirement: numberField(0, { min: 0, max: 10 }),
+      shield: new BooleanField({ required: true, initial: false }),
       qualities: textField("")
     };
   }
@@ -398,6 +415,22 @@ export class OgreGateCombatTechniqueData extends OgreGateBaseItemData {
       bonus: textField("+1d10"),
       xpCost: numberField(12, { min: 0 }),
       damageEffect: textField("")
+    };
+  }
+}
+
+export class OgreGateSkillData extends OgreGateBaseItemData {
+  static defineSchema() {
+    return {
+      ...super.defineSchema(),
+      group: textField("combat"),
+      skillKey: textField(""),
+      ranks: numberField(0, { min: 0, max: 10 }),
+      modifier: numberField(0, { min: -10, max: 10 }),
+      drain: numberField(0, { min: 0, max: 20 }),
+      expertise: textField(""),
+      expertiseNote: textField(""),
+      expertiseList: new ArrayField(expertiseEntrySchema())
     };
   }
 }

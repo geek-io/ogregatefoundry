@@ -11,12 +11,25 @@ function getInputValue(input) {
 
 const ITEM_HELP = {
   weaponCategory: "Weapon category determines the default combat skill family for attacks.",
-  attackSkill: "Skill key used when this weapon rolls an attack, such as mediumMelee or smallRanged.",
+  attackSkill: "Skill used when this weapon rolls an attack.",
   targetDefense: "Defense the target uses against this weapon, usually Parry for melee or Evade for ranged.",
-  damageSkill: "Optional skill key whose ranks add dice to this weapon's damage roll.",
-  damageDice: "Base damage dice rolled by this weapon before skill ranks and modifiers.",
-  weaponReach: "Reach category used by the Chapter 2 closing and reach helper.",
+  damageSkill: "Optional skill whose ranks add dice to this weapon's damage roll.",
+  damageDice: "Damage dice added to the selected Damage Skill. This may be -1d10 for entries such as Arm Strike.",
+  accuracyModifier: "Accuracy dice added to or subtracted from the weapon's attack roll.",
+  muscleRequirement: "Minimum Muscle ranks needed to use the item effectively. Weapons apply -1d10 attack if unmet.",
+  lethal: "Non-lethal weapons do not start dying when they wound an incapacitated target.",
+  damageType: "Book weapon type: Sharp, Blunt, Mighty, Fire, or Special. This is used for armor damage reductions.",
+  weaponReach: "This weapon's Chapter 2 reach category, shown in weapon attack results for adjudicating closing and close range.",
   openDamage: "Open damage counts every success, rather than only the kept die result.",
+  specialRules: "Rules text for unusual traits such as disarming, parry bonuses, range quirks, or special damage behavior.",
+  armorPreset: "Select a book armor or shield to fill its damage reductions, penalties, and bonuses.",
+  equippedArmor: "Only equipped armor and shields are considered by sheet helpers.",
+  armorReduction: "Damage dice penalty imposed on mundane attacks of this type. Kung Fu Techniques ignore armor unless a rule says otherwise.",
+  armorArrowReduction: "Damage dice penalty against arrows, such as Paper Scale Armor.",
+  armorSpeedPenalty: "Penalty to Speed rolls while equipped.",
+  armorDefenseBonus: "Static Parry or Evade bonus from a shield.",
+  skillGroup: "Primary skill group used to organize this skill on the actor sheet.",
+  skillKey: "Rules key used for automation and duplicate checks. Open skill choices use keys such as talent.poisoning or language.daoyun.",
   techniqueDiscipline: "Martial discipline required or associated with this technique.",
   techniqueType: "Technique bucket used to organize it on the actor sheet.",
   activationSkill: "Skill used to activate or roll the technique when one is required.",
@@ -34,13 +47,42 @@ const ITEM_HELP = {
   flawPenalty: "Mechanical penalty or reminder text for the flaw."
 };
 
+function skillOptions({ includeBlank = false } = {}) {
+  const options = [];
+  if (includeBlank) options.push({ key: "", label: "None" });
+  for (const [groupKey, group] of Object.entries(OGRE_GATE.skillGroups)) {
+    if (groupKey === "defenses") continue;
+    for (const [skillKey, label] of Object.entries(group.skills)) {
+      options.push({
+        key: skillKey,
+        label: `${group.label}: ${label}`
+      });
+    }
+  }
+  return options;
+}
+
+function combatSkillOptions() {
+  return Object.entries(OGRE_GATE.skillGroups.combat.skills).map(([key, label]) => ({
+    key,
+    label
+  }));
+}
+
+function defenseOptions() {
+  return Object.entries(OGRE_GATE.defenses).map(([key, defense]) => ({
+    key,
+    label: defense.label
+  }));
+}
+
 export class OgreGateItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
   static DEFAULT_OPTIONS = {
     ...super.DEFAULT_OPTIONS,
     classes: ["ogre-gate", "item-sheet"],
     position: {
-      width: 620,
-      height: 560
+      width: 700,
+      height: 620
     },
     window: {
       ...super.DEFAULT_OPTIONS.window,
@@ -67,6 +109,23 @@ export class OgreGateItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       system: this.item.system,
       config: OGRE_GATE,
       help: ITEM_HELP,
+      skillGroups: Object.entries(OGRE_GATE.skillGroups).filter(([key]) => key !== "defenses").map(([key, group]) => ({
+        key,
+        label: group.label
+      })),
+      combatSkills: combatSkillOptions(),
+      allSkills: skillOptions({ includeBlank: true }),
+      defenses: defenseOptions(),
+      weaponDamageTypes: Object.entries(OGRE_GATE.weaponDamageTypes).map(([key, label]) => ({ key, label })),
+      disciplines: Object.entries(OGRE_GATE.disciplines).map(([key, label]) => ({ key, label })),
+      techniqueTypes: Object.entries(OGRE_GATE.techniqueTypes).map(([key, label]) => ({ key, label })),
+      armorRules: Object.entries(OGRE_GATE.armorRules).map(([key, rule]) => ({
+        key,
+        ...rule,
+        tooltip: rule.shield
+          ? `${rule.label}: Parry +${rule.parryBonus}, Evade +${rule.evadeBonus}, Speed -${rule.speedPenalty}d10.`
+          : `${rule.label}: Sharp -${rule.sharpReduction}d10, Blunt -${rule.bluntReduction}d10, Mighty -${rule.mightyReduction}d10, Arrows -${rule.arrowReduction}d10, Speed -${rule.speedPenalty}d10.`
+      })),
       flawRules: Object.entries(OGRE_GATE.flawRules).map(([key, rule]) => ({
         key,
         ...rule,
@@ -106,6 +165,29 @@ export class OgreGateItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
         updates["system.skillPointValue"] = rule.points;
         updates["system.category"] = rule.category;
         updates["system.exemptFromCreationLimit"] = Boolean(rule.exemptFromCreationLimit);
+      }
+    }
+
+    if (this.item.type === "weapon" && field.name === "system.category") {
+      updates["system.attackSkill"] = field.value;
+      updates["system.targetDefense"] = OGRE_GATE.combatSkillDefense[field.value] ?? this.item.system.targetDefense;
+    }
+
+    if (this.item.type === "armor" && field.name === "system.armorKey") {
+      const rule = OGRE_GATE.armorRules[field.value];
+      if (rule) {
+        if (field.value !== "custom") updates.name = rule.label;
+        if (rule.cost) updates["system.cost"] = rule.cost;
+        updates["system.sharpReduction"] = rule.sharpReduction;
+        updates["system.bluntReduction"] = rule.bluntReduction;
+        updates["system.mightyReduction"] = rule.mightyReduction;
+        updates["system.arrowReduction"] = rule.arrowReduction;
+        updates["system.speedPenalty"] = rule.speedPenalty;
+        updates["system.parryBonus"] = rule.parryBonus;
+        updates["system.evadeBonus"] = rule.evadeBonus;
+        updates["system.muscleRequirement"] = rule.muscleRequirement;
+        updates["system.shield"] = Boolean(rule.shield);
+        updates["system.qualities"] = rule.notes;
       }
     }
 

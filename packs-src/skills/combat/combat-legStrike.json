@@ -1,0 +1,26 @@
+{
+  "_id": "f0a832615518e24d",
+  "name": "Leg Strike",
+  "type": "skills",
+  "img": "icons/svg/book.svg",
+  "system": {
+    "description": "This is used to kick, knee strike, and drop kick your enemy. Attacks made using Leg Strike generally do Muscle in Damage, have reach (provided it is kicking and not knees) and take -1d10 accuracy penalty to Attack. When using Leg Strike, roll against the target's Parry. On a Success you can roll damage against their Hardiness as usual.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 1: Skills",
+    "cost": "",
+    "group": "combat",
+    "skillKey": "legStrike",
+    "ranks": 0,
+    "modifier": 0,
+    "drain": 0,
+    "expertise": "",
+    "expertiseNote": "",
+    "expertiseList": []
+  },
+  "effects": [],
+  "folder": "710ad0bb00fac06d",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!f0a832615518e24d"
+}

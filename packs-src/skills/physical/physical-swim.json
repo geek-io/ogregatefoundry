@@ -1,0 +1,26 @@
+{
+  "_id": "0736cd640872a09b",
+  "name": "Swim",
+  "type": "skills",
+  "img": "icons/svg/book.svg",
+  "system": {
+    "description": "Swim represents your ability to tread water. It is used to check for drowning and to determine your movement speed in the water.\n\nMovement in the water is set by your Swim Rank (in the same way Speed governs land movement). You can swim 10 feet plus 5 feet per Rank of Swim. So, a Character with two Ranks in Swim moves 20 feet in a round when in the water.\n\nYou may occasionally need to make Swim rolls for chases or races in water. When trying to out-swim someone, make contested Swim rolls. Whoever gets the single highest result out-swims the other. When chasing someone in the water, make contested rolls in the same way. If the pursuer meets or exceeds the roll of the person in flight, then he catches up to him and can attempt to make a Restrain roll. If the person trying to flee rolls higher, then he creates substantial distance between himself and the pursuer.\n\nSometimes you make a Swim roll to avoid drowning. If you had to make a roll every time you set foot in water, every character would drown eventually. So your Swim Rank determines under what conditions you must roll to avoid drowning. When you enter water, compare it to the Drowning conditions in the WATER CONDITIONS AND DROWNING table to see if a roll is called for (or just use common sense). See the Swim Check column of the chart to determine whether you need to roll to avoid drowning or not.\n\nTo check for drowning, make a Swim roll. On a Failure, you begin to drown (See SUFFOCATION AND DROWNING in CHAPTER TWO: RULES). On a Success, you stay afloat. On a Total Success, you stay afloat and do not need to make a check the following round.\n\nEven conditions that do not require a Drowning check for your Rank become dangerous after a while (in which case you do need to make a Swim roll to avoid drowning). Your Endurance Rank determines how many hours you can spend swimming in safe conditions before needing to make a Drowning check. Each Rank gives you one hour. So, a character with Rank 2 Swim can spend two hours in open sea conditions before making a check.\n\nWATER CONDITIONS AND DROWNING\n\nSwim TN 3: Calm waters; Swim Check Rank 0.\nSwim TN 6: Rough Waters; Swim Check Rank 1 or lower.\nSwim TN 9: Stormy Waters; Swim Check Rank 2 or lower.\nSwim TN 10: Hurricane or Tsunami; Swim Check Rank 3 or lower.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 1: Skills",
+    "cost": "",
+    "group": "physical",
+    "skillKey": "swim",
+    "ranks": 0,
+    "modifier": 0,
+    "drain": 0,
+    "expertise": "",
+    "expertiseNote": "",
+    "expertiseList": []
+  },
+  "effects": [],
+  "folder": "6680f6ea0d3e5346",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!0736cd640872a09b"
+}

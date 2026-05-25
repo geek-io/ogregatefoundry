@@ -3,6 +3,7 @@ import { OgreGateRoll } from "./rolls.mjs";
 import { prepareCharacterCreation } from "./rules/character-creation.mjs";
 
 const MELEE_SKILLS = new Set(["armStrike", "legStrike", "grapple", "throw", "lightMelee", "mediumMelee", "heavyMelee"]);
+const RANGED_SKILLS = new Set(["smallRanged", "largeRanged"]);
 
 function escapeHtml(value = "") {
   return String(value ?? "")
@@ -16,21 +17,25 @@ function effectiveRanks(entry) {
   return Math.max(0, Number(entry?.ranks ?? 0) - Number(entry?.drain ?? 0));
 }
 
+function systemRule(key) {
+  return game.settings.get(OGRE_GATE.id, key);
+}
+
 function normalizeKey(value = "") {
   return String(value).trim().toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
-function getReachModifier(weaponReach = "normal", opponentReach = "normal", situation = "none") {
-  const weapon = OGRE_GATE.reachValues[weaponReach] ?? OGRE_GATE.reachValues.normal;
-  const opponent = OGRE_GATE.reachValues[opponentReach] ?? OGRE_GATE.reachValues.normal;
-  if (situation === "closing") return Math.clamp(weapon - opponent, -1, 1);
-  if (situation === "longAdjacent" && weaponReach === "long") return -1;
-  if (situation === "insideLong" && weaponReach === "none" && opponentReach === "long") return 1;
-  return 0;
+function itemSkillKey(item) {
+  return normalizeKey(item?.system?.skillKey || item?.name || "");
+}
+
+function getFirstTargetActor() {
+  return Array.from(game.user?.targets ?? []).find((token) => token?.actor)?.actor ?? null;
 }
 
 export class OgreGateActor extends Actor {
   getRaceSkillModifier(groupKey, skillKey) {
+    skillKey = normalizeKey(skillKey);
     const race = this.system.creation.race;
     if (race === "hechi") {
       if (groupKey === "physical" && skillKey === "endurance") return 1;
@@ -58,14 +63,101 @@ export class OgreGateActor extends Actor {
   }
 
   getSkill(groupKey, skillKey) {
-    return this.system.skills?.[groupKey]?.[skillKey] ?? null;
+    const normalized = normalizeKey(skillKey);
+    const item = this.items.find((candidate) => {
+      if (candidate.type !== "skills") return false;
+      if (candidate.system.group !== groupKey) return false;
+      return itemSkillKey(candidate) === normalized;
+    });
+    return item?.system ?? this.system.skills?.[groupKey]?.[skillKey] ?? null;
+  }
+
+  getSkillItem(groupKey, skillKey) {
+    const normalized = normalizeKey(skillKey);
+    return this.items.find((candidate) => {
+      if (candidate.type !== "skills") return false;
+      if (candidate.system.group !== groupKey) return false;
+      return itemSkillKey(candidate) === normalized;
+    }) ?? null;
+  }
+
+  getEquippedArmorEffects() {
+    return this.items
+      .filter((item) => item.type === "armor" && item.system.equipped)
+      .reduce((effects, item) => {
+        effects.speedPenalty += Number(item.system.speedPenalty ?? item.system.penalty ?? 0);
+        effects.parryBonus += Number(item.system.parryBonus ?? 0);
+        effects.evadeBonus += Number(item.system.evadeBonus ?? 0);
+        return effects;
+      }, {
+        speedPenalty: 0,
+        parryBonus: 0,
+        evadeBonus: 0
+      });
+  }
+
+  getArmorRollModifier(groupKey, skillKey) {
+    if (groupKey === "physical" && skillKey === "speed") return -this.getEquippedArmorEffects().speedPenalty;
+    return 0;
+  }
+
+  getArmorDefenseBonus(defenseKey) {
+    const effects = this.getEquippedArmorEffects();
+    if (defenseKey === "parry") return effects.parryBonus;
+    if (defenseKey === "evade") return effects.evadeBonus;
+    return 0;
+  }
+
+  getArmorDamageReduction(weapon) {
+    const damageType = weapon?.system?.damageType ?? "special";
+    const attackSkill = weapon?.system?.attackSkill ?? weapon?.system?.category ?? "";
+    return this.items
+      .filter((item) => item.type === "armor" && item.system.equipped)
+      .reduce((total, armor) => {
+        if (RANGED_SKILLS.has(attackSkill) && damageType === "sharp") total += Number(armor.system.arrowReduction ?? 0);
+        if (damageType === "sharp") total += Number(armor.system.sharpReduction ?? 0);
+        else if (damageType === "blunt") total += Number(armor.system.bluntReduction ?? 0);
+        else if (damageType === "mighty") total += Number(armor.system.mightyReduction ?? 0);
+        return total;
+      }, 0);
   }
 
   findSkill(skillKey) {
+    const normalized = normalizeKey(skillKey);
+    const item = this.items.find((candidate) => candidate.type === "skills" && itemSkillKey(candidate) === normalized);
+    if (item) return { groupKey: item.system.group, skillKey: item.system.skillKey || item.name, skill: item.system, item };
+
     for (const [groupKey, group] of Object.entries(this.system.skills ?? {})) {
       if (skillKey in group) return { groupKey, skillKey, skill: group[skillKey] };
     }
     return null;
+  }
+
+  async rollSkillItem(item, options = {}) {
+    item = typeof item === "string" ? this.items.get(item) : item;
+    if (!item || item.type !== "skills") return null;
+
+    const groupKey = item.system.group || "specialist";
+    const skillKey = item.system.skillKey || item.name;
+    const illumination = OGRE_GATE.illumination[this.system.combat.illumination] ?? OGRE_GATE.illumination.normal;
+    const raceModifier = this.getRaceSkillModifier(groupKey, skillKey);
+    const armorModifier = this.getArmorRollModifier(groupKey, skillKey);
+    return OgreGateRoll.skill({
+      actor: this,
+      label: options.label ?? item.name,
+      ranks: effectiveRanks(item.system),
+      modifier: Number(item.system.modifier ?? 0) + raceModifier + armorModifier + Number(illumination.dice ?? 0) + Number(options.modifier ?? 0),
+      tn: options.tn ?? 6,
+      rollMode: options.rollMode,
+      deepPenalties: systemRule("deepPenalties"),
+      returnOutcome: Boolean(options.returnOutcome),
+      extra: [
+        item.system.drain ? `<div class="ogre-gate-chat-row"><strong>Drain</strong><span>-${item.system.drain} rank(s)</span></div>` : "",
+        raceModifier ? `<div class="ogre-gate-chat-row"><strong>Race Modifier</strong><span>${raceModifier > 0 ? "+" : ""}${raceModifier}d10</span></div>` : "",
+        armorModifier ? `<div class="ogre-gate-chat-row"><strong>Armor Penalty</strong><span>${armorModifier}d10</span></div>` : "",
+        options.extra ?? ""
+      ].filter(Boolean).join("")
+    });
   }
 
   async rollSkill(groupKey, skillKey, options = {}) {
@@ -75,18 +167,20 @@ export class OgreGateActor extends Actor {
     const label = options.label ?? skill.label ?? OGRE_GATE.skillGroups[groupKey]?.skills?.[skillKey] ?? skillKey;
     const illumination = OGRE_GATE.illumination[this.system.combat.illumination] ?? OGRE_GATE.illumination.normal;
     const raceModifier = this.getRaceSkillModifier(groupKey, skillKey);
+    const armorModifier = this.getArmorRollModifier(groupKey, skillKey);
     return OgreGateRoll.skill({
       actor: this,
       label,
       ranks: effectiveRanks(skill),
-      modifier: skill.modifier + raceModifier + Number(illumination.dice ?? 0) + Number(options.modifier ?? 0),
+      modifier: skill.modifier + raceModifier + armorModifier + Number(illumination.dice ?? 0) + Number(options.modifier ?? 0),
       tn: options.tn ?? 6,
       rollMode: options.rollMode,
-      deepPenalties: this.system.combat.deepPenalties,
+      deepPenalties: systemRule("deepPenalties"),
       returnOutcome: Boolean(options.returnOutcome),
       extra: [
         skill.drain ? `<div class="ogre-gate-chat-row"><strong>Drain</strong><span>-${skill.drain} rank(s)</span></div>` : "",
         raceModifier ? `<div class="ogre-gate-chat-row"><strong>Race Modifier</strong><span>${raceModifier > 0 ? "+" : ""}${raceModifier}d10</span></div>` : "",
+        armorModifier ? `<div class="ogre-gate-chat-row"><strong>Armor Penalty</strong><span>${armorModifier}d10</span></div>` : "",
         options.extra ?? ""
       ].filter(Boolean).join("")
     });
@@ -100,30 +194,12 @@ export class OgreGateActor extends Actor {
       actor: this,
       label: defense.label,
       ranks: Math.max(0, Number(defense.ranks ?? 0) - Number(defense.drain ?? 0)),
-      modifier: defense.modifier + (options.modifier ?? 0),
+      modifier: defense.modifier + this.getArmorDefenseBonus(defenseKey) + (options.modifier ?? 0),
       tn: options.tn ?? 6,
       rollMode: options.rollMode,
-      deepPenalties: this.system.combat.deepPenalties,
+      deepPenalties: systemRule("deepPenalties"),
       returnOutcome: Boolean(options.returnOutcome)
     });
-  }
-
-  async rollActiveDefense(defenseKey = "parry", options = {}) {
-    const defense = this.system.defenses?.[defenseKey];
-    if (!defense) return null;
-
-    const result = await this.rollDefense(defenseKey, {
-      tn: options.tn ?? 1,
-      rollMode: options.rollMode,
-      returnOutcome: true
-    });
-    const rating = Math.max(Number(defense.rating ?? 0), Number(result?.selected ?? 0));
-    await this.update({
-      "system.combat.activeDefense": defenseKey,
-      "system.combat.activeDefenseRating": rating
-    });
-    ui.notifications.info(`${this.name}'s active ${defense.label} is ${rating}.`);
-    return result?.message ?? result;
   }
 
   async rollAttackWithWeapon(item, options = {}) {
@@ -141,12 +217,14 @@ export class OgreGateActor extends Actor {
     const illumination = OGRE_GATE.illumination[this.system.combat.illumination] ?? OGRE_GATE.illumination.normal;
     const raceModifier = this.getRaceSkillModifier("combat", skillKey);
     const actionModifier = Number(action.skill ?? 0);
-    const reachModifier = getReachModifier(item.system.reach, this.system.combat.opponentReach, this.system.combat.reachSituation);
+    const muscle = this.getSkill("physical", "muscle");
+    const muscleRequirementPenalty = Number(muscle?.ranks ?? 0) < Number(item.system.muscleRequirement ?? 0) ? -1 : 0;
     const totalModifier = skill.modifier
       + actionModifier
+      + Number(item.system.accuracyModifier ?? 0)
       + Number(attackMode.attack ?? 0)
       + raceModifier
-      + reachModifier
+      + muscleRequirementPenalty
       + Number(illumination.dice ?? 0)
       + Number(this.system.combat.situationalDice ?? 0)
       + Number(options.modifier ?? 0);
@@ -159,12 +237,15 @@ export class OgreGateActor extends Actor {
       defense: defenseLabel,
       mode: [
         attackMode.label,
+        Number(item.system.accuracyModifier ?? 0) ? `Accuracy ${Number(item.system.accuracyModifier) > 0 ? "+" : ""}${item.system.accuracyModifier}d10` : "",
         raceModifier ? `Race ${raceModifier > 0 ? "+" : ""}${raceModifier}d10` : "",
-        reachModifier ? `Reach ${reachModifier > 0 ? "+" : ""}${reachModifier}d10` : "",
+        `Reach: ${OGRE_GATE.reachCategories[item.system.reach] ?? item.system.reach}`,
+        muscleRequirementPenalty ? `Muscle requirement ${item.system.muscleRequirement} unmet: -1d10` : "",
         attackMode.workflow ?? ""
       ].filter(Boolean).join(" | "),
       tn: options.tn ?? 6,
-      deadlyTens: this.system.combat.deadlyTens,
+      deadlyTens: systemRule("deadlyTens"),
+      deepPenalties: systemRule("deepPenalties"),
       rollMode: options.rollMode
     });
   }
@@ -186,17 +267,20 @@ export class OgreGateActor extends Actor {
     const controlledReduction = controlledStrike ? -1 : 0;
     const raceDamageModifier = this.getRaceDamageModifier(item.system.attackSkill || item.system.category);
     const pendingDamageBonus = Math.max(0, Math.trunc(Number(options.damageBonus ?? this.system.combat.pendingDamageBonus ?? 0)));
+    const targetActor = getFirstTargetActor();
+    const armorReduction = targetActor?.getArmorDamageReduction?.(item) ?? 0;
 
     const message = await this.rollDamage({
       label: `${item.name} Damage`,
       dice: Number(item.system.damageDice ?? 0) + skillRanks,
       hardiness: options.hardiness ?? 6,
       open: item.system.openDamage || options.open || attackMode.openDamage,
-      modifier: Number(options.modifier ?? 0) + Number(attackMode.damage ?? 0) + raceDamageModifier + pendingDamageBonus,
+      modifier: Number(options.modifier ?? 0) + Number(attackMode.damage ?? 0) + raceDamageModifier + pendingDamageBonus - armorReduction,
       extraWounds: Number(options.extraWounds ?? 0) + modeExtraWounds + controlledReduction,
       note: [
         attackMode.label,
         pendingDamageBonus ? `Attack bonus +${pendingDamageBonus}d10` : "",
+        armorReduction ? `${targetActor.name} armor -${armorReduction}d10` : "",
         raceDamageModifier ? `Race +${raceDamageModifier}d10 damage` : "",
         attackMode.nonLethal ? "Non-lethal" : "",
         controlledStrike ? "Controlled Strike" : "",
@@ -213,17 +297,21 @@ export class OgreGateActor extends Actor {
   }
 
   async rollTurnOrder(options = {}) {
-    const speed = this.system.skills.physical.speed;
+    const speed = this.getSkill("physical", "speed") ?? this.system.skills.physical.speed;
     const raceModifier = this.getRaceSkillModifier("physical", "speed");
+    const armorModifier = this.getArmorRollModifier("physical", "speed");
     return OgreGateRoll.skill({
       actor: this,
       label: "Turn Order",
       ranks: effectiveRanks(speed),
-      modifier: speed.modifier + raceModifier + Number(options.modifier ?? 0),
+      modifier: speed.modifier + raceModifier + armorModifier + Number(options.modifier ?? 0),
       tn: 1,
       rollMode: options.rollMode,
-      deepPenalties: this.system.combat.deepPenalties,
-      extra: raceModifier ? `<div class="ogre-gate-chat-row"><strong>Race Modifier</strong><span>${raceModifier > 0 ? "+" : ""}${raceModifier}d10</span></div>` : ""
+      deepPenalties: systemRule("deepPenalties"),
+      extra: [
+        raceModifier ? `<div class="ogre-gate-chat-row"><strong>Race Modifier</strong><span>${raceModifier > 0 ? "+" : ""}${raceModifier}d10</span></div>` : "",
+        armorModifier ? `<div class="ogre-gate-chat-row"><strong>Armor Penalty</strong><span>${armorModifier}d10</span></div>` : ""
+      ].filter(Boolean).join("")
     });
   }
 
@@ -237,7 +325,8 @@ export class OgreGateActor extends Actor {
       modifier,
       extraWounds,
       note,
-      outcomeHint
+      outcomeHint,
+      deepPenalties: systemRule("deepPenalties")
     });
   }
 
@@ -267,7 +356,7 @@ export class OgreGateActor extends Actor {
   }
 
   async rollSuffocation(roundsElapsed = 0, options = {}) {
-    const endurance = this.system.skills.physical.endurance;
+    const endurance = this.getSkill("physical", "endurance") ?? this.system.skills.physical.endurance;
     const rounds = Math.max(0, Math.trunc(Number(roundsElapsed ?? 0)));
     const tn = Math.clamp(1 + (rounds * 4), 1, 10);
     return OgreGateRoll.skill({
@@ -277,7 +366,7 @@ export class OgreGateActor extends Actor {
       modifier: endurance.modifier + Number(options.modifier ?? 0),
       tn,
       rollMode: options.rollMode,
-      deepPenalties: this.system.combat.deepPenalties,
+      deepPenalties: systemRule("deepPenalties"),
       extra: `<div class="ogre-gate-chat-row"><strong>Failure</strong><span>1 Wound</span></div>`
     });
   }
@@ -393,6 +482,11 @@ export class OgreGateActor extends Actor {
 
   findSkillPath(search) {
     const normalized = normalizeKey(search);
+    const item = this.items.find((candidate) => candidate.type === "skills" && (
+      itemSkillKey(candidate) === normalized || normalizeKey(candidate.name) === normalized
+    ));
+    if (item) return { groupKey: item.system.group, skillKey: item.system.skillKey || item.name, skill: item.system, item };
+
     for (const [groupKey, group] of Object.entries(this.system.skills ?? {})) {
       for (const [skillKey, skill] of Object.entries(group)) {
         if (normalizeKey(skillKey) === normalized || normalizeKey(skill.label) === normalized) {
@@ -408,6 +502,7 @@ export class OgreGateActor extends Actor {
     if (!amount) return {};
 
     const updates = {};
+    const applied = {};
     if (type === "qi") {
       updates["system.qi.temporary"] = Math.min(this.system.qi.rank, Number(this.system.qi.temporary ?? 0) + amount);
     } else if (type === "defense") {
@@ -419,11 +514,15 @@ export class OgreGateActor extends Actor {
       if (defenseKey) updates[`system.defenses.${defenseKey}.drain`] = Number(this.system.defenses[defenseKey].drain ?? 0) + amount;
     } else if (type === "skill") {
       const match = this.findSkillPath(key);
-      if (match) updates[`system.skills.${match.groupKey}.${match.skillKey}.drain`] = Number(match.skill.drain ?? 0) + amount;
+      if (match?.item) {
+        await match.item.update({ "system.drain": Number(match.skill.drain ?? 0) + amount });
+        applied[`items.${match.item.id}.drain`] = amount;
+      }
+      else if (match) updates[`system.skills.${match.groupKey}.${match.skillKey}.drain`] = Number(match.skill.drain ?? 0) + amount;
     }
 
     if (Object.keys(updates).length) await this.update(updates);
-    return updates;
+    return { ...updates, ...applied };
   }
 
   async recoverDrains(amount = 1) {
@@ -431,6 +530,7 @@ export class OgreGateActor extends Actor {
     if (!amount) return {};
 
     const updates = {};
+    const applied = {};
     if (this.system.qi.temporary) updates["system.qi.temporary"] = Math.max(0, this.system.qi.temporary - amount);
     for (const [key, defense] of Object.entries(this.system.defenses ?? {})) {
       if (defense.drain) updates[`system.defenses.${key}.drain`] = Math.max(0, defense.drain - amount);
@@ -440,8 +540,12 @@ export class OgreGateActor extends Actor {
         if (skill.drain) updates[`system.skills.${groupKey}.${skillKey}.drain`] = Math.max(0, skill.drain - amount);
       }
     }
+    for (const item of this.items.filter((candidate) => candidate.type === "skills" && candidate.system.drain)) {
+      await item.update({ "system.drain": Math.max(0, Number(item.system.drain ?? 0) - amount) });
+      applied[`items.${item.id}.drain`] = amount;
+    }
     if (Object.keys(updates).length) await this.update(updates);
-    return updates;
+    return { ...updates, ...applied };
   }
 
   async applyWounds(amount = 1) {
@@ -467,22 +571,42 @@ export class OgreGateActor extends Actor {
 
   async applyCreationDefaults() {
     const updates = {};
+    const applied = {};
     const race = this.system.creation.race;
     if (this.system.qi.rank < OGRE_GATE.creation.startingQi) updates["system.qi.rank"] = OGRE_GATE.creation.startingQi;
     if (this.system.money.spades < OGRE_GATE.creation.startingSpadeCoins) updates["system.money.spades"] = OGRE_GATE.creation.startingSpadeCoins;
 
+    const ensureSkillMinimum = async (groupKey, skillKey, label, ranks = 1) => {
+      const item = this.getSkillItem(groupKey, skillKey);
+      if (item) {
+        if (Number(item.system.ranks ?? 0) < ranks) {
+          await item.update({ "system.ranks": ranks });
+          applied[`skills.${skillKey}`] = ranks;
+        }
+        return;
+      }
+      await this.createEmbeddedDocuments("Item", [{
+        name: label,
+        type: "skills",
+        system: {
+          group: groupKey,
+          skillKey,
+          ranks
+        }
+      }]);
+      applied[`skills.${skillKey}`] = ranks;
+    };
+
     if (race === "kithiri") {
-      if (this.system.skills.mental.empathy.ranks < 1) updates["system.skills.mental.empathy.ranks"] = 1;
-      if (this.system.skills.mental.reasoning.ranks < 1) updates["system.skills.mental.reasoning.ranks"] = 1;
+      await ensureSkillMinimum("mental", "empathy", "Empathy", 1);
+      await ensureSkillMinimum("mental", "reasoning", "Reasoning", 1);
       if (this.system.defenses.wits.ranks < 1) updates["system.defenses.wits.ranks"] = 1;
     }
 
-    if (race === "juren" && this.system.skills.physical.muscle.ranks < 1) {
-      updates["system.skills.physical.muscle.ranks"] = 1;
-    }
+    if (race === "juren") await ensureSkillMinimum("physical", "muscle", "Muscle", 1);
 
     if (Object.keys(updates).length) await this.update(updates);
-    return updates;
+    return { ...updates, ...applied };
   }
 
   async postCreationSummary() {

@@ -1,7 +1,7 @@
 <form class="ogre-gate-form item" autocomplete="off">
   <header class="sheet-header item-header">
     <img class="profile-img" src="{{item.img}}" data-edit="img" data-action="showPortraitArtwork" title="{{item.name}}" />
-    <section>
+    <section class="item-summary">
       <label>Name <input type="text" name="name" value="{{item.name}}" /></label>
       <label>Type <input type="text" value="{{item.type}}" disabled /></label>
       <label>Source <input type="text" name="system.source" value="{{system.source}}" /></label>
@@ -10,13 +10,46 @@
   </header>
 
   {{#if (eq item.type "weapon")}}
-    <section class="panel">
+    <section class="panel weapon-fields">
       <h2>Weapon</h2>
-      <label data-tooltip="{{help.weaponCategory}}">Category <input type="text" name="system.category" value="{{system.category}}" /></label>
-      <label data-tooltip="{{help.attackSkill}}">Attack Skill <input type="text" name="system.attackSkill" value="{{system.attackSkill}}" /></label>
-      <label data-tooltip="{{help.targetDefense}}">Target Defense <input type="text" name="system.targetDefense" value="{{system.targetDefense}}" /></label>
-      <label data-tooltip="{{help.damageSkill}}">Damage Skill <input type="text" name="system.damageSkill" value="{{system.damageSkill}}" /></label>
-      <label data-tooltip="{{help.damageDice}}">Damage Dice <input type="number" name="system.damageDice" value="{{system.damageDice}}" min="0" max="10" /></label>
+      <label data-tooltip="{{help.weaponCategory}}">Category
+        <select name="system.category">
+          {{#each combatSkills as |skill|}}
+            <option value="{{skill.key}}" {{#if (eq ../system.category skill.key)}}selected{{/if}}>{{skill.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label data-tooltip="{{help.attackSkill}}">Attack Skill
+        <select name="system.attackSkill">
+          {{#each combatSkills as |skill|}}
+            <option value="{{skill.key}}" {{#if (eq ../system.attackSkill skill.key)}}selected{{/if}}>{{skill.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label data-tooltip="{{help.targetDefense}}">Target Defense
+        <select name="system.targetDefense">
+          {{#each defenses as |defense|}}
+            <option value="{{defense.key}}" {{#if (eq ../system.targetDefense defense.key)}}selected{{/if}}>{{defense.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label data-tooltip="{{help.damageSkill}}">Damage Skill
+        <select name="system.damageSkill">
+          {{#each allSkills as |skill|}}
+            <option value="{{skill.key}}" {{#if (eq ../system.damageSkill skill.key)}}selected{{/if}}>{{skill.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label data-tooltip="{{help.damageDice}}">Damage Bonus Dice <input type="number" name="system.damageDice" value="{{system.damageDice}}" min="-1" max="10" /></label>
+      <label data-tooltip="{{help.accuracyModifier}}">Accuracy <input type="number" name="system.accuracyModifier" value="{{system.accuracyModifier}}" min="-10" max="10" /></label>
+      <label data-tooltip="{{help.muscleRequirement}}">Muscle Requirement <input type="number" name="system.muscleRequirement" value="{{system.muscleRequirement}}" min="0" max="10" /></label>
+      <label data-tooltip="{{help.damageType}}">Damage Type
+        <select name="system.damageType">
+          {{#each weaponDamageTypes as |type|}}
+            <option value="{{type.key}}" {{#if (eq ../system.damageType type.key)}}selected{{/if}}>{{type.label}}</option>
+          {{/each}}
+        </select>
+      </label>
       <label data-tooltip="{{help.weaponReach}}">Reach
         <select name="system.reach">
           {{#each reachOptions as |reach|}}
@@ -25,16 +58,54 @@
         </select>
       </label>
       <label data-tooltip="{{help.openDamage}}">Open Damage <input type="checkbox" name="system.openDamage" {{checked system.openDamage}} /></label>
-      <label>Qualities <input type="text" name="system.qualities" value="{{system.qualities}}" /></label>
+      <label data-tooltip="{{help.lethal}}">Lethal <input type="checkbox" name="system.lethal" {{checked system.lethal}} /></label>
+      <label data-tooltip="{{help.specialRules}}">Special Rules <input type="text" name="system.qualities" value="{{system.qualities}}" /></label>
+    </section>
+  {{/if}}
+
+  {{#if (eq item.type "skills")}}
+    <section class="panel">
+      <h2>Skills</h2>
+      <label data-tooltip="{{help.skillGroup}}">Primary Skill Type
+        <select name="system.group">
+          {{#each skillGroups as |group|}}
+            <option value="{{group.key}}" {{#if (eq ../system.group group.key)}}selected{{/if}}>{{group.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label data-tooltip="{{help.skillKey}}">Rules Key <input type="text" name="system.skillKey" value="{{system.skillKey}}" placeholder="speed, muscle, medicine..." /></label>
+      <label>Ranks <input type="number" name="system.ranks" value="{{system.ranks}}" min="0" max="10" /></label>
+      <label>Modifier <input type="number" name="system.modifier" value="{{system.modifier}}" min="-10" max="10" /></label>
+      <label>Drain <input type="number" name="system.drain" value="{{system.drain}}" min="0" max="20" /></label>
+      <label>Expertise <input type="text" name="system.expertise" value="{{system.expertise}}" /></label>
+      <label>Expertise Note <input type="text" name="system.expertiseNote" value="{{system.expertiseNote}}" /></label>
     </section>
   {{/if}}
 
   {{#if (eq item.type "technique")}}
     <section class="panel">
       <h2>Kung Fu Technique</h2>
-      <label data-tooltip="{{help.techniqueDiscipline}}">Discipline <input type="text" name="system.discipline" value="{{system.discipline}}" /></label>
-      <label data-tooltip="{{help.techniqueType}}">Type <input type="text" name="system.techniqueType" value="{{system.techniqueType}}" /></label>
-      <label data-tooltip="{{help.activationSkill}}">Activation Skill <input type="text" name="system.activationSkill" value="{{system.activationSkill}}" /></label>
+      <label data-tooltip="{{help.techniqueDiscipline}}">Discipline
+        <select name="system.discipline">
+          {{#each disciplines as |discipline|}}
+            <option value="{{discipline.key}}" {{#if (eq ../system.discipline discipline.key)}}selected{{/if}}>{{discipline.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label data-tooltip="{{help.techniqueType}}">Type
+        <select name="system.techniqueType">
+          {{#each techniqueTypes as |type|}}
+            <option value="{{type.key}}" {{#if (eq ../system.techniqueType type.key)}}selected{{/if}}>{{type.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label data-tooltip="{{help.activationSkill}}">Activation Skill
+        <select name="system.activationSkill">
+          {{#each allSkills as |skill|}}
+            <option value="{{skill.key}}" {{#if (eq ../system.activationSkill skill.key)}}selected{{/if}}>{{skill.label}}</option>
+          {{/each}}
+        </select>
+      </label>
       <label data-tooltip="{{help.qiRank}}">Qi Rank <input type="number" name="system.qiRank" value="{{system.qiRank}}" min="0" /></label>
       <label data-tooltip="{{help.qiCost}}">Qi Cost <input type="number" name="system.qiCost" value="{{system.qiCost}}" min="0" /></label>
       <label>Damage <input type="text" name="system.damage" value="{{system.damage}}" /></label>
@@ -54,7 +125,13 @@
           {{/each}}
         </select>
       </label>
-      <label data-tooltip="{{help.combatPerkSkill}}">Skill <input type="text" name="system.skill" value="{{system.skill}}" /></label>
+      <label data-tooltip="{{help.combatPerkSkill}}">Skill
+        <select name="system.skill">
+          {{#each allSkills as |skill|}}
+            <option value="{{skill.key}}" {{#if (eq ../system.skill skill.key)}}selected{{/if}}>{{skill.label}}</option>
+          {{/each}}
+        </select>
+      </label>
       <label data-tooltip="{{help.combatPerkBonus}}">Bonus <input type="text" name="system.bonus" value="{{system.bonus}}" /></label>
       <label>XP Cost <input type="number" name="system.xpCost" value="{{system.xpCost}}" min="0" /></label>
       <label>Damage Effect <input type="text" name="system.damageEffect" value="{{system.damageEffect}}" /></label>
@@ -64,9 +141,24 @@
   {{#if (eq item.type "armor")}}
     <section class="panel">
       <h2>Armor</h2>
-      <label>Defense Modifier <input type="number" name="system.defenseModifier" value="{{system.defenseModifier}}" /></label>
-      <label>Penalty <input type="number" name="system.penalty" value="{{system.penalty}}" /></label>
-      <label>Qualities <input type="text" name="system.qualities" value="{{system.qualities}}" /></label>
+      <label data-tooltip="{{help.armorPreset}}">Armor or Shield
+        <select name="system.armorKey">
+          {{#each armorRules as |armor|}}
+            <option value="{{armor.key}}" data-tooltip="{{armor.tooltip}}" {{#if (eq ../system.armorKey armor.key)}}selected{{/if}}>{{armor.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label data-tooltip="{{help.equippedArmor}}">Equipped <input type="checkbox" name="system.equipped" {{checked system.equipped}} /></label>
+      <label data-tooltip="{{help.armorReduction}}">Sharp Reduction <input type="number" name="system.sharpReduction" value="{{system.sharpReduction}}" min="0" max="10" /></label>
+      <label data-tooltip="{{help.armorReduction}}">Blunt Reduction <input type="number" name="system.bluntReduction" value="{{system.bluntReduction}}" min="0" max="10" /></label>
+      <label data-tooltip="{{help.armorReduction}}">Mighty Reduction <input type="number" name="system.mightyReduction" value="{{system.mightyReduction}}" min="0" max="10" /></label>
+      <label data-tooltip="{{help.armorArrowReduction}}">Arrow Reduction <input type="number" name="system.arrowReduction" value="{{system.arrowReduction}}" min="0" max="10" /></label>
+      <label data-tooltip="{{help.armorSpeedPenalty}}">Speed Penalty <input type="number" name="system.speedPenalty" value="{{system.speedPenalty}}" min="0" max="10" /></label>
+      <label data-tooltip="{{help.armorDefenseBonus}}">Parry Bonus <input type="number" name="system.parryBonus" value="{{system.parryBonus}}" min="0" max="10" /></label>
+      <label data-tooltip="{{help.armorDefenseBonus}}">Evade Bonus <input type="number" name="system.evadeBonus" value="{{system.evadeBonus}}" min="0" max="10" /></label>
+      <label data-tooltip="{{help.muscleRequirement}}">Muscle Requirement <input type="number" name="system.muscleRequirement" value="{{system.muscleRequirement}}" min="0" max="10" /></label>
+      <label>Shield <input type="checkbox" name="system.shield" {{checked system.shield}} /></label>
+      <label data-tooltip="{{help.specialRules}}">Special Rules <input type="text" name="system.qualities" value="{{system.qualities}}" /></label>
     </section>
   {{/if}}
 

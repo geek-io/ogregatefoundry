@@ -9,6 +9,7 @@ import {
   OgreGateEquipmentData,
   OgreGateFlawData,
   OgreGateCombatTechniqueData,
+  OgreGateSkillData,
   OgreGateRitualData,
   OgreGateTechniqueData,
   OgreGateWeaponData
@@ -37,6 +38,24 @@ Hooks.once("init", () => {
     onChange: applySheetTheme
   });
 
+  game.settings.register(OGRE_GATE.id, "deepPenalties", {
+    name: "Use Deep Penalties",
+    hint: "When enabled, negative dice pools roll more than 2d10 and keep the lowest die.",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false
+  });
+
+  game.settings.register(OGRE_GATE.id, "deadlyTens", {
+    name: "Use Deadly 10s",
+    hint: "When enabled, attack roll total successes can add extra wounds before damage.",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false
+  });
+
   CONFIG.OGRE_GATE = OGRE_GATE;
   CONFIG.Actor.documentClass = OgreGateActor;
   CONFIG.Item.documentClass = OgreGateItem;
@@ -51,6 +70,7 @@ Hooks.once("init", () => {
     weapon: OgreGateWeaponData,
     armor: OgreGateArmorData,
     equipment: OgreGateEquipmentData,
+    skills: OgreGateSkillData,
     technique: OgreGateTechniqueData,
     combatTechnique: OgreGateCombatTechniqueData,
     ritual: OgreGateRitualData,
@@ -80,7 +100,7 @@ Hooks.once("init", () => {
   });
 
   DocumentSheetConfig.registerSheet(Item, OGRE_GATE.id, OgreGateItemSheet, {
-    types: ["weapon", "armor", "equipment", "technique", "combatTechnique", "ritual", "flaw"],
+    types: ["weapon", "armor", "equipment", "skills", "technique", "combatTechnique", "ritual", "flaw"],
     makeDefault: true
   });
 });

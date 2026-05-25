@@ -1,0 +1,26 @@
+{
+  "_id": "faaef7440115439f",
+  "name": "Command",
+  "type": "skills",
+  "img": "icons/svg/book.svg",
+  "system": {
+    "description": "This is your ability to get other people to do things. It indicates how much authority you project. Use this to order soldiers, bark commands at your social inferiors or to intimidate the weak-willed. It includes a broad range of Techniques from aggressive shouting, to threats and torture.\n\nTo make a Command attempt, roll against your opponent's Resolve. On a Normal Success, you can influence your Target's behavior, within their personal limits (they will do something they consider reasonable). On a Total Success, you can influence a Target's behavior slightly beyond their normal limits. They will not ruin their own lives but they will do what they can and even bend or break a few rules to appease you.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 1: Skills",
+    "cost": "",
+    "group": "mental",
+    "skillKey": "command",
+    "ranks": 0,
+    "modifier": 0,
+    "drain": 0,
+    "expertise": "",
+    "expertiseNote": "",
+    "expertiseList": []
+  },
+  "effects": [],
+  "folder": "d2c4bfb67725f560",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!faaef7440115439f"
+}

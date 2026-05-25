@@ -1,0 +1,26 @@
+{
+  "_id": "cf0196d5e550c75e",
+  "name": "Small Ranged",
+  "type": "skills",
+  "img": "icons/svg/book.svg",
+  "system": {
+    "description": "You know how to use smaller ranged weapons effectively. These include bows, crossbows, fire lances, and short bows. When you attack with such a weapon, make a Small Ranged Skill roll against your opponent's Evade. On a Success, roll Damage Dice against the Target's Hardiness based on the weapon.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 1: Skills",
+    "cost": "",
+    "group": "combat",
+    "skillKey": "smallRanged",
+    "ranks": 0,
+    "modifier": 0,
+    "drain": 0,
+    "expertise": "",
+    "expertiseNote": "",
+    "expertiseList": []
+  },
+  "effects": [],
+  "folder": "710ad0bb00fac06d",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!cf0196d5e550c75e"
+}

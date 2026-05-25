@@ -1,0 +1,26 @@
+{
+  "_id": "dc724031ce60a41c",
+  "name": "Large Ranged",
+  "type": "skills",
+  "img": "icons/svg/book.svg",
+  "system": {
+    "description": "You know to use larger ranged weapons effectively. These include the whirlwind catapult and triple bow ballista. When you attack with such a weapon, make a Large Ranged Skill roll against your opponent's Evade. On a Success, roll Damage Dice against the Target's Hardiness based on the weapon.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 1: Skills",
+    "cost": "",
+    "group": "combat",
+    "skillKey": "largeRanged",
+    "ranks": 0,
+    "modifier": 0,
+    "drain": 0,
+    "expertise": "",
+    "expertiseNote": "",
+    "expertiseList": []
+  },
+  "effects": [],
+  "folder": "710ad0bb00fac06d",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!dc724031ce60a41c"
+}

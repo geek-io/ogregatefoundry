@@ -1,0 +1,26 @@
+{
+  "_id": "d1de846b89f00a36",
+  "name": "Divination",
+  "type": "skills",
+  "img": "icons/svg/book.svg",
+  "system": {
+    "description": "Divination is a broad range of techniques used to either interpret the will of heaven or see into the future (as well as the past and present). Diviners draw on practices such as astrology, burning bones or turtle shells, casting lots, and many other methods. Most of these require at least two hours of effort (in some cases much more). The Diviner must also have the necessary materials available.\n\nThe effects of a Divination roll vary depending on what kind of questions the person is trying to answer. But Divination is real and works in the Wandering Heroes of Ogre Gate setting. Though Divination is not an open Skill (any character with Divination knows the following Techniques) there are different Divination Techniques and the user must specify which she is employing for a given task. Unlike other Skill rolls, Divination rolls should always be made by the GM in secret. A success reveals a vague but accurate result, a failure indicates an inaccurate result, and a Total Success indicates a more specific and accurate result.\n\nAstrology: This involves assessing star alignment, planet alignment, days and years of birth, and other celestial features (such as the appearance of omens) to determine whether a particular day is auspicious or inauspicious (or neither). This is quite important in the world of Qi Xien and astrologers are regularly consulted to determine whether a given day is auspicious for marriage or building a home. This can also be used to find the ideal name for a newly born child. Another use of Astrology is to assess a person's Fate or personality.\n\nFeng Shui: This is a form of geomancy that senses and interprets the flow of Qi over landscape in order to maximize health and spiritual benefit. It can be used for everything from finding an ideal camping site for the evening to the best place and orientation to build a new house, to knowing where to erect a tomb for a relative. This is primarily about avoiding bad Qi flow, which can cause health problems, create ghosts, and so forth.\n\nMatchmaking: This practice predicts the future happiness of couples by comparing their days of birth and drawing on other fortune telling Techniques to determine their fate. Matchmakers are commonly used by families to find ideal partners for their children. The matchmaker does not uncover specifics but gets a general sense of whether they will have future luck in happiness, children and wealth.\n\nOracle Bones: This ancient divination Technique uses turtle shells or bones. The objects are first washed, and then the diviner must write a question to the Enlightened Goddess (or other deity) about a future course of action. The question needs to be somewhat specific, such as \"Will we be victorious if we fight the Kushen today?\" This does not need to be phrased as a question. It could also be phrased as a statement, for instance \"the Enlightened Goddess approves of the Emperor\". Once the question is rendered on the bone or shell, it is placed in a fire and heated until it cracks. The crack lines reveal a general answer or statement, usually as a negative or positive confirmation (\"It is inauspicious to fight the Kushen today\" or \"the Enlightened Goddess does not favor the Emperor\").\n\nOracle Sticks: This is a practice common among Yen-Li and Dehuan adherents where one inscribes numbers on 100 flat sticks after making an offering to a particular spirit or deity. The sticks are then placed in a tall bamboo cup which is shaken until one falls out. While shaking the cup, the diviner asks a question to the spirit or deity. The number then corresponds to a passage in the final section of the Book of Fortunes, which predicts a person's personal fate in their realm of inquiry for the coming year (or in relation to a particular challenge). This is good for helping characters figure out when they have acquired Fate or arriving at a better sense of their personal fate as it relates to a Fate flaw. A Yen-Li variation of this uses different configurations of phoenix and dragon symbols (usually represented as rows of broken or unbroken circles).",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 1: Skills",
+    "cost": "",
+    "group": "specialist",
+    "skillKey": "divination",
+    "ranks": 0,
+    "modifier": 0,
+    "drain": 0,
+    "expertise": "",
+    "expertiseNote": "",
+    "expertiseList": []
+  },
+  "effects": [],
+  "folder": "b78bff304a61cc20",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!d1de846b89f00a36"
+}

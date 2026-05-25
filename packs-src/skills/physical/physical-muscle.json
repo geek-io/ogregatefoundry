@@ -1,0 +1,26 @@
+{
+  "_id": "c700d88752fad873",
+  "name": "Muscle",
+  "type": "skills",
+  "img": "icons/svg/book.svg",
+  "system": {
+    "description": "Muscle represents your physical strength and has several important uses in Wandering Heroes of Ogre Gate. With a Muscle Skill roll you can lift, break or throw objects for instance. Perhaps more importantly, you often add your Muscle to Melee Weapon Damage, usually a number of d10 equal to your Ranks in the skill. In addition, certain items require base Muscle Ranks in order to be used without penalties. So Muscle is a crucial Skill.\n\nFor more detailed information on Muscle and lifting objects see LIFTING AND MOVING OBJECTS in CHAPTER TWO: RULES.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 1: Skills",
+    "cost": "",
+    "group": "physical",
+    "skillKey": "muscle",
+    "ranks": 0,
+    "modifier": 0,
+    "drain": 0,
+    "expertise": "",
+    "expertiseNote": "",
+    "expertiseList": []
+  },
+  "effects": [],
+  "folder": "6680f6ea0d3e5346",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!c700d88752fad873"
+}

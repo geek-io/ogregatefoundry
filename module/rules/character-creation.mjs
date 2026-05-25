@@ -29,7 +29,8 @@ function adjustedRankCost(actor, groupKey, skillKey, rank = 0) {
 }
 
 function countItems(actor, type) {
-  return actor.items.filter((item) => item.type === type).length;
+  const types = Array.isArray(type) ? type : [type];
+  return actor.items.filter((item) => types.includes(item.type)).length;
 }
 
 function sumItemValues(actor, type, path) {
@@ -47,7 +48,38 @@ function countCreationFlaws(actor) {
 }
 
 function getOpenSkillBaseKey(skillKey) {
-  return skillKey.replace(/[0-9]+$/, "");
+  return skillKey.split(/[.:]/)[0].replace(/[0-9]+$/, "");
+}
+
+function normalizeKey(value = "") {
+  return String(value).trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function getSkillRanks(actor, groupKey, skillKey) {
+  const normalized = normalizeKey(skillKey);
+  const item = actor.items.find((candidate) => {
+    if (candidate.type !== "skills") return false;
+    if (candidate.system.group !== groupKey) return false;
+    return normalizeKey(candidate.system.skillKey || candidate.name) === normalized;
+  });
+  return Number(item?.system?.ranks ?? actor.system.skills?.[groupKey]?.[skillKey]?.ranks ?? 0);
+}
+
+function getExpertiseEntries(entry) {
+  const entries = Array.from(entry?.expertiseList ?? [])
+    .map((expertise) => ({
+      name: String(expertise?.name ?? "").trim(),
+      note: String(expertise?.note ?? "").trim()
+    }))
+    .filter((expertise) => expertise.name);
+  const legacyName = String(entry?.expertise ?? "").trim();
+  if (legacyName && !entries.some((expertise) => expertise.name === legacyName)) {
+    entries.unshift({
+      name: legacyName,
+      note: String(entry?.expertiseNote ?? "").trim()
+    });
+  }
+  return entries;
 }
 
 function getGroupBudget(creation, groupKey) {
@@ -74,14 +106,15 @@ function getGroupSpent(actor, groupKey) {
     }, 0);
   }
 
-  return Object.entries(actor.system.skills[groupKey] ?? {}).reduce((total, [skillKey, skill]) => {
-    return total + adjustedRankCost(actor, groupKey, skillKey, skill.ranks);
+  return actor.items.filter((item) => item.type === "skills" && item.system.group === groupKey).reduce((total, item) => {
+    return total + adjustedRankCost(actor, groupKey, item.system.skillKey || item.name, item.system.ranks);
   }, 0);
 }
 
 function getExpertiseSpent(actor, groupKey) {
   if (groupKey === "defenses") return Object.values(actor.system.defenses).filter((defense) => defense.expertise).length;
-  return Object.values(actor.system.skills[groupKey] ?? {}).filter((skill) => skill.expertise).length;
+  return actor.items.filter((item) => item.type === "skills" && item.system.group === groupKey)
+    .reduce((total, item) => total + getExpertiseEntries(item.system).length, 0);
 }
 
 function getMissingExpertiseWarnings(actor, groupKey) {
@@ -91,11 +124,12 @@ function getMissingExpertiseWarnings(actor, groupKey) {
       .map(([key]) => `${OGRE_GATE.skillGroups.defenses.skills[key]} has custom expertise; verify table approval.`);
   }
 
-  return Object.entries(actor.system.skills[groupKey] ?? {}).flatMap(([skillKey, skill]) => {
-    if (!skill.expertise) return [];
-    const baseKey = getOpenSkillBaseKey(skillKey);
+  return actor.items.filter((item) => item.type === "skills" && item.system.group === groupKey).flatMap((item) => {
+    const entries = getExpertiseEntries(item.system);
+    if (!entries.length) return [];
+    const baseKey = getOpenSkillBaseKey(item.system.skillKey || item.name);
     const allowed = OGRE_GATE.expertiseOptions[baseKey] ?? [];
-    if (allowed.length === 0) return [`${skill.label} does not list standard Expertise in Chapter 1.`];
+    if (allowed.length === 0) return entries.map((entry) => `${item.name} Expertise (${entry.name}) is custom; verify table approval.`);
     return [];
   });
 }
@@ -146,12 +180,12 @@ export function prepareCharacterCreation(actor) {
   const optionalRaceNeedsApproval = creation.race && creation.race !== "human" && !creation.optionalRaceApproved;
   const raceChecks = [];
   if (creation.race === "kithiri") {
-    raceChecks.push(buildCheck("Kithiri Empathy free rank", actor.system.skills.mental.empathy.ranks, 1, { mode: "min" }));
-    raceChecks.push(buildCheck("Kithiri Reasoning free rank", actor.system.skills.mental.reasoning.ranks, 1, { mode: "min" }));
+    raceChecks.push(buildCheck("Kithiri Empathy free rank", getSkillRanks(actor, "mental", "empathy"), 1, { mode: "min" }));
+    raceChecks.push(buildCheck("Kithiri Reasoning free rank", getSkillRanks(actor, "mental", "reasoning"), 1, { mode: "min" }));
     raceChecks.push(buildCheck("Kithiri Wits free rank", actor.system.defenses.wits.ranks, 1, { mode: "min" }));
   }
   if (creation.race === "juren") {
-    raceChecks.push(buildCheck("Juren Muscle free rank", actor.system.skills.physical.muscle.ranks, 1, { mode: "min" }));
+    raceChecks.push(buildCheck("Juren Muscle free rank", getSkillRanks(actor, "physical", "muscle"), 1, { mode: "min" }));
     raceChecks.push(buildCheck("Juren Wits cap", actor.system.defenses.wits.ranks, 2, { mode: "max" }));
   }
   const primaryCount = creation.scholarOption

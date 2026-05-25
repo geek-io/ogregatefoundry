@@ -32,8 +32,7 @@
     <div class="tab front active" data-group="primary" data-tab="front">
       <section class="roll-bar panel">
         <label data-tooltip="{{help.expertise}}">Defense Expertise <input type="checkbox" name="roll-expertise" /></label>
-        <label data-tooltip="{{help.damageTn}}">Damage TN <input type="number" name="damage-tn" value="{{system.defenses.hardiness.rating}}" min="1" max="10" /></label>
-        <span data-tooltip="{{help.rollTn}}">Skill, defense, and attack rolls prompt for TN when rolled.</span>
+        <span data-tooltip="{{help.rollTn}}">Skill, defense, attack, and damage rolls prompt for TN when rolled.</span>
       </section>
 
       <div class="front-grid">
@@ -60,7 +59,7 @@
               <input type="number" name="system.defenses.{{defense.key}}.qiBonus" value="{{defense.data.qiBonus}}" />
               <span>+</span>
               <input type="number" name="system.defenses.{{defense.key}}.modifier" value="{{defense.data.modifier}}" />
-              <strong>{{defense.data.rating}}</strong>
+              <strong>{{defense.rating}}</strong>
             </div>
             <div class="expertise-row">
               <span>Expertise</span>
@@ -68,6 +67,13 @@
               <input type="text" name="system.defenses.{{defense.key}}.expertiseNote" value="{{defense.data.expertiseNote}}" placeholder="Condition or note" />
             </div>
           {{/each}}
+          {{#if defenseBudget}}
+            <div class="section-budget {{#if defenseBudget.over}}warn{{/if}}">
+              <span>Creation Budget</span>
+              <strong>{{defenseBudget.spent}} / {{defenseBudget.budget}}</strong>
+              <span>Remaining {{defenseBudget.remaining}}</span>
+            </div>
+          {{/if}}
         </section>
 
         <section class="panel resources">
@@ -86,40 +92,49 @@
           <h2>Imbalance</h2>
           <div class="metric-row" data-tooltip="{{help.imbalance}}"><span>Rating</span><strong>{{system.status.imbalanceRating}}</strong></div>
           <div class="resource-row">
-            <label data-tooltip="{{help.imbalance}}">Max <input type="number" name="system.imbalance.max" value="{{system.imbalance.max}}" /></label>
             <label data-tooltip="{{help.imbalance}}">Current <input type="number" name="system.imbalance.value" value="{{system.imbalance.value}}" min="0" /></label>
+            <label data-tooltip="{{help.imbalance}}">Max <input type="number" name="system.imbalance.max" value="{{system.imbalance.max}}" /></label>
           </div>
         </section>
 
         {{#each skillGroups as |group|}}
-          <section class="panel skills {{group.key}}">
+          <section class="panel skills {{group.key}}" data-skill-group="{{group.key}}">
             <h2>{{group.label}}</h2>
+            <div class="item-actions compact">
+              <button type="button" data-action="create-item" data-type="skills" data-group="{{group.key}}" data-tooltip="{{help.newSkill}}">New Skill</button>
+            </div>
             <div class="skill-header">
               <span>Roll</span>
-              {{#if (eq group.key "specialist")}}<span>Skill</span>{{/if}}
+              <span>Skill</span>
               <span>Rank</span>
               <span>Mod</span>
               <span>Expertise</span>
+              <span></span>
+              <span></span>
             </div>
             {{#each group.skills as |skill|}}
-              <div class="rank-row skill-row">
-                <button class="roll-icon-button" type="button" data-action="roll-skill" data-group="{{group.key}}" data-skill="{{skill.key}}" data-label="{{skill.displayLabel}}" data-tooltip="{{skill.tooltip}}">{{skill.shortLabel}}</button>
-                {{#if skill.editableLabel}}
-                  <input class="skill-label" type="text" name="system.skills.{{group.key}}.{{skill.key}}.label" value="{{skill.data.label}}" />
-                {{/if}}
-                <input type="number" name="system.skills.{{group.key}}.{{skill.key}}.ranks" value="{{skill.data.ranks}}" min="0" max="10" />
-                <input type="number" name="system.skills.{{group.key}}.{{skill.key}}.modifier" value="{{skill.data.modifier}}" min="-10" max="10" />
+              <div class="rank-row skill-row item-line" data-item-id="{{skill.item.id}}" data-tooltip="Right-click to edit or delete {{skill.item.name}}.">
+                <button class="roll-icon-button" type="button" data-action="roll-skill" data-item-id="{{skill.item.id}}" data-label="{{skill.displayLabel}}" data-tooltip="{{skill.tooltip}}">{{skill.shortLabel}}</button>
+                <input class="skill-label" type="text" data-item-id="{{skill.item.id}}" data-item-field="name" value="{{skill.item.name}}" />
+                <input type="number" data-item-id="{{skill.item.id}}" data-item-field="system.ranks" value="{{skill.data.ranks}}" min="0" max="10" />
+                <input type="number" data-item-id="{{skill.item.id}}" data-item-field="system.modifier" value="{{skill.data.modifier}}" min="-10" max="10" />
                 <div class="skill-expertise-cell">
-                  {{#if skill.data.expertise}}
-                    <label data-tooltip="{{skill.data.expertiseNote}}">
-                      <input type="checkbox" data-expertise-toggle="{{group.key}}.{{skill.key}}" />
-                      <span>{{skill.data.expertise}}</span>
-                    </label>
-                    <button type="button" data-action="edit-expertise" data-group="{{group.key}}" data-skill="{{skill.key}}" data-label="{{skill.displayLabel}}" data-tooltip="Edit {{skill.displayLabel}} Expertise">Edit</button>
+                  {{#if skill.hasExpertise}}
+                    <div class="skill-expertise-list">
+                      {{#each skill.expertiseEntries as |expertise|}}
+                        <label data-tooltip="{{expertise.note}}">
+                          <input type="checkbox" data-expertise-toggle="{{expertise.toggleKey}}" data-expertise-name="{{expertise.name}}" />
+                          <span>{{expertise.name}}</span>
+                        </label>
+                      {{/each}}
+                    </div>
+                    <button type="button" data-action="edit-expertise" data-item-id="{{skill.item.id}}" data-label="{{skill.displayLabel}}" data-tooltip="Edit {{skill.displayLabel}} Expertise">Edit</button>
                   {{else}}
-                    <button type="button" data-action="edit-expertise" data-group="{{group.key}}" data-skill="{{skill.key}}" data-label="{{skill.displayLabel}}" data-tooltip="Add {{skill.displayLabel}} Expertise">+ Expertise</button>
+                    <button type="button" data-action="edit-expertise" data-item-id="{{skill.item.id}}" data-label="{{skill.displayLabel}}" data-tooltip="Add {{skill.displayLabel}} Expertise">+ Expertise</button>
                   {{/if}}
                 </div>
+                <button type="button" data-action="open-item" data-item-id="{{skill.item.id}}" data-tooltip="{{../help.editItem}}">Edit</button>
+                <button type="button" data-action="delete-item" data-item-id="{{skill.item.id}}" data-tooltip="{{../help.deleteItem}}">Delete</button>
               </div>
             {{/each}}
             {{#if group.budget}}
@@ -194,38 +209,6 @@
         </section>
 
         <section class="panel">
-          <h2>Active Defense</h2>
-          <label data-tooltip="{{help.activeDefense}}">Defense
-            <select name="system.combat.activeDefense">
-              {{#each activeDefenseOptions as |defense|}}
-                <option value="{{defense.key}}" {{#if (eq ../system.combat.activeDefense defense.key)}}selected{{/if}}>{{defense.label}} {{defense.rating}}</option>
-              {{/each}}
-            </select>
-          </label>
-          <div class="metric-row" data-tooltip="{{help.activeDefense}}"><span>Active Rating</span><strong>{{system.combat.activeDefenseRating}}</strong></div>
-          <button type="button" data-action="roll-active-defense" data-tooltip="{{help.activeDefense}}">Roll Active Defense</button>
-        </section>
-
-        <section class="panel">
-          <h2>Reach & Closing</h2>
-          <label data-tooltip="{{help.reach}}">Opponent Reach
-            <select name="system.combat.opponentReach">
-              {{#each reachOptions as |reach|}}
-                <option value="{{reach.key}}" {{#if (eq ../system.combat.opponentReach reach.key)}}selected{{/if}}>{{reach.label}}</option>
-              {{/each}}
-            </select>
-          </label>
-          <label data-tooltip="{{help.reach}}">Reach Situation
-            <select name="system.combat.reachSituation">
-              {{#each reachSituations as |situation|}}
-                <option value="{{situation.key}}" data-tooltip="{{situation.tooltip}}" {{#if (eq ../system.combat.reachSituation situation.key)}}selected{{/if}}>{{situation.label}}</option>
-              {{/each}}
-            </select>
-          </label>
-          <p class="form-note">Weapon attack rolls apply the selected reach modifier automatically.</p>
-        </section>
-
-        <section class="panel">
           <h2>Prepared Strike</h2>
           <label data-tooltip="{{help.preparedStrike}}">Ready <input type="checkbox" name="system.preparedStrike.ready" {{checked system.preparedStrike.ready}} /></label>
           <label data-tooltip="{{help.preparedStrike}}">Zone <input type="text" name="system.preparedStrike.zone" value="{{system.preparedStrike.zone}}" /></label>
@@ -253,7 +236,7 @@
 
         <section class="panel">
           <h2>Damage Roll</h2>
-          <label data-tooltip="{{help.pendingDamageBonus}}">Damage Bonus <input type="number" name="system.combat.pendingDamageBonus" value="{{system.combat.pendingDamageBonus}}" min="0" max="20" /></label>
+          <label data-tooltip="{{help.pendingDamageBonus}}">Attack Total-Success Bonus <input type="number" name="system.combat.pendingDamageBonus" value="{{system.combat.pendingDamageBonus}}" min="0" max="20" /></label>
           <label data-tooltip="{{help.damageModifier}}">Damage Modifier <input type="number" name="damage-modifier" value="0" min="-10" max="10" /></label>
           <label data-tooltip="{{help.extraWounds}}">Extra Wounds <input type="number" name="extra-wounds" value="0" min="0" max="10" /></label>
           <label data-tooltip="{{help.openDamage}}">Open Damage <input type="checkbox" name="damage-open" /></label>
@@ -349,9 +332,9 @@
         </section>
 
         <section class="panel">
-          <h2>Optional Rules</h2>
-          <label data-tooltip="{{help.deepPenalties}}">Deep Penalties <input type="checkbox" name="system.combat.deepPenalties" {{checked system.combat.deepPenalties}} /></label>
-          <label data-tooltip="{{help.deadlyTens}}">Deadly 10s <input type="checkbox" name="system.combat.deadlyTens" {{checked system.combat.deadlyTens}} /></label>
+          <h2>System Rules</h2>
+          <div class="metric-row" data-tooltip="{{help.systemRules}}"><span>Deep Penalties</span><strong>{{#if systemRules.deepPenalties}}On{{else}}Off{{/if}}</strong></div>
+          <div class="metric-row" data-tooltip="{{help.systemRules}}"><span>Deadly 10s</span><strong>{{#if systemRules.deadlyTens}}On{{else}}Off{{/if}}</strong></div>
         </section>
 
         <section class="panel wide">
@@ -366,7 +349,7 @@
         <section class="panel wide">
           <h2>Relevant Defenses</h2>
           {{#each defenses as |defense|}}
-            <div class="metric-row"><span>{{defense.label}}</span><strong>{{defense.data.rating}}</strong></div>
+            <div class="metric-row"><span>{{defense.label}}</span><strong>{{defense.rating}}</strong></div>
           {{/each}}
         </section>
       </div>
@@ -577,6 +560,7 @@
         <section class="panel wide">
           <h2>Equipment</h2>
           <div class="item-actions compact">
+            <button type="button" data-action="create-item" data-type="equipment" data-tooltip="{{help.newGear}}">New Gear</button>
             <span data-tooltip="{{help.equipmentDrop}}">{{help.equipmentDrop}}</span>
           </div>
           <div class="item-list equipment-drop-zone" data-tooltip="{{help.equipmentDrop}}">

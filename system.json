@@ -2,10 +2,10 @@
   "id": "ogregatefoundry",
   "title": "The Wandering Heroes of Ogre Gate",
   "description": "A Foundry VTT v13 game system for The Wandering Heroes of Ogre Gate.",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "url": "https://github.com/cjboat/ogregatefoundry",
   "manifest": "https://github.com/cjboat/ogregatefoundry/releases/latest/download/system.json",
-  "download": "https://github.com/cjboat/ogregatefoundry/releases/download/0.1.2/system.zip",
+  "download": "https://github.com/cjboat/ogregatefoundry/releases/download/0.1.4/system.zip",
   "readme": "https://github.com/cjboat/ogregatefoundry/blob/master/README.md",
   "bugs": "https://github.com/cjboat/ogregatefoundry/issues",
   "license": "GPL-3.0-or-later",
@@ -23,6 +23,15 @@
   ],
   "styles": [
     "styles/ogre-gate.css"
+  ],
+  "packs": [
+    {
+      "name": "skills",
+      "label": "Ogre Gate Skills",
+      "path": "packs/skills",
+      "type": "Item",
+      "system": "ogregatefoundry"
+    }
   ],
   "languages": [
     {
@@ -80,6 +89,11 @@
         ]
       },
       "equipment": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "skills": {
         "htmlFields": [
           "description"
         ]

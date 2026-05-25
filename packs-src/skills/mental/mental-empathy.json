@@ -1,0 +1,26 @@
+{
+  "_id": "95f233af92cc8915",
+  "name": "Empathy",
+  "type": "skills",
+  "img": "icons/svg/book.svg",
+  "system": {
+    "description": "This reflects how well you can read other peoples' intentions or Emotions. It can be used to decipher the motives of another character or to detect hostility. This is not a Mind-Reading Skill, but merely a Skill for interpreting social cues. GMs should not reveal what the NPC or creature is thinking when this Skill is used. Rather the PC will see signs or symptoms of the NPC's internal thoughts (a twitch, a downward look, and so forth). A GM can say what this likely suggests but it is absolutely not lie detection or thought reading.\n\nTo make an Empathy attempt, roll against your opponent's Wits. On a Normal Success, you achieve partial insight, sensing social cues that point to the person's mood or state of mind. On a Total Success, you sense subtle signs that point to the target's emotions, intentions or motives. The GM should describe what cues the player picks up on and not simply give a list of things going on in the NPC's head (for instance, \"She glances at the curtain behind you when you step closer to her\").",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 1: Skills",
+    "cost": "",
+    "group": "mental",
+    "skillKey": "empathy",
+    "ranks": 0,
+    "modifier": 0,
+    "drain": 0,
+    "expertise": "",
+    "expertiseNote": "",
+    "expertiseList": []
+  },
+  "effects": [],
+  "folder": "d2c4bfb67725f560",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!95f233af92cc8915"
+}
