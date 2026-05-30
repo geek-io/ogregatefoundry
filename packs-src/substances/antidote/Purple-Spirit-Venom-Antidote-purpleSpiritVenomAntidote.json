@@ -1,0 +1,26 @@
+{
+  "_id": "19a6fdd9ea3e809b",
+  "name": "Purple Spirit Venom Antidote",
+  "type": "substance",
+  "img": "icons/svg/acid.svg",
+  "system": {
+    "description": "Purple Spirit Venom Antidote: Like the poison it treats, Purple Spirit Venom Antidote is very hard to create. It requires the same raw venoms and saps, plus a specific combination of 32 medicines to match the poison. This means you must either be the person who made the original venom, or find out what combination of 32 medicines the original poisoner employed.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 2: Rules",
+    "cost": "",
+    "rulesKey": "purpleSpiritVenomAntidote",
+    "substanceType": "antidote",
+    "quantity": 1,
+    "brewSkill": "talent.poisoning",
+    "brewTn": 0,
+    "targetAffliction": "Purple Spirit Venom",
+    "duration": "",
+    "effects": "Purges Purple Spirit Venom so Qi may be restored."
+  },
+  "effects": [],
+  "folder": "37bc1a8fb2a11e24",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!19a6fdd9ea3e809b"
+}

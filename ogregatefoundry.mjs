@@ -9,6 +9,8 @@ import {
   OgreGateEquipmentData,
   OgreGateFlawData,
   OgreGateCombatTechniqueData,
+  OgreGateAfflictionData,
+  OgreGateSubstanceData,
   OgreGateSkillData,
   OgreGateRitualData,
   OgreGateTechniqueData,
@@ -74,7 +76,9 @@ Hooks.once("init", () => {
     technique: OgreGateTechniqueData,
     combatTechnique: OgreGateCombatTechniqueData,
     ritual: OgreGateRitualData,
-    flaw: OgreGateFlawData
+    flaw: OgreGateFlawData,
+    affliction: OgreGateAfflictionData,
+    substance: OgreGateSubstanceData
   };
 
   CONFIG.Actor.trackableAttributes = {
@@ -100,7 +104,7 @@ Hooks.once("init", () => {
   });
 
   DocumentSheetConfig.registerSheet(Item, OGRE_GATE.id, OgreGateItemSheet, {
-    types: ["weapon", "armor", "equipment", "skills", "technique", "combatTechnique", "ritual", "flaw"],
+    types: ["weapon", "armor", "equipment", "skills", "technique", "combatTechnique", "ritual", "flaw", "affliction", "substance"],
     makeDefault: true
   });
 });

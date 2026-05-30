@@ -1,0 +1,32 @@
+{
+  "_id": "019863e7c5167539",
+  "name": "Standard Poison",
+  "type": "affliction",
+  "img": "icons/svg/acid.svg",
+  "system": {
+    "description": "",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 2: Rules",
+    "cost": "",
+    "rulesKey": "standardPoison",
+    "afflictionType": "poison",
+    "lethality": "hours",
+    "speed": "hours",
+    "effect": "Temporary",
+    "medicineTn": 4,
+    "treatmentMode": "standard",
+    "brewRating": 5,
+    "potency": "1d10",
+    "affectedSkills": "All",
+    "contagious": false,
+    "antidoteRequired": true,
+    "remedy": "Corresponding antidote",
+    "specialRules": ""
+  },
+  "effects": [],
+  "folder": "d57ca53d5ec7777d",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!019863e7c5167539"
+}

@@ -1,0 +1,26 @@
+{
+  "_id": "3312efced5cda4e3",
+  "name": "Snake Demon Antidote",
+  "type": "substance",
+  "img": "icons/svg/acid.svg",
+  "system": {
+    "description": "Snake Demon Antidote: This cures anyone affected by Demon Snake Venom. To make it one must boil Snake Demon scales and combine them with various roots and flower petals. Brew Rating TN 8.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 2: Rules",
+    "cost": "",
+    "rulesKey": "snakeDemonAntidote",
+    "substanceType": "antidote",
+    "quantity": 1,
+    "brewSkill": "talent.poisoning",
+    "brewTn": 8,
+    "targetAffliction": "Demon Snake Venom",
+    "duration": "",
+    "effects": "Cures anyone affected by Demon Snake Venom."
+  },
+  "effects": [],
+  "folder": "37bc1a8fb2a11e24",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!3312efced5cda4e3"
+}

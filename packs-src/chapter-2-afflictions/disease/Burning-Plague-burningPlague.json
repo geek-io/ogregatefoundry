@@ -1,0 +1,32 @@
+{
+  "_id": "7245d3ef6261ca51",
+  "name": "Burning Plague",
+  "type": "affliction",
+  "img": "icons/svg/acid.svg",
+  "system": {
+    "description": "Burning Plague: This first appeared in the time of the Demon Emperor. Those exposed experience a fiery rash and itching. This is simply annoying but it progresses and eventually causes the sufferer to experience a massive increase in heat in their internal organs. The sensation is overwhelming and builds until blisters erupt on the skin. The rash then turns into black and blue welts. After this point most die in one or two days. Burning Plague is carried in the air from person to person, or animal to person. Roll 1d10 against Hardiness to see if airborne infection occurs.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 2: Rules",
+    "cost": "",
+    "rulesKey": "burningPlague",
+    "afflictionType": "disease",
+    "lethality": "weeks",
+    "speed": "weeks",
+    "effect": "Temporary",
+    "medicineTn": 8,
+    "treatmentMode": "standard",
+    "brewRating": 0,
+    "potency": "1d10",
+    "affectedSkills": "Combat, Physical",
+    "contagious": true,
+    "antidoteRequired": false,
+    "remedy": "",
+    "specialRules": ""
+  },
+  "effects": [],
+  "folder": "01a8a7f9bb830bdd",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!7245d3ef6261ca51"
+}

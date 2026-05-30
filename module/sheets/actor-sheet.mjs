@@ -21,14 +21,19 @@ const ACTOR_HELP = {
   expertise: "When checked, defense rolls with a filled Expertise entry gain +1d10 and show the expertise name in chat. Skill Expertise is selected on each skill row.",
   pendingDamageBonus: "Damage bonus dice from attack total successes. Use the button on an attack chat card to fill this, or enter it manually. The next weapon damage roll consumes it.",
   preparedStrike: "Ready one attack against a designated zone and trigger. The system tracks whether it is armed and posts the reminder to chat.",
-  charge: "Checks the declared straight-line movement for mounted charge or charge on foot and reminds you about mounted bow penalties.",
+  charge: "Checks charge distance, straight-line movement, mounted charge follow-through, mounted bow penalties, and moving-mount Cathartic Imbalance.",
   drain: "Temporary drains reduce skill ranks, defense ratings, or effective Qi. Temporary drain usually recovers one point per day unless a rule says otherwise.",
   healing: "Heal a manual amount, apply natural healing, or roll Medicine/Meditation to stabilize a dying character.",
-  affliction: "Medicine treatment for poisons and diseases: success stabilizes, total success cures, and failure resumes or continues the effect. Roll once per listed cadence.",
+  affliction: "Drop Poisons or Diseases anywhere on this sheet to track them. Select one affliction here for exposure, progression, treatment, and remedies; other tracked afflictions remain active and their penalties still apply.",
   health: "Current Health / Max Health. Damage lowers current Health. Below half Health the actor is Bloodied; at 0 Health the actor is automatically Dying.",
   dyingRounds: "Track rounds spent Dying. The limit shown is based on current Hardiness.",
   qiRank: "Qi rank drives Health, Qi resource maximums, and many martial requirements.",
-  imbalance: "Track current imbalance against the maximum. Imbalance Rating equals the highest current Martial Discipline rank.",
+  imbalance: "Imbalance Rating equals your highest Martial Discipline rank. Cathartic Kung Fu use adds points; at 12 + Qi you risk Qi Spirit Possession.",
+  meditateImbalance: "Meditation removes 1 Imbalance per Qi level per hour without a roll. With zero Meditation ranks, it removes 1 point per two hours.",
+  possession: "At maximum Imbalance, roll for a Qi Spirit. While possessed, you cannot recover Imbalance until purged and must roll Meditation each day against TN 7 + Imbalance Rating.",
+  useTechnique: "Roll the technique's Activation Skill normally. You must possess its listed Qi rank.",
+  catharticTechnique: "Use the technique Cathartically. Success gains Imbalance equal to Rating, failure gains Rating + 2, and Total Success gains none.",
+  qiDuel: "Target an opposing actor and resolve one Qi Duel round. A Qi disparity greater than 1 prevents a duel; tied rounds add 2 Extra Wounds to the eventual result.",
   karma: "Hidden GM-only stat from -10 to +10.",
   situationalDice: "Adds or subtracts dice from skill and attack rolls after action, race, and illumination modifiers.",
   situationalDefense: "Adds or subtracts from Parry and Evade after action, cover, and illumination modifiers.",
@@ -47,9 +52,11 @@ const ACTOR_HELP = {
   newFlaw: "Create an embedded Flaw item. Drag/drop flaw items onto the sheet to add them too.",
   newSkill: "Create an embedded Skill item in this group. Drag/drop Skills items onto the sheet to add them too.",
   newGear: "Create an embedded Equipment item.",
+  newSubstance: "Create an embedded Substance item with prepared dose tracking.",
+  longevity: "Life Prolonging Pill use inflicts 1 Wound and 1d10 Imbalance. Ten consecutive days grant 1d10 additional years; every later use reduces life expectancy by one year.",
   newTechnique: "Create an embedded Kung Fu Technique item.",
   newCombatPerk: "Create an embedded Combat Perk item.",
-  equipmentDrop: "Drop weapon, armor, and equipment items here. Right-click an item to edit or delete it.",
+  equipmentDrop: "Drop weapon, armor, equipment, and substance items here. Right-click an item to edit or delete it.",
   editItem: "Open this embedded item for editing.",
   deleteItem: "Remove this embedded item from the actor.",
   rollTurnOrder: "Roll Speed for turn order, including race and situational dice modifiers.",
@@ -107,6 +114,27 @@ function getSkillIdentity(itemData) {
   return `${system.group ?? ""}:${normalizeKey(system.skillKey || itemData?.name || "")}`;
 }
 
+function resolveDroppedSkillGroup(itemData, fallbackGroup = "") {
+  const currentGroup = itemData?.system?.group ?? "";
+  if (currentGroup && currentGroup !== "defenses" && OGRE_GATE.skillGroups[currentGroup]) return currentGroup;
+
+  const normalizedSkill = normalizeKey(itemData?.system?.skillKey || itemData?.name || "");
+  for (const [groupKey, group] of Object.entries(OGRE_GATE.skillGroups)) {
+    if (groupKey === "defenses") continue;
+    const match = Object.entries(group.skills).some(([skillKey, label]) => (
+      normalizeKey(skillKey) === normalizedSkill || normalizeKey(label) === normalizedSkill
+    ));
+    if (match) return groupKey;
+  }
+
+  if (fallbackGroup && fallbackGroup !== "defenses" && OGRE_GATE.skillGroups[fallbackGroup]) return fallbackGroup;
+  return "specialist";
+}
+
+function effectiveRanks(entry) {
+  return Math.max(0, Number(entry?.ranks ?? 0) - Number(entry?.drain ?? 0));
+}
+
 export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     ...super.DEFAULT_OPTIONS,
@@ -156,6 +184,7 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       combatActions: this.#prepareCombatActions(),
       attackModes: this.#prepareAttackModes(),
       selectedAttackMode: this.#prepareSelectedAttackMode(actor),
+      preparedStrikeStatus: actor.system.preparedStrike.ready ? "Armed" : "Not Armed",
       coverOptions: this.#prepareCoverOptions(),
       illuminationOptions: this.#prepareIlluminationOptions(),
       afflictionTypes: this.#prepareAfflictionTypes(),
@@ -164,10 +193,17 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       fireOptions: this.#prepareFireOptions(),
       objectTnOptions: this.#prepareObjectTnOptions(),
       raceOptions: this.#prepareRaceOptions(),
-      techniques: actor.items.filter((item) => item.type === "technique"),
+      techniqueGroups: this.#prepareTechniqueGroups(actor),
+      possessionTn: 7 + Number(actor.system.status.imbalanceRating ?? 0),
+      qiDuelStoredWounds: Number(actor.system.qiDuel.ties ?? 0) * 2,
+      possessionControlLabel: {
+        unchecked: "Not Rolled",
+        self: "Character in Control",
+        spirit: "Spirit in Control"
+      }[actor.system.imbalance.possessionControl] ?? "Not Rolled",
       combatTechniques: actor.items.filter((item) => item.type === "combatTechnique"),
       flaws: actor.items.filter((item) => item.type === "flaw"),
-      equipment: actor.items.filter((item) => ["weapon", "armor", "equipment"].includes(item.type))
+      equipment: actor.items.filter((item) => ["weapon", "armor", "equipment", "substance"].includes(item.type))
     };
   }
 
@@ -198,6 +234,30 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     this.element.querySelectorAll("[data-action='roll-weapon-damage']").forEach((button) => {
       button.addEventListener("click", (event) => this.#onRollWeaponDamage(event), listenerOptions);
     });
+    this.element.querySelectorAll("[data-action='roll-technique']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onRollTechnique(event), listenerOptions);
+    });
+    this.element.querySelectorAll("[data-action='meditate-imbalance']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onMeditateImbalance(event), listenerOptions);
+    });
+    this.element.querySelectorAll("[data-action='check-possession']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onCheckPossession(event), listenerOptions);
+    });
+    this.element.querySelectorAll("[data-action='roll-possession-control']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onRollPossessionControl(event), listenerOptions);
+    });
+    this.element.querySelectorAll("[data-action='purge-possession']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onPurgePossession(event), listenerOptions);
+    });
+    this.element.querySelectorAll("[data-action='resolve-qi-duel']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onResolveQiDuel(event), listenerOptions);
+    });
+    this.element.querySelectorAll("[data-action='clear-qi-duel']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onClearQiDuel(event), listenerOptions);
+    });
+    this.element.querySelectorAll("[data-action='apply-substance']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onApplySubstance(event), listenerOptions);
+    });
     this.element.querySelectorAll("[data-action='roll-falling-damage']").forEach((button) => {
       button.addEventListener("click", (event) => this.#onRollFallingDamage(event), listenerOptions);
     });
@@ -221,6 +281,36 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     });
     this.element.querySelectorAll("[data-action='treat-affliction']").forEach((button) => {
       button.addEventListener("click", (event) => this.#onTreatAffliction(event), listenerOptions);
+    });
+    this.element.querySelectorAll("[data-action='roll-affliction-exposure']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onRollAfflictionExposure(event), listenerOptions);
+    });
+    this.element.querySelectorAll("[data-action='advance-affliction-progression']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onAdvanceAfflictionProgression(event), listenerOptions);
+    });
+    this.element.querySelectorAll("[data-action='advance-affliction-lethality']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onAdvanceAfflictionLethality(event), listenerOptions);
+    });
+    this.element.querySelectorAll("[data-action='clear-affliction-substances']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onClearAfflictionSubstances(event), listenerOptions);
+    });
+    this.element.querySelectorAll("[data-action='expire-affliction-substance']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onExpireAfflictionSubstance(event), listenerOptions);
+    });
+    this.element.querySelectorAll("[data-action='select-affliction']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onSelectAffliction(event), listenerOptions);
+    });
+    this.element.querySelectorAll("[data-action='remove-selected-affliction']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onRemoveSelectedAffliction(event), listenerOptions);
+    });
+    this.element.querySelectorAll("[data-action='remove-additional-affliction']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onRemoveAdditionalAffliction(event), listenerOptions);
+    });
+    this.element.querySelectorAll("[data-action='expire-active-substance']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onExpireActiveSubstance(event), listenerOptions);
+    });
+    this.element.querySelectorAll("[data-action='reset-life-pill-streak']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onResetLifePillStreak(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='heal-wounds']").forEach((button) => {
       button.addEventListener("click", (event) => this.#onHealWounds(event), listenerOptions);
@@ -259,7 +349,7 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       row.addEventListener("contextmenu", (event) => this.#onItemContextMenu(event), listenerOptions);
     });
     this.element.addEventListener("dragover", (event) => event.preventDefault(), listenerOptions);
-    this.element.addEventListener("drop", (event) => this.#onDropItem(event), listenerOptions);
+    this.element.addEventListener("drop", (event) => this.#onDropItem(event), { ...listenerOptions, capture: true });
     this.element.querySelectorAll("[data-action='tab']").forEach((tab) => {
       tab.addEventListener("click", (event) => this.#onChangeTab(event), listenerOptions);
     });
@@ -270,14 +360,16 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     return Object.entries(OGRE_GATE.defenses).map(([key, definition]) => {
       const data = actor.system.defenses[key];
       const armorBonus = actor.getArmorDefenseBonus(key);
-      const rating = Math.clamp(Number(data.rating ?? 0) + armorBonus, 0, 10);
+      const substanceModifier = actor.getActiveSubstanceDefenseModifier(key);
+      const rating = Math.clamp(Number(data.rating ?? 0) + armorBonus + substanceModifier, 0, 10);
       return {
         key,
         ...definition,
         shortLabel: this.#shortSkillLabel(definition.label),
-        tooltip: this.#defenseTooltip(definition, data, armorBonus, rating),
+        tooltip: this.#defenseTooltip(definition, data, armorBonus, substanceModifier, rating),
         rating,
         armorBonus,
+        substanceModifier,
         data
       };
     });
@@ -319,6 +411,84 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       ...action,
       tooltip: `Action: ${action.label}. Skill dice ${action.skill === null ? "not allowed" : signed(action.skill, "d10")}; defense ${signed(action.defense)}; movement ${action.moves}.`
     }));
+  }
+
+  #prepareTechniqueGroups(actor) {
+    const techniques = actor.items.filter((item) => item.type === "technique");
+    return Object.entries(OGRE_GATE.techniqueTypes).map(([key, label]) => ({
+      key,
+      label,
+      items: techniques.filter((item) => (item.system.techniqueType || "normal") === key)
+        .map((item) => ({
+          item,
+          damage: this.#prepareTechniqueDamage(item, actor)
+        }))
+    }));
+  }
+
+  #prepareTechniqueDamage(item, actor) {
+    const raw = String(item.system.damage ?? "").trim();
+    if (!raw) {
+      return {
+        label: "No Damage",
+        tooltip: `${item.name} does not list a damage roll.`
+      };
+    }
+
+    const parsed = this.#resolveTechniqueDamageDice(raw, actor);
+    if (!parsed) {
+      return {
+        label: "Damage: See Text",
+        tooltip: raw
+      };
+    }
+
+    return {
+      label: `Damage: ${parsed.dice}d10${item.system.openDamage ? " Open" : ""}`,
+      tooltip: [raw, parsed.note].filter(Boolean).join(" | ")
+    };
+  }
+
+  #resolveTechniqueDamageDice(text, actor) {
+    const value = String(text ?? "");
+    const skillDamage = value.match(/\b(Arm Strike|Leg Strike|Grapple|Throw|Light Melee|Medium Melee|Heavy Melee|Small Ranged|Large Ranged|Athletics|Speed|Muscle|Endurance|Reason)\b\s*([+-]\s*\d+)?\s*d10/i);
+    if (skillDamage) {
+      const skillName = skillDamage[1];
+      const modifier = Number(String(skillDamage[2] ?? "+0").replace(/\s+/g, ""));
+      const skill = actor.findSkillPath(skillName);
+      const dice = Math.max(0, effectiveRanks(skill?.skill) + modifier);
+      const groupLabel = skill ? OGRE_GATE.skillGroups[skill.groupKey]?.label ?? skill.groupKey : "Skill";
+      return {
+        dice,
+        note: `${groupLabel}: ${skillName} ${modifier >= 0 ? "+" : ""}${modifier}d10.`
+      };
+    }
+
+    const diceMatch = value.match(/(\d+)\s*d10/i);
+    if (diceMatch) {
+      return {
+        dice: Number(diceMatch[1]),
+        note: "Fixed damage dice."
+      };
+    }
+
+    const perRank = value.match(/per\s+Rank\s+of\s+(Waijia|Qinggong|Neigong|Dianxue)/i);
+    if (perRank) {
+      const disciplineKey = normalizeKey(perRank[1]);
+      return {
+        dice: Number(actor.system.disciplines?.[disciplineKey]?.ranks ?? 0),
+        note: `Per Rank of ${perRank[1]}.`
+      };
+    }
+
+    if (/per\s+Rank\s+of\s+Qi|per\s+Qi\s+Rank|per\s+Rank\s+Qi/i.test(value)) {
+      return {
+        dice: Number(actor.system.status.effectiveQi ?? actor.system.qi.rank ?? 0),
+        note: "Per Rank of Qi."
+      };
+    }
+
+    return null;
   }
 
   #prepareAttackModes() {
@@ -462,10 +632,10 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     }));
   }
 
-  #defenseTooltip(definition, defense, armorBonus = 0, rating = defense.rating) {
+  #defenseTooltip(definition, defense, armorBonus = 0, substanceModifier = 0, rating = defense.rating) {
     return [
       `Roll ${definition.label}: ranks ${defense.ranks} + modifier ${signed(defense.modifier, "d10")}.`,
-      `Rating is Base ${defense.base} + Rank ${defense.ranks} + Qi ${defense.qiBonus} + Mod ${signed(defense.modifier)}${defense.drain ? ` - Drain ${defense.drain}` : ""}${armorBonus ? ` + Armor/Shield ${armorBonus}` : ""} = ${rating}.`,
+      `Rating is Base ${defense.base} + Rank ${defense.ranks} + Qi ${defense.qiBonus} + Mod ${signed(defense.modifier)}${defense.drain ? ` - Drain ${defense.drain}` : ""}${armorBonus ? ` + Armor/Shield ${armorBonus}` : ""}${substanceModifier ? ` + Active Effect ${substanceModifier}` : ""} = ${rating}.`,
       definition.relevant?.length ? `Relevant against: ${definition.relevant.join(", ")}.` : ""
     ].filter(Boolean).join(" ");
   }
@@ -495,8 +665,14 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
 
   async #submitActorFields() {
     const updates = this.#getActorFieldUpdates();
-    if (!Object.keys(updates).length) return {};
-    await this.actor.update(updates);
+    if (Object.keys(updates).length) await this.actor.update(updates);
+    const itemUpdates = Array.from(this.element.querySelectorAll("[data-item-field]")).map((input) => {
+      if (input.disabled) return null;
+      const item = this.actor.items.get(input.dataset.itemId);
+      if (!item) return null;
+      return item.update({ [input.dataset.itemField]: getInputValue(input) });
+    }).filter(Boolean);
+    if (itemUpdates.length) await Promise.all(itemUpdates);
     return updates;
   }
 
@@ -624,6 +800,179 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     });
   }
 
+  async #onRollTechnique(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const button = event.currentTarget;
+    const itemId = button?.dataset?.itemId || button?.closest?.("[data-item-id]")?.dataset?.itemId;
+    const cathartic = button?.dataset?.cathartic === "true";
+    try {
+      await this.#submitActorFields();
+      const item = this.actor.items.get(itemId);
+      if (!item) {
+        ui.notifications.warn("That Kung Fu Technique could not be found on this actor. Reopen the sheet and try again.");
+        return null;
+      }
+      if (!this.actor.findSkillPath(item.system.activationSkill)) {
+        const configured = await this.#promptTechniqueActivationSkill(item);
+        if (!configured) return null;
+      }
+      const tn = await this.#promptTargetNumber(item.name, 6);
+      if (!tn) return null;
+      return this.actor.rollTechnique(item, {
+        cathartic,
+        tn,
+        modifier: 0
+      });
+    } catch (error) {
+      console.error("Ogre Gate | Technique roll failed", error);
+      ui.notifications.error("Kung Fu Technique roll failed. See the console for details.");
+      return null;
+    }
+  }
+
+  async #promptTechniqueActivationSkill(item) {
+    const skills = this.#techniqueActivationOptions();
+    if (!skills.length) {
+      ui.notifications.warn(`Add a Skill to ${this.actor.name} before using ${item.name}.`);
+      return false;
+    }
+
+    const options = skills.map((skill) => {
+      return `<option value="${escapeHtml(skill.key)}">${escapeHtml(skill.label)}</option>`;
+    }).join("");
+    return new Promise((resolve) => {
+      new Dialog({
+        title: `Set Activation Skill: ${item.name}`,
+        content: `
+          <form class="ogre-gate-dialog">
+            <p class="form-note">This technique needs a Skill listed in its entry. Choose one of this character's owned Skills.</p>
+            <label>Activation Skill
+              <select name="activationSkill" autofocus>${options}</select>
+            </label>
+          </form>
+        `,
+        buttons: {
+          save: {
+            label: "Save and Roll",
+            callback: async (html) => {
+              const root = html instanceof HTMLElement ? html : html?.[0];
+              const activationSkill = root?.querySelector("[name='activationSkill']")?.value ?? "";
+              if (!activationSkill) return resolve(false);
+              await item.update({ "system.activationSkill": activationSkill });
+              resolve(true);
+            }
+          },
+          cancel: {
+            label: "Cancel",
+            callback: () => resolve(false)
+          }
+        },
+        default: "save",
+        close: () => resolve(false)
+      }).render(true);
+    });
+  }
+
+  #techniqueActivationOptions() {
+    const owned = this.actor.items
+      .filter((candidate) => candidate.type === "skills")
+      .map((skill) => {
+        const key = skill.system.skillKey || skill.name;
+        const groupKey = skill.system.group ?? "specialist";
+        const group = OGRE_GATE.skillGroups[skill.system.group]?.label ?? skill.system.group ?? "Skill";
+        return {
+          key: `${groupKey}.${key}`,
+          label: `${group}: ${skill.name}`
+        };
+      });
+    const existing = new Set(owned.map((skill) => normalizeKey(skill.key)));
+    const fallback = Object.entries(this.actor.system.skills ?? {}).flatMap(([groupKey, group]) => {
+      const groupLabel = OGRE_GATE.skillGroups[groupKey]?.label ?? groupKey;
+      return Object.entries(group).map(([skillKey, skill]) => ({
+        key: `${groupKey}.${skillKey}`,
+        label: `${groupLabel}: ${skill.label ?? OGRE_GATE.skillGroups[groupKey]?.skills?.[skillKey] ?? skillKey}`
+      }));
+    }).filter((skill) => {
+      const key = normalizeKey(skill.key);
+      if (existing.has(key)) return false;
+      existing.add(key);
+      return true;
+    });
+    return [...owned, ...fallback].sort((a, b) => a.label.localeCompare(b.label));
+  }
+
+  async #onMeditateImbalance(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    return new Promise((resolve) => {
+      new Dialog({
+        title: "Meditate to Remove Imbalance",
+        content: `
+          <form class="ogre-gate-dialog">
+            <label>Hours Meditated
+              <input type="number" name="hours" value="1" min="1" max="999" autofocus />
+            </label>
+          </form>
+        `,
+        buttons: {
+          meditate: {
+            label: "Meditate",
+            callback: async (html) => {
+              const root = html instanceof HTMLElement ? html : html?.[0];
+              const hours = Number(root?.querySelector("[name='hours']")?.value ?? 1);
+              resolve(await this.actor.meditateImbalance(hours));
+            }
+          },
+          cancel: {
+            label: "Cancel",
+            callback: () => resolve(null)
+          }
+        },
+        default: "meditate",
+        close: () => resolve(null)
+      }).render(true);
+    });
+  }
+
+  async #onCheckPossession(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    return this.actor.checkQiSpiritPossession("Imbalance Threshold");
+  }
+
+  async #onRollPossessionControl(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    return this.actor.rollPossessionControl();
+  }
+
+  async #onPurgePossession(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    const confirmed = await Dialog.confirm({
+      title: `Purge ${this.actor.system.imbalance.spirit || "Qi Spirit"}?`,
+      content: "<p>Only mark this complete when a Kung Fu Technique that purges spirits has been used successfully.</p>",
+      yes: () => true,
+      no: () => false,
+      defaultYes: false
+    });
+    if (!confirmed) return null;
+    return this.actor.purgeQiSpirit();
+  }
+
+  async #onResolveQiDuel(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    return this.actor.resolveQiDuel();
+  }
+
+  async #onClearQiDuel(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    return this.actor.clearQiDuelBuildup();
+  }
+
   async #onRollFallingDamage(event) {
     event.preventDefault();
     const hardiness = await this.#promptTargetNumber("Falling Damage TN", this.actor.system.defenses.hardiness.rating);
@@ -679,6 +1028,88 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     event.preventDefault();
     await this.#submitActorFields();
     return this.actor.rollAfflictionTreatment();
+  }
+
+  async #onRollAfflictionExposure(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    return this.actor.rollAfflictionExposure();
+  }
+
+  async #onAdvanceAfflictionProgression(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    return this.actor.advanceAfflictionProgression();
+  }
+
+  async #onAdvanceAfflictionLethality(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    return this.actor.advanceAfflictionLethality();
+  }
+
+  async #onClearAfflictionSubstances(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    return this.actor.clearAfflictionSubstances();
+  }
+
+  async #onExpireAfflictionSubstance(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    return this.actor.expireAfflictionSubstance(Number(event.currentTarget.dataset.index));
+  }
+
+  async #onSelectAffliction(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    return this.actor.selectAdditionalAffliction(Number(event.currentTarget.dataset.index));
+  }
+
+  async #confirmAfflictionRemoval(name) {
+    return Dialog.confirm({
+      title: `Discard ${name}?`,
+      content: `<p>Remove <strong>${escapeHtml(name)}</strong> from ${escapeHtml(this.actor.name)}'s tracked afflictions? This does not represent treatment or restore effects already applied.</p>`,
+      yes: () => true,
+      no: () => false,
+      defaultYes: false
+    });
+  }
+
+  async #onRemoveSelectedAffliction(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    const name = this.actor.system.affliction.name || "selected affliction";
+    if (!await this.#confirmAfflictionRemoval(name)) return null;
+    return this.actor.removeSelectedAffliction();
+  }
+
+  async #onRemoveAdditionalAffliction(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    const index = Number(event.currentTarget.dataset.index);
+    const name = this.actor.system.additionalAfflictions?.[index]?.name || "tracked affliction";
+    if (!await this.#confirmAfflictionRemoval(name)) return null;
+    return this.actor.removeAdditionalAffliction(index);
+  }
+
+  async #onApplySubstance(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    const item = this.actor.items.get(event.currentTarget.dataset.itemId);
+    return this.actor.useSubstanceItem(item);
+  }
+
+  async #onExpireActiveSubstance(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    return this.actor.expireActiveSubstance(Number(event.currentTarget.dataset.index));
+  }
+
+  async #onResetLifePillStreak(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    return this.actor.resetLifeProlongingPillStreak();
   }
 
   async #onHealWounds(event) {
@@ -929,7 +1360,7 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
 
   async #onDropItem(event) {
     event.preventDefault();
-    event.stopPropagation();
+    event.stopImmediatePropagation();
     const raw = event.dataTransfer?.getData("text/plain");
     if (!raw) return;
 
@@ -954,6 +1385,20 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     const item = await Item.implementation.fromDropData(data);
     if (!item) return;
 
+    if (item.type === "affliction") {
+      await this.actor.loadAfflictionItem(item);
+      this._activeTab = "rules";
+      this.#activateTab("rules", "primary");
+      ui.notifications.info(`Loaded ${item.name} into ${this.actor.name}'s treatment tracker.`);
+      return;
+    }
+
+    if (event.target?.closest?.(".affliction-drop-zone")) {
+      if (item.type === "substance") return this.actor.applySubstanceItem(item);
+      ui.notifications.warn("Drop a Poison, Disease, or Substance item onto the treatment tracker.");
+      return;
+    }
+
     const skillGroup = event.target?.closest?.("[data-skill-group]")?.dataset?.skillGroup;
     return this.#addDroppedItem(item, skillGroup);
   }
@@ -961,14 +1406,56 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
   async #addDroppedItem(item, skillGroup = "") {
     const itemData = item.toObject();
     delete itemData._id;
-    if (itemData.type === "skills" && skillGroup) itemData.system = { ...itemData.system, group: skillGroup };
-    const existing = itemData.type === "skills" ? this.#findExistingSkillItem(itemData) : null;
+    if (itemData.type === "skills") {
+      itemData.system = {
+        ...itemData.system,
+        group: resolveDroppedSkillGroup(itemData, skillGroup)
+      };
+    }
+    const techniqueSource = itemData.type === "technique" ? String(item.uuid ?? "") : "";
+    if (techniqueSource) {
+      itemData.flags = {
+        ...(itemData.flags ?? {}),
+        [OGRE_GATE.id]: {
+          ...(itemData.flags?.[OGRE_GATE.id] ?? {}),
+          sourceUuid: techniqueSource
+        }
+      };
+    }
+    const existing = itemData.type === "skills"
+      ? this.#findExistingSkillItem(itemData)
+      : itemData.type === "technique"
+        ? this.#findExistingTechniqueItem(item, techniqueSource)
+        : null;
     if (existing) {
       ui.notifications.info(`${existing.name} is already on ${this.actor.name}.`);
       return existing.sheet?.render(true);
     }
-    await this.actor.createEmbeddedDocuments("Item", [itemData]);
-    ui.notifications.info(`Added ${item.name} to ${this.actor.name}.`);
+    const pendingKey = itemData.type === "technique"
+      ? `${itemData.type}:${techniqueSource || normalizeKey(item.name)}`
+      : "";
+    this._ogreGatePendingDrops ??= new Set();
+    if (pendingKey && this._ogreGatePendingDrops.has(pendingKey)) return null;
+    if (pendingKey) this._ogreGatePendingDrops.add(pendingKey);
+    try {
+      await this.actor.createEmbeddedDocuments("Item", [itemData]);
+      ui.notifications.info(`Added ${item.name} to ${this.actor.name}.`);
+    } finally {
+      if (pendingKey) this._ogreGatePendingDrops.delete(pendingKey);
+    }
+    return null;
+  }
+
+  #findExistingTechniqueItem(item, sourceUuid = "") {
+    const incomingName = normalizeKey(item.name);
+    return this.actor.items.find((candidate) => {
+      if (candidate.type !== "technique") return false;
+      const existingSource = String(candidate.flags?.[OGRE_GATE.id]?.sourceUuid ?? "");
+      if (sourceUuid && existingSource === sourceUuid) return true;
+      return normalizeKey(candidate.name) === incomingName
+        && String(candidate.system.discipline ?? "") === String(item.system.discipline ?? "")
+        && String(candidate.system.activationSkill ?? "") === String(item.system.activationSkill ?? "");
+    }) ?? null;
   }
 
   async #onDropItemFolder(folder, target) {
@@ -985,7 +1472,10 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     for (const item of skills) {
       const data = item.toObject();
       delete data._id;
-      if (skillGroup) data.system = { ...data.system, group: skillGroup };
+      data.system = {
+        ...data.system,
+        group: resolveDroppedSkillGroup(data, skillGroup)
+      };
       const identity = getSkillIdentity(data);
       if (seen.has(identity)) continue;
       seen.add(identity);

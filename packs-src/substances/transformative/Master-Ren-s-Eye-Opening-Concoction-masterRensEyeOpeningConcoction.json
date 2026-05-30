@@ -1,0 +1,26 @@
+{
+  "_id": "fd673969a2ada5a8",
+  "name": "Master Ren's Eye Opening Concoction",
+  "type": "substance",
+  "img": "icons/svg/acid.svg",
+  "system": {
+    "description": "Master Ren's Eye Opening Concoction (Transformative Substance): This requires the use of Numinous Mushroom and a cauldron or pot to prepare 23 other ingredients by flame. When drunk it opens perceptions to the spiritual realms, allowing the drinker to see spirits and discern the true nature of creatures that are disguised by illusion. It also enables one to see when a person is possessed by a spirit and to see through enchantments.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 2: Rules",
+    "cost": "",
+    "rulesKey": "masterRensEyeOpeningConcoction",
+    "substanceType": "transformative",
+    "quantity": 1,
+    "brewSkill": "trade.alchemy",
+    "brewTn": 0,
+    "targetAffliction": "Spiritual perception",
+    "duration": "",
+    "effects": "Allows sight of spirits, concealed creature nature, possession, and enchantments."
+  },
+  "effects": [],
+  "folder": "a447fb4a85111591",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!fd673969a2ada5a8"
+}

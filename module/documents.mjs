@@ -4,6 +4,17 @@ import { prepareCharacterCreation } from "./rules/character-creation.mjs";
 
 const MELEE_SKILLS = new Set(["armStrike", "legStrike", "grapple", "throw", "lightMelee", "mediumMelee", "heavyMelee"]);
 const RANGED_SKILLS = new Set(["smallRanged", "largeRanged"]);
+const HEAT_RELATED_DISEASES = new Set(["bloodfire", "burningplague", "heartfire", "heatanddampnessofthelung"]);
+const SLOWER_AFFLICTION_INTERVAL = {
+  seconds: "minutes",
+  minutes: "hours",
+  hours: "days",
+  days: "weeks",
+  weeks: "months",
+  months: "years",
+  years: "years",
+  none: "none"
+};
 
 function escapeHtml(value = "") {
   return String(value ?? "")
@@ -25,12 +36,170 @@ function normalizeKey(value = "") {
   return String(value).trim().toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
+function skillSearchKeys(value = "") {
+  const raw = String(value ?? "").trim();
+  const beforeDefense = cleanSkillReference(raw);
+  return Array.from(new Set([
+    normalizeKey(raw),
+    normalizeKey(beforeDefense)
+  ].filter(Boolean)));
+}
+
+function cleanSkillReference(value = "") {
+  return String(value ?? "")
+    .trim()
+    .replace(/\b(roll|skill|using|with)\b/gi, " ")
+    .split(/\b(?:against|versus|vs\.?|v\.)\b/i)[0]
+    .trim();
+}
+
 function itemSkillKey(item) {
   return normalizeKey(item?.system?.skillKey || item?.name || "");
 }
 
+function resolveSkillGroupKey(value = "") {
+  const normalized = normalizeKey(value);
+  return Object.entries(OGRE_GATE.skillGroups).find(([groupKey, group]) => (
+    normalizeKey(groupKey) === normalized || normalizeKey(group.label) === normalized
+  ))?.[0] ?? null;
+}
+
+function resolveSkillKeyInGroup(groupKey, value = "") {
+  const normalized = normalizeKey(value);
+  const skills = OGRE_GATE.skillGroups[groupKey]?.skills ?? {};
+  return Object.entries(skills).find(([skillKey, label]) => (
+    normalizeKey(skillKey) === normalized || normalizeKey(label) === normalized
+  ))?.[0] ?? null;
+}
+
+function parseQualifiedSkillReference(value = "") {
+  const clean = cleanSkillReference(value);
+  if (!clean) return null;
+
+  const delimited = clean.split(/[:.]/).map((part) => part.trim()).filter(Boolean);
+  if (delimited.length >= 2) {
+    const groupKey = resolveSkillGroupKey(delimited[0]);
+    const skillKey = groupKey ? resolveSkillKeyInGroup(groupKey, delimited.slice(1).join(" ")) : null;
+    if (groupKey && skillKey) return { groupKey, skillKey };
+  }
+
+  const normalized = normalizeKey(clean);
+  for (const [groupKey, group] of Object.entries(OGRE_GATE.skillGroups)) {
+    if (groupKey === "defenses") continue;
+    const groupKeys = [groupKey, group.label].map(normalizeKey);
+    for (const [skillKey, label] of Object.entries(group.skills)) {
+      const skillKeys = [skillKey, label].map(normalizeKey);
+      const qualifiedKeys = groupKeys.flatMap((groupPart) => skillKeys.map((skillPart) => `${groupPart}${skillPart}`));
+      if (qualifiedKeys.includes(normalized)) return { groupKey, skillKey };
+    }
+  }
+  return null;
+}
+
+function skillLabel(groupKey, skillKey, skill) {
+  return skill?.label ?? OGRE_GATE.skillGroups[groupKey]?.skills?.[skillKey] ?? skillKey;
+}
+
+function parseTechniqueDamagePool(text = "", actor) {
+  const value = String(text ?? "");
+  const diceMatch = value.match(/(\d+)\s*d10/i);
+  let dice = diceMatch ? Number(diceMatch[1]) : 0;
+  let note = "";
+  const skillDamage = value.match(/\b(Arm Strike|Leg Strike|Grapple|Throw|Light Melee|Medium Melee|Heavy Melee|Small Ranged|Large Ranged|Athletics|Speed|Muscle|Endurance|Reason)\b\s*([+-]\s*\d+)?\s*d10/i);
+  if (skillDamage) {
+    const skillName = skillDamage[1];
+    const modifier = Number(String(skillDamage[2] ?? "+0").replace(/\s+/g, ""));
+    const skill = actor.findSkillPath(skillName)?.skill;
+    dice = effectiveRanks(skill) + modifier;
+    note = `${skillName} ${modifier >= 0 ? "+" : ""}${modifier}d10`;
+  }
+  const perRank = value.match(/per\s+Rank\s+of\s+(Waijia|Qinggong|Neigong|Dianxue)/i);
+  if (perRank) {
+    const disciplineKey = normalizeKey(perRank[1]);
+    dice = Number(actor.system.disciplines?.[disciplineKey]?.ranks ?? dice);
+    note = `per Rank of ${perRank[1]}`;
+  }
+  if (/per\s+Rank\s+of\s+Qi|per\s+Qi\s+Rank|per\s+Rank\s+Qi/i.test(value)) {
+    dice = Number(actor.system.status.effectiveQi ?? actor.system.qi.rank ?? dice);
+    note = "per Rank of Qi";
+  }
+  return {
+    dice: Math.max(0, Math.trunc(dice)),
+    note
+  };
+}
+
+function snapshotAffliction(source = {}) {
+  return {
+    rulesKey: source.rulesKey ?? "",
+    name: source.name ?? "",
+    type: source.type ?? "poison",
+    lethality: source.lethality ?? "hours",
+    speed: source.speed ?? "hours",
+    baseSpeed: source.baseSpeed ?? source.speed ?? "hours",
+    effect: source.effect ?? "temporary",
+    potency: source.potency ?? "",
+    affectedSkills: source.affectedSkills ?? "",
+    brewRating: Number(source.brewRating ?? 0),
+    contagious: Boolean(source.contagious),
+    medicineTn: Number(source.medicineTn ?? 6),
+    baseMedicineTn: Number(source.baseMedicineTn ?? source.medicineTn ?? 6),
+    medicineDiceBonus: Number(source.medicineDiceBonus ?? 0),
+    treatmentMode: source.treatmentMode ?? "standard",
+    interval: source.interval ?? source.lethality ?? "hours",
+    antidoteRequired: Boolean(source.antidoteRequired),
+    antidoteApplied: Boolean(source.antidoteApplied),
+    remedy: source.remedy ?? "",
+    status: source.status ?? "untreated",
+    notes: source.notes ?? "",
+    contracted: Boolean(source.contracted),
+    progression: Number(source.progression ?? 0),
+    lethalityLimit: Number(source.lethalityLimit ?? 0),
+    lethalityElapsed: Number(source.lethalityElapsed ?? 0),
+    qiDrainApplied: Number(source.qiDrainApplied ?? 0),
+    appliedSubstances: Array.from(source.appliedSubstances ?? []).map((application) => ({
+      rulesKey: application.rulesKey ?? "",
+      name: application.name ?? "",
+      effect: application.effect ?? "",
+      duration: application.duration ?? ""
+    }))
+  };
+}
+
+function newAfflictionFromItem(item) {
+  const data = item.system;
+  return snapshotAffliction({
+    rulesKey: data.rulesKey,
+    name: item.name,
+    type: data.afflictionType,
+    lethality: data.lethality,
+    speed: data.speed,
+    baseSpeed: data.speed,
+    effect: data.effect,
+    potency: data.potency,
+    affectedSkills: data.affectedSkills,
+    brewRating: data.brewRating,
+    contagious: data.contagious,
+    medicineTn: data.medicineTn,
+    baseMedicineTn: data.medicineTn,
+    treatmentMode: data.treatmentMode,
+    interval: data.lethality,
+    antidoteRequired: data.antidoteRequired,
+    remedy: data.remedy,
+    notes: data.specialRules
+  });
+}
+
 function getFirstTargetActor() {
   return Array.from(game.user?.targets ?? []).find((token) => token?.actor)?.actor ?? null;
+}
+
+function getRollValues(roll) {
+  return roll.dice.flatMap((die) => die.results.map((result) => result.result));
+}
+
+function renderRollValues(results) {
+  return results.map((result) => `<span class="ogre-gate-die${result === 10 ? " total-success" : ""}">${result}</span>`).join("");
 }
 
 export class OgreGateActor extends Actor {
@@ -108,6 +277,45 @@ export class OgreGateActor extends Actor {
     return 0;
   }
 
+  getActiveSubstanceSkillModifier(groupKey, skillKey) {
+    const normalized = normalizeKey(skillKey);
+    return Array.from(this.system.activeSubstances ?? []).reduce((modifier, effect) => {
+      const key = normalizeKey(effect.rulesKey || effect.name);
+      if (key === "longzhibonepowder" && groupKey === "physical" && normalized === "muscle") return modifier + 1;
+      if (key === "numinousmushroom" && ["mental", "knowledge"].includes(groupKey)) return modifier - 1;
+      if (key === "viperthorn" && groupKey === "physical" && normalized === "muscle") return modifier + 2;
+      if (key === "waterthorn" && groupKey === "physical" && ["athletics", "speed"].includes(normalized)) return modifier - 2;
+      return modifier;
+    }, 0);
+  }
+
+  getActiveSubstanceDefenseModifier(defenseKey) {
+    return Array.from(this.system.activeSubstances ?? []).reduce((modifier, effect) => {
+      const key = normalizeKey(effect.rulesKey || effect.name);
+      if (key === "waterthorn" && defenseKey === "resolve") return modifier - 4;
+      return modifier;
+    }, 0);
+  }
+
+  getTrackedAfflictions() {
+    return [
+      this.system.affliction,
+      ...Array.from(this.system.additionalAfflictions ?? [])
+    ].filter((affliction) => Boolean(affliction?.name));
+  }
+
+  getAfflictionSkillModifier(groupKey) {
+    return this.getTrackedAfflictions().reduce((modifier, affliction) => {
+      const progression = Math.max(0, Number(affliction.progression ?? 0));
+      if (!progression) return modifier;
+      const affected = normalizeKey(affliction.affectedSkills);
+      const applies = affected === "all"
+        ? ["combat", "mental", "physical"].includes(groupKey)
+        : affected.includes(normalizeKey(groupKey));
+      return applies ? modifier - progression : modifier;
+    }, 0);
+  }
+
   getArmorDamageReduction(weapon) {
     const damageType = weapon?.system?.damageType ?? "special";
     const attackSkill = weapon?.system?.attackSkill ?? weapon?.system?.category ?? "";
@@ -142,11 +350,13 @@ export class OgreGateActor extends Actor {
     const illumination = OGRE_GATE.illumination[this.system.combat.illumination] ?? OGRE_GATE.illumination.normal;
     const raceModifier = this.getRaceSkillModifier(groupKey, skillKey);
     const armorModifier = this.getArmorRollModifier(groupKey, skillKey);
+    const substanceModifier = this.getActiveSubstanceSkillModifier(groupKey, skillKey);
+    const afflictionModifier = this.getAfflictionSkillModifier(groupKey);
     return OgreGateRoll.skill({
       actor: this,
       label: options.label ?? item.name,
       ranks: effectiveRanks(item.system),
-      modifier: Number(item.system.modifier ?? 0) + raceModifier + armorModifier + Number(illumination.dice ?? 0) + Number(options.modifier ?? 0),
+      modifier: Number(item.system.modifier ?? 0) + raceModifier + armorModifier + substanceModifier + afflictionModifier + Number(illumination.dice ?? 0) + Number(options.modifier ?? 0),
       tn: options.tn ?? 6,
       rollMode: options.rollMode,
       deepPenalties: systemRule("deepPenalties"),
@@ -155,6 +365,8 @@ export class OgreGateActor extends Actor {
         item.system.drain ? `<div class="ogre-gate-chat-row"><strong>Drain</strong><span>-${item.system.drain} rank(s)</span></div>` : "",
         raceModifier ? `<div class="ogre-gate-chat-row"><strong>Race Modifier</strong><span>${raceModifier > 0 ? "+" : ""}${raceModifier}d10</span></div>` : "",
         armorModifier ? `<div class="ogre-gate-chat-row"><strong>Armor Penalty</strong><span>${armorModifier}d10</span></div>` : "",
+        substanceModifier ? `<div class="ogre-gate-chat-row"><strong>Substance Effect</strong><span>${substanceModifier > 0 ? "+" : ""}${substanceModifier}d10</span></div>` : "",
+        afflictionModifier ? `<div class="ogre-gate-chat-row"><strong>Affliction Penalty</strong><span>${afflictionModifier}d10</span></div>` : "",
         options.extra ?? ""
       ].filter(Boolean).join("")
     });
@@ -168,11 +380,13 @@ export class OgreGateActor extends Actor {
     const illumination = OGRE_GATE.illumination[this.system.combat.illumination] ?? OGRE_GATE.illumination.normal;
     const raceModifier = this.getRaceSkillModifier(groupKey, skillKey);
     const armorModifier = this.getArmorRollModifier(groupKey, skillKey);
+    const substanceModifier = this.getActiveSubstanceSkillModifier(groupKey, skillKey);
+    const afflictionModifier = this.getAfflictionSkillModifier(groupKey);
     return OgreGateRoll.skill({
       actor: this,
       label,
       ranks: effectiveRanks(skill),
-      modifier: skill.modifier + raceModifier + armorModifier + Number(illumination.dice ?? 0) + Number(options.modifier ?? 0),
+      modifier: skill.modifier + raceModifier + armorModifier + substanceModifier + afflictionModifier + Number(illumination.dice ?? 0) + Number(options.modifier ?? 0),
       tn: options.tn ?? 6,
       rollMode: options.rollMode,
       deepPenalties: systemRule("deepPenalties"),
@@ -181,9 +395,338 @@ export class OgreGateActor extends Actor {
         skill.drain ? `<div class="ogre-gate-chat-row"><strong>Drain</strong><span>-${skill.drain} rank(s)</span></div>` : "",
         raceModifier ? `<div class="ogre-gate-chat-row"><strong>Race Modifier</strong><span>${raceModifier > 0 ? "+" : ""}${raceModifier}d10</span></div>` : "",
         armorModifier ? `<div class="ogre-gate-chat-row"><strong>Armor Penalty</strong><span>${armorModifier}d10</span></div>` : "",
+        substanceModifier ? `<div class="ogre-gate-chat-row"><strong>Substance Effect</strong><span>${substanceModifier > 0 ? "+" : ""}${substanceModifier}d10</span></div>` : "",
+        afflictionModifier ? `<div class="ogre-gate-chat-row"><strong>Affliction Penalty</strong><span>${afflictionModifier}d10</span></div>` : "",
         options.extra ?? ""
       ].filter(Boolean).join("")
     });
+  }
+
+  async rollTechnique(item, { cathartic = false, tn = 6, modifier = 0 } = {}) {
+    item = typeof item === "string" ? this.items.get(item) : item;
+    if (!item || item.type !== "technique") return null;
+
+    const requiredQi = Number(item.system.qiRank ?? 0);
+    const availableQi = Number(this.system.status.effectiveQi ?? this.system.qi.rank ?? 0);
+    if (availableQi < requiredQi) {
+      ui.notifications.warn(`${this.name} needs current Qi ${requiredQi} to use ${item.name}.`);
+      return null;
+    }
+
+    const skill = this.findSkillPath(item.system.activationSkill);
+    if (!skill) {
+      ui.notifications.warn(`${item.name} needs an Activation Skill that ${this.name} possesses.`);
+      return null;
+    }
+
+    const mode = cathartic ? "Cathartic" : "Normal";
+    const techniqueDamage = parseTechniqueDamagePool(item.system.damage, this);
+    const techniqueDamageDice = techniqueDamage.dice;
+    const hasTechniqueDamage = techniqueDamageDice > 0;
+    const activationRanks = effectiveRanks(skill.skill);
+    const activationModifier = Number(skill.skill?.modifier ?? 0);
+    const activationGroupLabel = OGRE_GATE.skillGroups[skill.groupKey]?.label ?? skill.groupKey;
+    const activationLabel = skill.item?.name ?? skillLabel(skill.groupKey, skill.skillKey, skill.skill);
+    const options = {
+      label: `${item.name} (${mode})`,
+      tn,
+      modifier,
+      returnOutcome: cathartic || hasTechniqueDamage,
+      extra: [
+        `<div class="ogre-gate-chat-row"><strong>Activation Skill</strong><span>${escapeHtml(activationGroupLabel)}: ${escapeHtml(activationLabel)} (${activationRanks} rank${activationRanks === 1 ? "" : "s"}${activationModifier ? `, ${activationModifier > 0 ? "+" : ""}${activationModifier}d10 skill modifier` : ""})</span></div>`,
+        `<div class="ogre-gate-chat-row"><strong>Technique Use</strong><span>${mode}${cathartic ? "; resolve Imbalance from this result" : ""}</span></div>`,
+        hasTechniqueDamage ? `<div class="ogre-gate-chat-row"><strong>Technique Damage</strong><span>${techniqueDamageDice}d10${item.system.openDamage ? " Open" : ""}</span></div>` : ""
+      ].filter(Boolean).join("")
+    };
+    const result = skill.item
+      ? await this.rollSkillItem(skill.item, options)
+      : await this.rollSkill(skill.groupKey, skill.skillKey, options);
+
+    const outcome = result?.outcome;
+    if (cathartic && outcome) {
+      const rating = Number(this.system.status.imbalanceRating ?? 0);
+      const baseGained = outcome.totalSuccesses
+        ? 0
+        : outcome.success
+          ? rating
+          : rating + 2;
+      const mountedImbalance = this.system.combat.movingMount ? 1 : 0;
+      await this.gainImbalance(baseGained + mountedImbalance, {
+        source: `${item.name} (Cathartic)`,
+        reason: [
+          outcome.totalSuccesses ? "Total Success" : outcome.success ? "Success" : "Failure",
+          mountedImbalance ? "Moving mount +1" : ""
+        ].filter(Boolean).join("; ")
+      });
+    }
+
+    if (hasTechniqueDamage && outcome?.success) {
+      const targetActor = getFirstTargetActor();
+      await this.rollDamage({
+        label: `${item.name} Damage`,
+        dice: techniqueDamageDice,
+        hardiness: targetActor?.system?.defenses?.hardiness?.rating ?? 6,
+        open: Boolean(item.system.openDamage),
+        note: [
+          `Technique damage from ${item.name}`,
+          techniqueDamage.note,
+          targetActor ? `Target Hardiness: ${targetActor.name}` : "No target selected; TN 6 used"
+        ].filter(Boolean).join(" | ")
+      });
+    }
+
+    return result?.message ?? result;
+  }
+
+  async gainImbalance(amount, { source = "Imbalance", reason = "" } = {}) {
+    const gained = Math.max(0, Math.trunc(Number(amount ?? 0)));
+    const current = Number(this.system.imbalance.value ?? 0);
+    const maximum = Number(this.system.imbalance.max ?? 12 + Number(this.system.qi.rank ?? 0));
+    const next = Math.min(maximum, current + gained);
+    if (next !== current) await this.update({ "system.imbalance.value": next });
+
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      content: `
+        <section class="ogre-gate-chat-card">
+          <h3>${escapeHtml(this.name)} Gains Imbalance</h3>
+          <div class="ogre-gate-chat-row"><strong>Source</strong><span>${escapeHtml(source)}</span></div>
+          ${reason ? `<div class="ogre-gate-chat-row"><strong>Result</strong><span>${escapeHtml(reason)}</span></div>` : ""}
+          <div class="ogre-gate-chat-row"><strong>Points</strong><span>+${gained}; ${next} / ${maximum}</span></div>
+        </section>
+      `
+    });
+
+    if (next >= maximum) await this.checkQiSpiritPossession(source);
+    return { gained, value: next, maximum };
+  }
+
+  async checkQiSpiritPossession(source = "Imbalance Threshold") {
+    const current = Number(this.system.imbalance.value ?? 0);
+    const maximum = Number(this.system.imbalance.max ?? 12 + Number(this.system.qi.rank ?? 0));
+    if (current < maximum) {
+      ui.notifications.warn(`${this.name} has not reached the Imbalance limit for Qi Spirit Possession.`);
+      return null;
+    }
+    if (this.system.imbalance.possessed) {
+      ui.notifications.info(`${this.name} is already possessed by ${this.system.imbalance.spirit || "a Qi Spirit"}.`);
+      return null;
+    }
+
+    const roll = await new Roll("1d10").evaluate();
+    const result = Number(roll.total ?? 1);
+    const spirit = OGRE_GATE.qiSpirits[result] ?? "Unique Spirit";
+    await this.update({
+      "system.imbalance.possessed": true,
+      "system.imbalance.spirit": spirit,
+      "system.imbalance.possessionControl": "unchecked",
+      "system.imbalance.possessionControlDays": 0
+    });
+    ui.notifications.warn(`${this.name} is possessed by a ${spirit}.`);
+    return roll.toMessage({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      flavor: `${this.name} Qi Spirit Possession`,
+      content: `
+        <section class="ogre-gate-chat-card">
+          <h3>${escapeHtml(this.name)} Is Possessed</h3>
+          <div class="ogre-gate-chat-row"><strong>Cause</strong><span>${escapeHtml(source)}</span></div>
+          <div class="ogre-gate-chat-row"><strong>Imbalance</strong><span>${current} / ${maximum}</span></div>
+          <div class="ogre-gate-chat-row"><strong>Qi Spirit Roll</strong><span>${result}: ${escapeHtml(spirit)}</span></div>
+          <div class="ogre-gate-chat-row"><strong>Recovery</strong><span>Points cannot be recovered until the spirit is purged.</span></div>
+        </section>
+      `
+    });
+  }
+
+  async meditateImbalance(hours = 1) {
+    const elapsed = Math.max(1, Math.trunc(Number(hours ?? 1)));
+    if (this.system.imbalance.possessed) {
+      ui.notifications.warn(`${this.name} cannot recover Imbalance until ${this.system.imbalance.spirit || "the Qi Spirit"} is purged.`);
+      return ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({ actor: this }),
+        content: `
+          <section class="ogre-gate-chat-card">
+            <h3>${escapeHtml(this.name)} Meditates</h3>
+            <div class="ogre-gate-chat-row"><strong>Duration</strong><span>${elapsed} hour${elapsed === 1 ? "" : "s"}</span></div>
+            <div class="ogre-gate-chat-row"><strong>Recovery</strong><span>No Imbalance recovered while possessed.</span></div>
+          </section>
+        `
+      });
+    }
+
+    const meditation = this.findSkillPath("meditation")?.skill;
+    const meditationRanks = effectiveRanks(meditation);
+    const recovery = meditationRanks > 0
+      ? Number(this.system.qi.rank ?? 0) * elapsed
+      : Math.floor(elapsed / 2);
+    const current = Number(this.system.imbalance.value ?? 0);
+    const removed = Math.min(current, recovery);
+    const next = current - removed;
+    if (removed) await this.update({ "system.imbalance.value": next });
+    const rate = meditationRanks > 0
+      ? `${this.system.qi.rank} per hour (Qi level)`
+      : "1 per two hours (zero Meditation ranks)";
+    return ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      content: `
+        <section class="ogre-gate-chat-card">
+          <h3>${escapeHtml(this.name)} Meditates</h3>
+          <div class="ogre-gate-chat-row"><strong>Duration</strong><span>${elapsed} hour${elapsed === 1 ? "" : "s"}</span></div>
+          <div class="ogre-gate-chat-row"><strong>Rate</strong><span>${escapeHtml(rate)}; no Skill roll required</span></div>
+          <div class="ogre-gate-chat-row"><strong>Recovery</strong><span>-${removed} Imbalance; ${next} remaining</span></div>
+        </section>
+      `
+    });
+  }
+
+  async rollPossessionControl() {
+    if (!this.system.imbalance.possessed) {
+      ui.notifications.warn(`${this.name} is not possessed by a Qi Spirit.`);
+      return null;
+    }
+    const tn = 7 + Number(this.system.status.imbalanceRating ?? 0);
+    const result = await this.rollSkill("specialist", "meditation", {
+      label: "Meditation: Control Qi Spirit Possession",
+      tn,
+      returnOutcome: true,
+      extra: `<div class="ogre-gate-chat-row"><strong>Possession TN</strong><span>7 + Imbalance Rating = ${tn}</span></div>`
+    });
+    if (!result?.outcome) {
+      ui.notifications.warn(`${this.name} needs Meditation available to make the possession control roll.`);
+      return null;
+    }
+
+    const inControl = result.outcome.success;
+    const days = inControl && result.outcome.totalSuccesses ? 2 : 1;
+    await this.update({
+      "system.imbalance.possessionControl": inControl ? "self" : "spirit",
+      "system.imbalance.possessionControlDays": days
+    });
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      content: `
+        <section class="ogre-gate-chat-card">
+          <h3>${escapeHtml(this.name)} Possession Control</h3>
+          <div class="ogre-gate-chat-row"><strong>Spirit</strong><span>${escapeHtml(this.system.imbalance.spirit || "Qi Spirit")}</span></div>
+          <div class="ogre-gate-chat-row"><strong>Control</strong><span>${inControl ? `${escapeHtml(this.name)} remains in control` : "The spirit is in control"} for ${days} day${days === 1 ? "" : "s"}.</span></div>
+        </section>
+      `
+    });
+    return result.message;
+  }
+
+  async purgeQiSpirit() {
+    if (!this.system.imbalance.possessed) return null;
+    const spirit = this.system.imbalance.spirit || "Qi Spirit";
+    await this.update({
+      "system.imbalance.possessed": false,
+      "system.imbalance.spirit": "",
+      "system.imbalance.possessionControl": "unchecked",
+      "system.imbalance.possessionControlDays": 0
+    });
+    return ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      content: `
+        <section class="ogre-gate-chat-card">
+          <h3>${escapeHtml(this.name)} Is Purged</h3>
+          <div class="ogre-gate-chat-row"><strong>Spirit</strong><span>${escapeHtml(spirit)} removed by a purging Kung Fu Technique.</span></div>
+          <div class="ogre-gate-chat-row"><strong>Imbalance</strong><span>Existing points remain until removed by meditation or another effect.</span></div>
+        </section>
+      `
+    });
+  }
+
+  async resolveQiDuel(opponent = getFirstTargetActor()) {
+    if (!opponent || opponent === this) {
+      ui.notifications.warn("Target one opposing actor before resolving a Qi Duel.");
+      return null;
+    }
+
+    const ownQi = Number(this.system.status.effectiveQi ?? this.system.qi.rank ?? 0);
+    const opponentQi = Number(opponent.system.status.effectiveQi ?? opponent.system.qi.rank ?? 0);
+    const disparity = Math.abs(ownQi - opponentQi);
+    if (disparity > 1) {
+      ui.notifications.warn("A Qi Duel cannot begin when opponents differ by more than one Qi Rank.");
+      return ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({ actor: this }),
+        content: `
+          <section class="ogre-gate-chat-card">
+            <h3>Qi Duel Cannot Begin</h3>
+            <div class="ogre-gate-chat-row"><strong>${escapeHtml(this.name)}</strong><span>Qi ${ownQi}</span></div>
+            <div class="ogre-gate-chat-row"><strong>${escapeHtml(opponent.name)}</strong><span>Qi ${opponentQi}</span></div>
+            <div class="ogre-gate-chat-row"><strong>Rule</strong><span>Qi disparity cannot exceed 1 Rank for a Qi Duel.</span></div>
+          </section>
+        `
+      });
+    }
+
+    const ownNeigong = Number(this.system.disciplines.neigong.ranks ?? 0);
+    const opponentNeigong = Number(opponent.system.disciplines.neigong.ranks ?? 0);
+    const ownPenalty = (ownQi === opponentQi - 1 ? -2 : 0) + (ownNeigong < opponentNeigong ? -1 : 0);
+    const opponentPenalty = (opponentQi === ownQi - 1 ? -2 : 0) + (opponentNeigong < ownNeigong ? -1 : 0);
+    const ownPool = OgreGateRoll.resolvePool(ownQi, ownPenalty, { deepPenalties: systemRule("deepPenalties") });
+    const opponentPool = OgreGateRoll.resolvePool(opponentQi, opponentPenalty, { deepPenalties: systemRule("deepPenalties") });
+    const ownRoll = await new Roll(ownPool.formula).evaluate();
+    const opponentRoll = await new Roll(opponentPool.formula).evaluate();
+    const ownResults = getRollValues(ownRoll);
+    const opponentResults = getRollValues(opponentRoll);
+    const ownResult = ownPool.keep === "lowest" ? Math.min(...ownResults) : Math.max(...ownResults);
+    const opponentResult = opponentPool.keep === "lowest" ? Math.min(...opponentResults) : Math.max(...opponentResults);
+    const existingTies = Number(this.system.qiDuel.ties ?? 0);
+
+    if (ownResult === opponentResult) {
+      const ties = existingTies + 1;
+      await this.update({ "system.qiDuel.ties": ties });
+      return ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({ actor: this }),
+        content: `
+          <section class="ogre-gate-chat-card">
+            <h3>Qi Duel: Energy Builds</h3>
+            <div class="ogre-gate-chat-row"><strong>${escapeHtml(this.name)}</strong><span>${ownPool.label} / Neigong ${ownNeigong}${ownPenalty ? ` / ${ownPenalty}d10` : ""}</span></div>
+            <div class="ogre-gate-chat-dice">${renderRollValues(ownResults)}</div>
+            <div class="ogre-gate-chat-row"><strong>${escapeHtml(opponent.name)}</strong><span>${opponentPool.label} / Neigong ${opponentNeigong}${opponentPenalty ? ` / ${opponentPenalty}d10` : ""}</span></div>
+            <div class="ogre-gate-chat-dice">${renderRollValues(opponentResults)}</div>
+            <div class="ogre-gate-chat-row"><strong>Tie</strong><span>Both kept ${ownResult}; continue the duel.</span></div>
+            <div class="ogre-gate-chat-row"><strong>Stored Energy</strong><span>+${ties * 2} Extra Wounds on the eventual result.</span></div>
+          </section>
+        `
+      });
+    }
+
+    const victor = ownResult > opponentResult ? this : opponent;
+    const loser = victor === this ? opponent : this;
+    const victorResult = Math.max(ownResult, opponentResult);
+    const isTotalSuccess = victorResult === 10;
+    const outcomeWounds = isTotalSuccess ? 2 : ownQi + opponentQi;
+    const tieWounds = existingTies * 2;
+    const totalWounds = outcomeWounds + tieWounds;
+    await this.update({ "system.qiDuel.ties": 0 });
+    return ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      content: `
+        <section class="ogre-gate-chat-card">
+          <h3>Qi Duel: ${escapeHtml(victor.name)} Victorious</h3>
+          <div class="ogre-gate-chat-row"><strong>${escapeHtml(this.name)}</strong><span>${ownPool.label} / Neigong ${ownNeigong}${ownPenalty ? ` / ${ownPenalty}d10` : ""}</span></div>
+          <div class="ogre-gate-chat-dice">${renderRollValues(ownResults)}</div>
+          <div class="ogre-gate-chat-row"><strong>${escapeHtml(opponent.name)}</strong><span>${opponentPool.label} / Neigong ${opponentNeigong}${opponentPenalty ? ` / ${opponentPenalty}d10` : ""}</span></div>
+          <div class="ogre-gate-chat-dice">${renderRollValues(opponentResults)}</div>
+          <div class="ogre-gate-chat-row"><strong>Outcome</strong><span>${isTotalSuccess ? "Total Success: 2 Extra Wounds" : `Normal Success: ${ownQi + opponentQi} Extra Wounds (combined Qi)`}</span></div>
+          ${tieWounds ? `<div class="ogre-gate-chat-row"><strong>Tie Buildup</strong><span>+${tieWounds} Extra Wounds</span></div>` : ""}
+          <div class="ogre-gate-chat-row"><strong>Loser</strong><span>${escapeHtml(loser.name)} suffers ${totalWounds} Wound${totalWounds === 1 ? "" : "s"}.</span></div>
+          <button type="button" class="ogre-gate-chat-button" data-action="ogre-apply-wounds" data-actor-uuid="${loser.uuid ?? ""}" data-actor-id="${loser.id ?? ""}" data-wounds="${totalWounds}">Apply ${totalWounds} Wound${totalWounds === 1 ? "" : "s"} to ${escapeHtml(loser.name)}</button>
+        </section>
+      `
+    });
+  }
+
+  async clearQiDuelBuildup() {
+    if (!Number(this.system.qiDuel.ties ?? 0)) {
+      ui.notifications.info(`${this.name} has no stored Qi Duel tie buildup.`);
+      return null;
+    }
+    await this.update({ "system.qiDuel.ties": 0 });
+    ui.notifications.info(`${this.name}'s Qi Duel tie buildup has been cleared.`);
+    return null;
   }
 
   async rollDefense(defenseKey, options = {}) {
@@ -213,9 +756,16 @@ export class OgreGateActor extends Actor {
     const defenseKey = item.system.targetDefense || OGRE_GATE.combatSkillDefense[skillKey] || "parry";
     const defenseLabel = OGRE_GATE.defenses[defenseKey]?.label ?? defenseKey;
     const action = OGRE_GATE.combatActions[this.system.combat.action] ?? OGRE_GATE.combatActions.skillAndMove;
-    const attackMode = OGRE_GATE.attackModes[this.system.combat.attackMode] ?? OGRE_GATE.attackModes.normal;
+    const attackModeKey = this.system.combat.attackMode;
+    const attackMode = OGRE_GATE.attackModes[attackModeKey] ?? OGRE_GATE.attackModes.normal;
+    const preparedStrikeReady = attackModeKey === "prepared" && Boolean(this.system.preparedStrike.ready);
+    const preparedStrikeWarning = attackModeKey === "prepared" && !preparedStrikeReady;
+    if (preparedStrikeWarning) {
+      ui.notifications.warn(`${this.name} is using Prepared Strike attack mode, but no prepared strike is armed.`);
+    }
     const illumination = OGRE_GATE.illumination[this.system.combat.illumination] ?? OGRE_GATE.illumination.normal;
     const raceModifier = this.getRaceSkillModifier("combat", skillKey);
+    const afflictionModifier = this.getAfflictionSkillModifier("combat");
     const actionModifier = Number(action.skill ?? 0);
     const muscle = this.getSkill("physical", "muscle");
     const muscleRequirementPenalty = Number(muscle?.ranks ?? 0) < Number(item.system.muscleRequirement ?? 0) ? -1 : 0;
@@ -224,12 +774,13 @@ export class OgreGateActor extends Actor {
       + Number(item.system.accuracyModifier ?? 0)
       + Number(attackMode.attack ?? 0)
       + raceModifier
+      + afflictionModifier
       + muscleRequirementPenalty
       + Number(illumination.dice ?? 0)
       + Number(this.system.combat.situationalDice ?? 0)
       + Number(options.modifier ?? 0);
 
-    return OgreGateRoll.attack({
+    const message = await OgreGateRoll.attack({
       actor: this,
       label: `${item.name} Attack`,
       ranks: effectiveRanks(skill),
@@ -239,8 +790,12 @@ export class OgreGateActor extends Actor {
         attackMode.label,
         Number(item.system.accuracyModifier ?? 0) ? `Accuracy ${Number(item.system.accuracyModifier) > 0 ? "+" : ""}${item.system.accuracyModifier}d10` : "",
         raceModifier ? `Race ${raceModifier > 0 ? "+" : ""}${raceModifier}d10` : "",
+        afflictionModifier ? `Affliction ${afflictionModifier}d10` : "",
         `Reach: ${OGRE_GATE.reachCategories[item.system.reach] ?? item.system.reach}`,
         muscleRequirementPenalty ? `Muscle requirement ${item.system.muscleRequirement} unmet: -1d10` : "",
+        preparedStrikeReady ? `Prepared Strike triggered: ${this.system.preparedStrike.trigger || "declared trigger"} in ${this.system.preparedStrike.zone || "the designated zone"}` : "",
+        preparedStrikeReady ? "Prepared Strike spent after this attack" : "",
+        preparedStrikeWarning ? "Prepared Strike attack mode selected without an armed strike" : "",
         attackMode.workflow ?? ""
       ].filter(Boolean).join(" | "),
       tn: options.tn ?? 6,
@@ -248,6 +803,8 @@ export class OgreGateActor extends Actor {
       deepPenalties: systemRule("deepPenalties"),
       rollMode: options.rollMode
     });
+    if (preparedStrikeReady) await this.clearPreparedStrike();
+    return message;
   }
 
   async rollWeaponDamage(item, options = {}) {
@@ -260,6 +817,8 @@ export class OgreGateActor extends Actor {
       const skill = this.findSkill(damageSkillKey)?.skill;
       skillRanks = effectiveRanks(skill);
     }
+    const substanceDamageModifier = this.getActiveSubstanceSkillModifier("physical", damageSkillKey);
+    const afflictionDamageModifier = this.getAfflictionSkillModifier("physical");
 
     const attackMode = OGRE_GATE.attackModes[this.system.combat.attackMode] ?? OGRE_GATE.attackModes.normal;
     const controlledStrike = Boolean(this.system.combat.controlledStrike);
@@ -275,13 +834,15 @@ export class OgreGateActor extends Actor {
       dice: Number(item.system.damageDice ?? 0) + skillRanks,
       hardiness: options.hardiness ?? 6,
       open: item.system.openDamage || options.open || attackMode.openDamage,
-      modifier: Number(options.modifier ?? 0) + Number(attackMode.damage ?? 0) + raceDamageModifier + pendingDamageBonus - armorReduction,
+      modifier: Number(options.modifier ?? 0) + Number(attackMode.damage ?? 0) + raceDamageModifier + substanceDamageModifier + afflictionDamageModifier + pendingDamageBonus - armorReduction,
       extraWounds: Number(options.extraWounds ?? 0) + modeExtraWounds + controlledReduction,
       note: [
         attackMode.label,
         pendingDamageBonus ? `Attack bonus +${pendingDamageBonus}d10` : "",
         armorReduction ? `${targetActor.name} armor -${armorReduction}d10` : "",
         raceDamageModifier ? `Race +${raceDamageModifier}d10 damage` : "",
+        substanceDamageModifier ? `Substance ${substanceDamageModifier > 0 ? "+" : ""}${substanceDamageModifier}d10 damage` : "",
+        afflictionDamageModifier ? `Affliction ${afflictionDamageModifier}d10 damage` : "",
         attackMode.nonLethal ? "Non-lethal" : "",
         controlledStrike ? "Controlled Strike" : "",
         attackMode.damageDefense ? `Use target ${OGRE_GATE.defenses[attackMode.damageDefense]?.label ?? attackMode.damageDefense} as damage TN` : ""
@@ -300,17 +861,21 @@ export class OgreGateActor extends Actor {
     const speed = this.getSkill("physical", "speed") ?? this.system.skills.physical.speed;
     const raceModifier = this.getRaceSkillModifier("physical", "speed");
     const armorModifier = this.getArmorRollModifier("physical", "speed");
+    const substanceModifier = this.getActiveSubstanceSkillModifier("physical", "speed");
+    const afflictionModifier = this.getAfflictionSkillModifier("physical");
     return OgreGateRoll.skill({
       actor: this,
       label: "Turn Order",
       ranks: effectiveRanks(speed),
-      modifier: speed.modifier + raceModifier + armorModifier + Number(options.modifier ?? 0),
+      modifier: speed.modifier + raceModifier + armorModifier + substanceModifier + afflictionModifier + Number(options.modifier ?? 0),
       tn: 1,
       rollMode: options.rollMode,
       deepPenalties: systemRule("deepPenalties"),
       extra: [
         raceModifier ? `<div class="ogre-gate-chat-row"><strong>Race Modifier</strong><span>${raceModifier > 0 ? "+" : ""}${raceModifier}d10</span></div>` : "",
-        armorModifier ? `<div class="ogre-gate-chat-row"><strong>Armor Penalty</strong><span>${armorModifier}d10</span></div>` : ""
+        armorModifier ? `<div class="ogre-gate-chat-row"><strong>Armor Penalty</strong><span>${armorModifier}d10</span></div>` : "",
+        substanceModifier ? `<div class="ogre-gate-chat-row"><strong>Substance Effect</strong><span>${substanceModifier}d10</span></div>` : "",
+        afflictionModifier ? `<div class="ogre-gate-chat-row"><strong>Affliction Penalty</strong><span>${afflictionModifier}d10</span></div>` : ""
       ].filter(Boolean).join("")
     });
   }
@@ -439,18 +1004,204 @@ export class OgreGateActor extends Actor {
     const distance = Number(this.system.combat.chargeDistance ?? 0);
     const required = mode === "mountedCharge" ? 25 : mode === "charge" ? 20 : 0;
     const label = OGRE_GATE.attackModes[mode]?.label ?? "Current attack mode";
-    const mountedBow = this.system.combat.mountedBowShot;
-    const status = required ? (distance >= required ? "Ready" : "Review") : "No charge threshold";
-    const outcomeClass = status === "Review" ? "failure" : "success";
+    const straightLine = Boolean(this.system.combat.chargeStraightLine);
+    const continues = Boolean(this.system.combat.mountedChargeContinues);
+    const mountedBow = Boolean(this.system.combat.mountedBowShot);
+    const movingMount = Boolean(this.system.combat.movingMount);
+    const targetUnmounted = Boolean(this.system.combat.targetUnmounted);
+    const needsStraightLine = mode === "charge" || mode === "mountedCharge";
+    const problems = [];
+    if (required && distance < required) problems.push(`needs at least ${required} ft`);
+    if (needsStraightLine && !straightLine) problems.push("must be straight-line movement");
+    if (mode === "mountedCharge" && !continues) problems.push("must continue in that direction after the attack");
+    const status = problems.length ? "Review" : required ? "Ready" : "Reminder";
+    const outcomeClass = problems.length ? "failure" : "success";
     return ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this }),
       content: `
         <section class="ogre-gate-chat-card">
           <h3>${this.name} ${label}</h3>
           <div class="ogre-gate-chat-row"><strong>Declared Distance</strong><span>${distance} ft</span></div>
-          <div class="ogre-gate-chat-row"><strong>Required</strong><span>${required || "None"}${required ? " ft straight-line movement" : ""}</span></div>
+          <div class="ogre-gate-chat-row"><strong>Required</strong><span>${required || "None"}${required ? " ft" : ""}</span></div>
+          ${needsStraightLine ? `<div class="ogre-gate-chat-row"><strong>Straight Line</strong><span>${straightLine ? "Confirmed" : "Not confirmed"}</span></div>` : ""}
+          ${mode === "mountedCharge" ? `<div class="ogre-gate-chat-row"><strong>Continue Past Target</strong><span>${continues ? "Confirmed" : "Not confirmed"}</span></div>` : ""}
+          ${mode === "mounted" || mode === "mountedCharge" ? `<div class="ogre-gate-chat-row"><strong>Opponent Mounted?</strong><span>${targetUnmounted ? "Opponent unmounted: mounted attack bonus applies and opponent takes -1d10." : "Opponent mounted: review whether mounted advantage applies."}</span></div>` : ""}
           ${mountedBow ? `<div class="ogre-gate-chat-row"><strong>Mounted Bow</strong><span>Apply -1d10 unless Bow Rider or another rule overrides it.</span></div>` : ""}
+          ${movingMount ? `<div class="ogre-gate-chat-row"><strong>Cathartic Technique</strong><span>Moving mount adds 1 extra Imbalance Point.</span></div>` : ""}
+          ${problems.length ? `<ul class="ogre-gate-chat-checklist">${problems.map((problem) => `<li>${escapeHtml(problem)}</li>`).join("")}</ul>` : ""}
           <div class="ogre-gate-chat-outcome ${outcomeClass}">${status}</div>
+        </section>
+      `
+    });
+  }
+
+  async rollAfflictionExposure() {
+    const affliction = this.system.affliction;
+    const name = affliction.name || "";
+    if (!name || !affliction.potency) {
+      ui.notifications.warn("Load a Poison or Disease with Potency before rolling exposure.");
+      return null;
+    }
+    const hardiness = Number(this.system.defenses.hardiness.rating ?? 0);
+    const result = await OgreGateRoll.potency({
+      actor: this,
+      label: `${name} Exposure`,
+      potency: affliction.potency,
+      hardiness,
+      extra: `<div class="ogre-gate-chat-row"><strong>Effect</strong><span>${escapeHtml(affliction.effect)}; ${escapeHtml(affliction.affectedSkills || "Special")}</span></div>`
+    });
+    if (!result?.outcome?.success) {
+      await this.update({
+        "system.affliction.contracted": false,
+        "system.affliction.status": "resisted",
+        "system.affliction.progression": 0,
+        "system.affliction.lethalityLimit": 0,
+        "system.affliction.lethalityElapsed": 0,
+        "system.affliction.qiDrainApplied": 0
+      });
+      ui.notifications.info(`${this.name} resists ${name}.`);
+      return result.message;
+    }
+
+    const updates = {
+      "system.affliction.contracted": true,
+      "system.affliction.status": "active",
+      "system.affliction.progression": 0,
+      "system.affliction.lethalityElapsed": 0,
+      "system.affliction.qiDrainApplied": 0
+    };
+    let deadline = "Not lethal";
+    if (affliction.lethality !== "none") {
+      const lethalityRoll = await new Roll("1d10").evaluate();
+      updates["system.affliction.lethalityLimit"] = Number(lethalityRoll.total ?? 0);
+      deadline = `${lethalityRoll.total} ${OGRE_GATE.afflictionIntervals[affliction.lethality] ?? affliction.lethality}`;
+    } else {
+      updates["system.affliction.lethalityLimit"] = 0;
+    }
+
+    const key = normalizeKey(affliction.rulesKey || name);
+    const active = Array.from(this.system.activeSubstances ?? []).filter((effect) => normalizeKey(effect.rulesKey || effect.name) !== key);
+    let special = "";
+    if (key === "viperthorn") {
+      await this.applyWounds(1);
+      updates["system.activeSubstances"] = [...active, {
+        rulesKey: affliction.rulesKey,
+        name,
+        effect: "Wracking pain and rage; +2d10 to Muscle rolls.",
+        duration: "3 hours"
+      }];
+      special = "Suffer 1 Wound and gain +2d10 Muscle for 3 hours.";
+    } else if (key === "waterthorn") {
+      await this.healWounds(1);
+      updates["system.activeSubstances"] = [...active, {
+        rulesKey: affliction.rulesKey,
+        name,
+        effect: "Profound euphoria; -4 Resolve and -2d10 to Speed and Athletics.",
+        duration: "10 hours"
+      }];
+      special = "Heal 1 Wound; suffer -4 Resolve and -2d10 Speed and Athletics for 10 hours.";
+    } else if (key === "xikangsspleenfreezingwine") {
+      const paralysisRoll = await new Roll("1d10").evaluate();
+      updates["system.activeSubstances"] = [...active, {
+        rulesKey: affliction.rulesKey,
+        name,
+        effect: "Full paralysis.",
+        duration: `${paralysisRoll.total} minute${paralysisRoll.total === 1 ? "" : "s"}`
+      }];
+      special = `Full paralysis for ${paralysisRoll.total} minute${paralysisRoll.total === 1 ? "" : "s"}.`;
+    }
+    await this.update(updates);
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      content: `
+        <section class="ogre-gate-chat-card">
+          <h3>${escapeHtml(this.name)} Contracts ${escapeHtml(name)}</h3>
+          <div class="ogre-gate-chat-row"><strong>Lethality Deadline</strong><span>${escapeHtml(deadline)}</span></div>
+          <div class="ogre-gate-chat-row"><strong>Speed</strong><span>Advance effects each ${escapeHtml(OGRE_GATE.afflictionIntervals[affliction.speed] ?? affliction.speed)}</span></div>
+          ${special ? `<div class="ogre-gate-chat-row"><strong>Special</strong><span>${escapeHtml(special)}</span></div>` : ""}
+        </section>
+      `
+    });
+    ui.notifications.info(`${this.name} contracts ${name}.`);
+    return result.message;
+  }
+
+  async advanceAfflictionProgression() {
+    const affliction = this.system.affliction;
+    const name = affliction.name || "Active affliction";
+    if (!affliction.contracted || !["active", "resumed"].includes(affliction.status)) {
+      ui.notifications.warn(`${name} is not currently progressing.`);
+      return null;
+    }
+    const key = normalizeKey(affliction.rulesKey || name);
+    let effect = "";
+    const updates = {};
+    if (key === "purplespiritvenom") {
+      const currentDrain = Number(this.system.qi.temporary ?? 0);
+      const maximumDrain = Math.max(0, Number(this.system.qi.rank ?? 1) - 1);
+      const nextDrain = Math.min(maximumDrain, currentDrain + 1);
+      updates["system.qi.temporary"] = nextDrain;
+      updates["system.affliction.qiDrainApplied"] = Number(affliction.qiDrainApplied ?? 0) + (nextDrain > currentDrain ? 1 : 0);
+      effect = nextDrain > currentDrain
+        ? "Qi is reduced by 1. It cannot be restored until the venom is purged."
+        : "Qi is already at 1; Purple Spirit Venom causes no further reduction.";
+    } else if (["viperthorn", "waterthorn", "xikangsspleenfreezingwine"].includes(key)) {
+      ui.notifications.warn(`${name}'s special timed effect is tracked under Active Substances; expire it there when its duration ends.`);
+      return null;
+    } else {
+      const progression = Number(affliction.progression ?? 0) + 1;
+      updates["system.affliction.progression"] = progression;
+      effect = key === "spinytoadvenom"
+        ? `A seizure applies a cumulative -${progression}d10 penalty to Mental and Physical Skills.`
+        : `Cumulative -${progression}d10 penalty applies to ${affliction.affectedSkills || "the listed Skills"}.`;
+    }
+    await this.update(updates);
+    return ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      content: `
+        <section class="ogre-gate-chat-card">
+          <h3>${escapeHtml(name)} Effect Advances</h3>
+          <div class="ogre-gate-chat-row"><strong>Speed Interval</strong><span>${escapeHtml(OGRE_GATE.afflictionIntervals[affliction.speed] ?? affliction.speed)}</span></div>
+          <div class="ogre-gate-chat-row"><strong>Effect</strong><span>${escapeHtml(effect)}</span></div>
+        </section>
+      `
+    });
+  }
+
+  async advanceAfflictionLethality() {
+    const affliction = this.system.affliction;
+    const name = affliction.name || "Active affliction";
+    if (!affliction.contracted || !["active", "resumed"].includes(affliction.status)) {
+      ui.notifications.warn(`${name} is not currently advancing toward lethality.`);
+      return null;
+    }
+    if (affliction.lethality === "none") {
+      ui.notifications.warn(`${name} has no lethality clock.`);
+      return null;
+    }
+    const limit = Number(affliction.lethalityLimit ?? 0);
+    if (!limit) {
+      ui.notifications.warn(`Roll ${name} exposure first to establish its 1d10 lethality deadline.`);
+      return null;
+    }
+    const elapsed = Math.min(limit, Number(affliction.lethalityElapsed ?? 0) + 1);
+    const fatal = elapsed >= limit;
+    const updates = {
+      "system.affliction.lethalityElapsed": elapsed,
+      "system.affliction.status": fatal ? "fatal" : affliction.status
+    };
+    if (fatal) {
+      updates["system.resources.wounds.value"] = 0;
+      updates["system.combat.stabilized"] = false;
+    }
+    await this.update(updates);
+    return ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      content: `
+        <section class="ogre-gate-chat-card">
+          <h3>${escapeHtml(name)} Lethality Advances</h3>
+          <div class="ogre-gate-chat-row"><strong>Clock</strong><span>${elapsed} / ${limit} ${escapeHtml(OGRE_GATE.afflictionIntervals[affliction.lethality] ?? affliction.lethality)}</span></div>
+          <div class="ogre-gate-chat-outcome ${fatal ? "failure" : "success"}">${fatal ? "Deadline Reached: Character Dies" : "Treatment Time Remains"}</div>
         </section>
       `
     });
@@ -459,37 +1210,462 @@ export class OgreGateActor extends Actor {
   async rollAfflictionTreatment() {
     const affliction = this.system.affliction;
     const name = affliction.name || (OGRE_GATE.afflictionTypes[affliction.type] ?? "Affliction");
+    if (!Number(affliction.medicineTn ?? 0)) {
+      ui.notifications.warn(`${name} does not list standard Medicine treatment.`);
+      return null;
+    }
     if (affliction.antidoteRequired && !affliction.antidoteApplied) {
-      ui.notifications.warn(`${name} requires an antidote or specific remedy before Medicine can treat it.`);
+      const remedy = affliction.remedy || "an antidote or specific remedy";
+      ui.notifications.warn(`${name} requires ${remedy} before Medicine can treat it.`);
       return null;
     }
     const result = await this.rollSkill("specialist", "medicine", {
       label: `Medicine: ${name}`,
       tn: affliction.medicineTn,
+      modifier: Number(affliction.medicineDiceBonus ?? 0),
       returnOutcome: true,
       extra: [
         `<div class="ogre-gate-chat-row"><strong>Type</strong><span>${OGRE_GATE.afflictionTypes[affliction.type] ?? affliction.type}</span></div>`,
+        `<div class="ogre-gate-chat-row"><strong>Lethality</strong><span>${OGRE_GATE.afflictionIntervals[affliction.lethality] ?? affliction.lethality}</span></div>`,
+        `<div class="ogre-gate-chat-row"><strong>Speed</strong><span>${OGRE_GATE.afflictionIntervals[affliction.speed] ?? affliction.speed}</span></div>`,
         `<div class="ogre-gate-chat-row"><strong>Cadence</strong><span>One recovery roll per ${OGRE_GATE.afflictionIntervals[affliction.interval] ?? affliction.interval}</span></div>`,
-        affliction.antidoteRequired ? `<div class="ogre-gate-chat-row"><strong>Remedy</strong><span>${affliction.antidoteApplied ? "Applied" : "Required"}</span></div>` : ""
+        affliction.potency ? `<div class="ogre-gate-chat-row"><strong>Potency</strong><span>${affliction.potency} against Hardiness</span></div>` : "",
+        affliction.affectedSkills ? `<div class="ogre-gate-chat-row"><strong>Affected Skills</strong><span>${affliction.affectedSkills}</span></div>` : "",
+        affliction.antidoteRequired ? `<div class="ogre-gate-chat-row"><strong>Remedy</strong><span>${affliction.antidoteApplied ? "Applied" : "Required"}</span></div>` : "",
+        affliction.medicineDiceBonus ? `<div class="ogre-gate-chat-row"><strong>Substance Bonus</strong><span>+${affliction.medicineDiceBonus}d10 Medicine</span></div>` : "",
+        affliction.treatmentMode === "staveOnly" ? `<div class="ogre-gate-chat-row"><strong>Treatment Limit</strong><span>Medicine can stave off effects, not cure this affliction.</span></div>` : "",
+        affliction.notes ? `<div class="ogre-gate-chat-row"><strong>Special</strong><span>${affliction.notes}</span></div>` : ""
       ].filter(Boolean).join("")
     });
     const outcome = result?.outcome;
-    const status = outcome?.totalSuccesses ? "cured" : outcome?.success ? "stabilized" : "resumed";
-    await this.update({ "system.affliction.status": status });
+    if (!outcome) {
+      ui.notifications.warn("Add a Medicine Skill item to the actor before attempting treatment.");
+      return null;
+    }
+    const status = affliction.treatmentMode === "staveOnly"
+      ? (outcome?.success ? "staved off" : "resumed")
+      : (outcome?.totalSuccesses ? "cured" : outcome?.success ? "stabilized" : "resumed");
+    const updates = { "system.affliction.status": status };
+    if (status === "cured") {
+      updates["system.affliction.contracted"] = false;
+      updates["system.affliction.lethalityLimit"] = 0;
+      updates["system.affliction.lethalityElapsed"] = 0;
+      if (normalizeKey(affliction.effect) !== "permanent") updates["system.affliction.progression"] = 0;
+    }
+    if (affliction.treatmentMode === "staveOnly" && !outcome?.success) {
+      await this.applyWounds(1);
+      await ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({ actor: this }),
+        content: `<section class="ogre-gate-chat-card"><h3>${escapeHtml(name)} Treatment Failure</h3><div class="ogre-gate-chat-outcome failure">Malignant Wind Disease inflicts 1 Wound.</div></section>`
+      });
+    }
+    await this.update(updates);
     ui.notifications.info(`${name} treatment status: ${status}.`);
     return result?.message ?? result;
   }
 
+  async loadAfflictionItem(item) {
+    if (item?.type !== "affliction") return null;
+    const key = normalizeKey(item.system.rulesKey || item.name);
+    const additional = Array.from(this.system.additionalAfflictions ?? []).map(snapshotAffliction);
+    const matchingIndex = additional.findIndex((affliction) => normalizeKey(affliction.rulesKey || affliction.name) === key);
+    if (matchingIndex >= 0) return this.selectAdditionalAffliction(matchingIndex);
+
+    const current = snapshotAffliction(this.system.affliction);
+    const updates = { "system.affliction": newAfflictionFromItem(item) };
+    if (current.name && normalizeKey(current.rulesKey || current.name) !== key) {
+      updates["system.additionalAfflictions"] = [...additional, current];
+    }
+    return this.update(updates);
+  }
+
+  async selectAdditionalAffliction(index) {
+    const additional = Array.from(this.system.additionalAfflictions ?? []).map(snapshotAffliction);
+    const selected = additional[index];
+    if (!selected) return null;
+    const remaining = additional.filter((_affliction, entryIndex) => entryIndex !== index);
+    const current = snapshotAffliction(this.system.affliction);
+    if (current.name) remaining.push(current);
+    return this.update({
+      "system.affliction": selected,
+      "system.additionalAfflictions": remaining
+    });
+  }
+
+  async removeAdditionalAffliction(index) {
+    const additional = Array.from(this.system.additionalAfflictions ?? []).map(snapshotAffliction);
+    if (!additional[index]) return null;
+    return this.update({
+      "system.additionalAfflictions": additional.filter((_affliction, entryIndex) => entryIndex !== index)
+    });
+  }
+
+  async removeSelectedAffliction() {
+    const additional = Array.from(this.system.additionalAfflictions ?? []).map(snapshotAffliction);
+    if (additional.length) {
+      return this.update({
+        "system.affliction": additional[0],
+        "system.additionalAfflictions": additional.slice(1)
+      });
+    }
+    return this.update({ "system.affliction": snapshotAffliction() });
+  }
+
+  async applySubstanceItem(item) {
+    if (item?.type !== "substance") return null;
+
+    const affliction = this.system.affliction;
+    const name = affliction.name || "";
+    if (!name) {
+      ui.notifications.warn("Load a Poison or Disease before applying a substance to its treatment tracker.");
+      return null;
+    }
+
+    const data = item.system;
+    const activeKey = normalizeKey(affliction.rulesKey || name);
+    const itemKey = normalizeKey(data.rulesKey || item.name);
+    const applied = Array.from(affliction.appliedSubstances ?? []);
+    if (applied.some((application) => normalizeKey(application.rulesKey || application.name) === itemKey)) {
+      ui.notifications.warn(`${item.name} is already recorded for the active ${name} treatment.`);
+      return null;
+    }
+
+    const updates = {};
+    let effect = "";
+    const duration = data.duration || "";
+
+    if (itemKey === "lotusoil" && activeKey === "firepoison") {
+      updates["system.affliction.antidoteApplied"] = true;
+      updates["system.affliction.status"] = "ready for treatment";
+      effect = "Lotus Oil applied; Fire Poison can now be treated with Medicine.";
+    } else if (itemKey === "purplespiritvenomantidote" && activeKey === "purplespiritvenom") {
+      updates["system.affliction.antidoteApplied"] = true;
+      updates["system.affliction.status"] = "purged";
+      updates["system.affliction.contracted"] = false;
+      updates["system.affliction.lethalityLimit"] = 0;
+      updates["system.affliction.lethalityElapsed"] = 0;
+      updates["system.qi.temporary"] = Math.max(0, Number(this.system.qi.temporary ?? 0) - Number(affliction.qiDrainApplied ?? 0));
+      updates["system.affliction.qiDrainApplied"] = 0;
+      effect = "Purple Spirit Venom is purged; blocked Qi may now be restored.";
+    } else if (itemKey === "xikangsantidote" && activeKey === "xikangsspleenfreezingwine") {
+      updates["system.affliction.antidoteApplied"] = true;
+      updates["system.affliction.status"] = "nullified";
+      updates["system.affliction.contracted"] = false;
+      updates["system.affliction.lethalityLimit"] = 0;
+      updates["system.affliction.lethalityElapsed"] = 0;
+      updates["system.activeSubstances"] = Array.from(this.system.activeSubstances ?? []).filter((active) => normalizeKey(active.rulesKey || active.name) !== activeKey);
+      effect = "The effects of Xi Kang's Spleen Freezing Wine are nullified.";
+    } else if (itemKey === "yellowphoenixpills" && ["hellebore", "mandrake"].includes(activeKey)) {
+      updates["system.affliction.antidoteApplied"] = true;
+      updates["system.affliction.status"] = "ready for treatment";
+      effect = `Yellow Phoenix Pills applied as the antidote for ${name}; Medicine treatment is now available.`;
+    } else if (itemKey === "yellowphoenixpills" && activeKey === "bloodfire") {
+      updates["system.affliction.medicineDiceBonus"] = Number(affliction.medicineDiceBonus ?? 0) + 1;
+      effect = "Yellow Phoenix Pills grant +1d10 to Medicine rolls against Blood Fire.";
+    } else if (itemKey === "bluephoenixpills" && (affliction.type === "poison" || HEAT_RELATED_DISEASES.has(activeKey))) {
+      const baseSpeed = applied.length ? affliction.baseSpeed : affliction.speed;
+      updates["system.affliction.baseSpeed"] = baseSpeed;
+      updates["system.affliction.speed"] = SLOWER_AFFLICTION_INTERVAL[baseSpeed] ?? affliction.speed;
+      effect = `Blue Phoenix Pills lower the Speed of ${name} by one increment.`;
+    } else if (itemKey === "masterliscure" && affliction.type === "disease") {
+      const baseMedicineTn = applied.length ? Number(affliction.baseMedicineTn) : Number(affliction.medicineTn);
+      updates["system.affliction.baseMedicineTn"] = baseMedicineTn;
+      updates["system.affliction.medicineTn"] = Math.max(0, baseMedicineTn - 2);
+      effect = `Master Li's Cure reduces the Medicine TN for ${name} by 2.`;
+    } else if (itemKey === "purplesapphiremushroom" && affliction.type === "poison") {
+      updates["system.affliction.status"] = "staved off";
+      effect = `Purple Sapphire Mushroom staves off the effects of ${name} for one day.`;
+    } else if (data.substanceType === "antidote" && normalizeKey(data.targetAffliction) === activeKey) {
+      updates["system.affliction.antidoteApplied"] = true;
+      updates["system.affliction.status"] = "ready for treatment";
+      effect = `${item.name} applied; Medicine treatment is now available for ${name}.`;
+    }
+
+    if (!effect) {
+      ui.notifications.warn(`${item.name} has no active treatment effect for ${name}.`);
+      return null;
+    }
+
+    const doseText = await this.consumeSubstanceDose(item);
+    if (!doseText) return null;
+    updates["system.affliction.appliedSubstances"] = [
+      ...applied.map((application) => ({
+        rulesKey: application.rulesKey,
+        name: application.name,
+        effect: application.effect,
+        duration: application.duration
+      })),
+      {
+        rulesKey: data.rulesKey || item.name,
+        name: item.name,
+        effect,
+        duration
+      }
+    ];
+    await this.update(updates);
+    ui.notifications.info(`${item.name} applied to ${name}.`);
+    return ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      content: `
+        <section class="ogre-gate-chat-card">
+          <h3>${escapeHtml(this.name)} Substance Applied</h3>
+          <div class="ogre-gate-chat-row"><strong>Substance</strong><span>${escapeHtml(item.name)}</span></div>
+          <div class="ogre-gate-chat-row"><strong>Affliction</strong><span>${escapeHtml(name)}</span></div>
+          <div class="ogre-gate-chat-row"><strong>Effect</strong><span>${escapeHtml(effect)}</span></div>
+          ${duration ? `<div class="ogre-gate-chat-row"><strong>Duration</strong><span>${escapeHtml(duration)}</span></div>` : ""}
+          <div class="ogre-gate-chat-row"><strong>Dose</strong><span>${escapeHtml(doseText)}</span></div>
+        </section>
+      `
+    });
+  }
+
+  async consumeSubstanceDose(item) {
+    if (item.parent !== this) return "Not tracked; administer from Gear to spend a stored dose.";
+    const availableDoses = Number(item.system.quantity ?? 1);
+    if (availableDoses < 1) {
+      ui.notifications.warn(`${item.name} has no doses remaining.`);
+      return null;
+    }
+    const remaining = availableDoses - 1;
+    await item.update({ "system.quantity": remaining });
+    return `1 dose consumed; ${remaining} remaining.`;
+  }
+
+  async useSubstanceItem(item) {
+    if (item?.type !== "substance") return null;
+    const data = item.system;
+    const key = normalizeKey(data.rulesKey || item.name);
+    const afflictionKeys = new Set([
+      "bluephoenixpills", "lotusoil", "masterliscure", "purplesapphiremushroom",
+      "purplespiritvenomantidote", "snakedemonantidote", "xikangsantidote", "yellowphoenixpills"
+    ]);
+    if (afflictionKeys.has(key) || data.substanceType === "antidote") return this.applySubstanceItem(item);
+
+    const active = Array.from(this.system.activeSubstances ?? []);
+    const previousApplication = active.find((application) => normalizeKey(application.rulesKey || application.name) === key);
+    let effect = data.effects || "Apply the item description as directed by the GM.";
+    let duration = data.duration || "";
+    const updates = {};
+    let trackEffect = Boolean(data.duration);
+    if (key === "bitterorangeremedy") {
+      const reduced = Math.min(5, Number(this.system.imbalance.value ?? 0));
+      updates["system.imbalance.value"] = Math.max(0, Number(this.system.imbalance.value ?? 0) - 5);
+      effect = `Restores Qi balance by eliminating ${reduced} Imbalance Point${reduced === 1 ? "" : "s"}.`;
+      duration = "";
+      trackEffect = false;
+    } else if (key === "numinousmushroom") {
+      const currentHealth = Number(this.system.resources.wounds.value ?? 0);
+      const maximumHealth = Number(this.system.resources.wounds.max ?? currentHealth);
+      const restored = Math.min(3, Math.max(0, maximumHealth - currentHealth));
+      updates["system.resources.wounds.value"] = currentHealth + restored;
+      effect = `Restores ${restored} Health and imposes -1d10 to all Mental and Knowledge Skill rolls for one day.`;
+      trackEffect = true;
+    } else if (key === "longzhibonepowder") {
+      const durationRoll = await new Roll("1d10").evaluate();
+      duration = `${durationRoll.total} day${durationRoll.total === 1 ? "" : "s"}`;
+      effect = `Gain +1d10 to Muscle rolls for ${duration}.`;
+      trackEffect = true;
+    } else if (key === "lifeprolongingpill") {
+      const imbalanceRoll = await new Roll("1d10").evaluate();
+      const gainedImbalance = Number(imbalanceRoll.total ?? 0);
+      const imbalanceMax = Number(this.system.imbalance.max ?? gainedImbalance);
+      const regimen = this.system.longevity.lifeProlongingPill;
+      updates["system.imbalance.value"] = Math.min(imbalanceMax, Number(this.system.imbalance.value ?? 0) + gainedImbalance);
+      updates["system.resources.wounds.value"] = Math.max(Number(this.system.resources.wounds.min ?? 0), Number(this.system.resources.wounds.value ?? 0) - 1);
+      updates["system.combat.stabilized"] = false;
+      duration = "1 hour";
+      if (regimen.completed) {
+        const additionalUses = Number(regimen.additionalUses ?? 0) + 1;
+        const yearsLost = Number(regimen.yearsLost ?? 0) + 1;
+        const netYears = Number(regimen.yearsAdded ?? 0) - yearsLost;
+        updates["system.longevity.lifeProlongingPill.additionalUses"] = additionalUses;
+        updates["system.longevity.lifeProlongingPill.yearsLost"] = yearsLost;
+        updates["system.longevity.lifeProlongingPill.netYears"] = netYears;
+        effect = `Suffer 1 Wound and ${gainedImbalance} Imbalance Points; restless and aggressive for one hour. Further use after the completed course reduces life expectancy by 1 year. Net lifespan adjustment: ${netYears >= 0 ? "+" : ""}${netYears} years.`;
+      } else {
+        const consecutiveDays = Math.min(10, Number(regimen.consecutiveDays ?? 0) + 1);
+        updates["system.longevity.lifeProlongingPill.consecutiveDays"] = consecutiveDays;
+        if (consecutiveDays === 10) {
+          const lifespanRoll = await new Roll("1d10").evaluate();
+          const yearsAdded = Number(lifespanRoll.total ?? 0);
+          updates["system.longevity.lifeProlongingPill.completed"] = true;
+          updates["system.longevity.lifeProlongingPill.yearsAdded"] = yearsAdded;
+          updates["system.longevity.lifeProlongingPill.netYears"] = yearsAdded;
+          effect = `Suffer 1 Wound and ${gainedImbalance} Imbalance Points; restless and aggressive for one hour. Completing ten consecutive days prolongs life by ${yearsAdded} year${yearsAdded === 1 ? "" : "s"}.`;
+        } else {
+          effect = `Suffer 1 Wound and ${gainedImbalance} Imbalance Points; restless and aggressive for one hour. Consecutive regimen: day ${consecutiveDays} of 10.`;
+        }
+      }
+      trackEffect = true;
+    } else if (key === "celestialspiritpills") {
+      effect = "No Resolve Tests from Missing Phoenix Spirit triggers for one day; other effects continue.";
+    } else if (key === "redrufishmeat") {
+      effect = "Protected from insect bites and attacks for 24 hours; lice and scabies are cured.";
+    } else if (key === "humanformingessence") {
+      const previousHours = Number(previousApplication?.duration?.match(/\d+/)?.[0] ?? 23);
+      const hours = previousApplication ? previousHours + 1 : 24;
+      duration = `${hours} hours`;
+      effect = `Can take human form and shift between human and beast form for ${duration}.`;
+    } else if (key === "masterrenseyeopeningconcoction") {
+      duration = "Until the preparation's effect ends (GM adjudication)";
+      effect = "Can see spirits, concealed creature nature, possession, and enchantments.";
+      trackEffect = true;
+    }
+
+    const doseText = await this.consumeSubstanceDose(item);
+    if (!doseText) return null;
+    if (trackEffect) {
+      const retainedEffects = key === "lifeprolongingpill"
+        ? active
+        : active.filter((application) => normalizeKey(application.rulesKey || application.name) !== key);
+      updates["system.activeSubstances"] = [
+        ...retainedEffects.map((application) => ({
+          rulesKey: application.rulesKey,
+          name: application.name,
+          effect: application.effect,
+          duration: application.duration
+        })),
+        { rulesKey: data.rulesKey || item.name, name: item.name, effect, duration }
+      ];
+    }
+    if (Object.keys(updates).length) await this.update(updates);
+    if (key === "lifeprolongingpill"
+      && !this.system.imbalance.possessed
+      && Number(this.system.imbalance.value ?? 0) >= Number(this.system.imbalance.max ?? 0)) {
+      await this.checkQiSpiritPossession(item.name);
+    }
+    ui.notifications.info(`${item.name} used by ${this.name}.`);
+    return ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      content: `
+        <section class="ogre-gate-chat-card">
+          <h3>${escapeHtml(this.name)} Uses ${escapeHtml(item.name)}</h3>
+          <div class="ogre-gate-chat-row"><strong>Effect</strong><span>${escapeHtml(effect)}</span></div>
+          ${duration ? `<div class="ogre-gate-chat-row"><strong>Duration</strong><span>${escapeHtml(duration)}</span></div>` : ""}
+          <div class="ogre-gate-chat-row"><strong>Dose</strong><span>${escapeHtml(doseText)}</span></div>
+        </section>
+      `
+    });
+  }
+
+  async expireActiveSubstance(index) {
+    const active = Array.from(this.system.activeSubstances ?? []);
+    const application = active[index];
+    if (!application) return null;
+    await this.update({ "system.activeSubstances": active.filter((_entry, effectIndex) => effectIndex !== index) });
+    ui.notifications.info(`${application.name} has expired for ${this.name}.`);
+    return ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      content: `
+        <section class="ogre-gate-chat-card">
+          <h3>${escapeHtml(this.name)} Substance Effect Expired</h3>
+          <div class="ogre-gate-chat-row"><strong>Substance</strong><span>${escapeHtml(application.name)}</span></div>
+          <div class="ogre-gate-chat-row"><strong>Effect</strong><span>${escapeHtml(application.effect)} no longer applies.</span></div>
+        </section>
+      `
+    });
+  }
+
+  async resetLifeProlongingPillStreak() {
+    const regimen = this.system.longevity.lifeProlongingPill;
+    if (regimen.completed) {
+      ui.notifications.warn("The completed Life Prolonging Pill course and its lifespan result remain recorded.");
+      return null;
+    }
+    if (!Number(regimen.consecutiveDays ?? 0)) {
+      ui.notifications.info(`${this.name} has no active Life Prolonging Pill streak.`);
+      return null;
+    }
+    await this.update({ "system.longevity.lifeProlongingPill.consecutiveDays": 0 });
+    return ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      content: `
+        <section class="ogre-gate-chat-card">
+          <h3>${escapeHtml(this.name)} Breaks the Life Prolonging Pill Course</h3>
+          <div class="ogre-gate-chat-row"><strong>Regimen</strong><span>The consecutive-day count returns to 0 / 10.</span></div>
+        </section>
+      `
+    });
+  }
+
+  async expireAfflictionSubstance(index) {
+    const affliction = this.system.affliction;
+    const applied = Array.from(affliction.appliedSubstances ?? []);
+    const application = applied[index];
+    if (!application) return null;
+
+    const retained = applied.filter((_entry, applicationIndex) => applicationIndex !== index);
+    const key = normalizeKey(application.rulesKey || application.name);
+    const updates = { "system.affliction.appliedSubstances": retained };
+    if (key === "bluephoenixpills") updates["system.affliction.speed"] = affliction.baseSpeed || affliction.speed;
+    if (key === "masterliscure") updates["system.affliction.medicineTn"] = Number(affliction.baseMedicineTn ?? affliction.medicineTn);
+    if (key === "purplesapphiremushroom" && affliction.status === "staved off") updates["system.affliction.status"] = "resumed";
+    await this.update(updates);
+    ui.notifications.info(`${application.name} has expired for ${affliction.name || "the active affliction"}.`);
+    return ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      content: `
+        <section class="ogre-gate-chat-card">
+          <h3>${escapeHtml(this.name)} Substance Expired</h3>
+          <div class="ogre-gate-chat-row"><strong>Substance</strong><span>${escapeHtml(application.name)}</span></div>
+          <div class="ogre-gate-chat-row"><strong>Affliction</strong><span>${escapeHtml(affliction.name || "Active affliction")}</span></div>
+          <div class="ogre-gate-chat-row"><strong>Effect</strong><span>${escapeHtml(application.effect)} no longer applies.</span></div>
+        </section>
+      `
+    });
+  }
+
+  async clearAfflictionSubstances() {
+    const affliction = this.system.affliction;
+    const status = ["ready for treatment", "staved off"].includes(affliction.status)
+      ? "untreated"
+      : affliction.status;
+    await this.update({
+      "system.affliction.speed": affliction.baseSpeed || affliction.speed,
+      "system.affliction.medicineTn": Number(affliction.baseMedicineTn ?? affliction.medicineTn),
+      "system.affliction.medicineDiceBonus": 0,
+      "system.affliction.antidoteApplied": false,
+      "system.affliction.status": status,
+      "system.affliction.appliedSubstances": []
+    });
+    ui.notifications.info(`${affliction.name || "Active affliction"} substance applications cleared.`);
+  }
+
   findSkillPath(search) {
-    const normalized = normalizeKey(search);
+    const qualified = parseQualifiedSkillReference(search);
+    if (qualified) {
+      const item = this.getSkillItem(qualified.groupKey, qualified.skillKey);
+      if (item) return { groupKey: qualified.groupKey, skillKey: qualified.skillKey, skill: item.system, item };
+
+      const skill = this.system.skills?.[qualified.groupKey]?.[qualified.skillKey];
+      if (skill) return { groupKey: qualified.groupKey, skillKey: qualified.skillKey, skill };
+    }
+
+    const searchKeys = skillSearchKeys(search);
+    if (!searchKeys.length) return null;
+    const exactMatches = (candidate) => searchKeys.some((key) => candidate === key);
     const item = this.items.find((candidate) => candidate.type === "skills" && (
-      itemSkillKey(candidate) === normalized || normalizeKey(candidate.name) === normalized
+      exactMatches(itemSkillKey(candidate)) || exactMatches(normalizeKey(candidate.name))
     ));
     if (item) return { groupKey: item.system.group, skillKey: item.system.skillKey || item.name, skill: item.system, item };
 
     for (const [groupKey, group] of Object.entries(this.system.skills ?? {})) {
       for (const [skillKey, skill] of Object.entries(group)) {
-        if (normalizeKey(skillKey) === normalized || normalizeKey(skill.label) === normalized) {
+        if (exactMatches(normalizeKey(skillKey)) || exactMatches(normalizeKey(skill.label))) {
+          return { groupKey, skillKey, skill };
+        }
+      }
+    }
+
+    const matches = (candidate) => searchKeys.some((key) => candidate.length > 2 && key.includes(candidate));
+    const fuzzyItem = this.items.find((candidate) => candidate.type === "skills" && (
+      matches(itemSkillKey(candidate)) || matches(normalizeKey(candidate.name))
+    ));
+    if (fuzzyItem) return { groupKey: fuzzyItem.system.group, skillKey: fuzzyItem.system.skillKey || fuzzyItem.name, skill: fuzzyItem.system, item: fuzzyItem };
+
+    for (const [groupKey, group] of Object.entries(this.system.skills ?? {})) {
+      for (const [skillKey, skill] of Object.entries(group)) {
+        if (matches(normalizeKey(skillKey)) || matches(normalizeKey(skill.label))) {
           return { groupKey, skillKey, skill };
         }
       }
@@ -531,7 +1707,11 @@ export class OgreGateActor extends Actor {
 
     const updates = {};
     const applied = {};
-    if (this.system.qi.temporary) updates["system.qi.temporary"] = Math.max(0, this.system.qi.temporary - amount);
+    const qiBlocked = this.getTrackedAfflictions().some((affliction) => normalizeKey(affliction.rulesKey || affliction.name) === "purplespiritvenom"
+      && affliction.contracted
+      && affliction.status !== "purged");
+    if (this.system.qi.temporary && !qiBlocked) updates["system.qi.temporary"] = Math.max(0, this.system.qi.temporary - amount);
+    if (this.system.qi.temporary && qiBlocked) ui.notifications.warn("Purple Spirit Venom prevents Qi recovery until the venom is purged.");
     for (const [key, defense] of Object.entries(this.system.defenses ?? {})) {
       if (defense.drain) updates[`system.defenses.${key}.drain`] = Math.max(0, defense.drain - amount);
     }

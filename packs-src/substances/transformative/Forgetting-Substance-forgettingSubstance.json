@@ -1,0 +1,26 @@
+{
+  "_id": "81cd5e66334ff482",
+  "name": "Forgetting Substance",
+  "type": "substance",
+  "img": "icons/svg/acid.svg",
+  "system": {
+    "description": "Forgetting Substance (Transformative Substance): This is created to extinguish a person's memories. Usually it is aimed at something very specific (a particular emotion attached to an individual or a traumatic event). The more specific the emotion, the higher the TN for creating the substance, and in turn the less specific the lower the TN.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 2: Rules",
+    "cost": "",
+    "rulesKey": "forgettingSubstance",
+    "substanceType": "transformative",
+    "quantity": 1,
+    "brewSkill": "trade.alchemy",
+    "brewTn": 0,
+    "targetAffliction": "Memory",
+    "duration": "",
+    "effects": "Extinguishes memories; usually aimed at a specific emotion or traumatic event."
+  },
+  "effects": [],
+  "folder": "a447fb4a85111591",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!81cd5e66334ff482"
+}

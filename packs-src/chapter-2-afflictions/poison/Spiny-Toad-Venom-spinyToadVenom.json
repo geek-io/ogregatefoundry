@@ -1,0 +1,32 @@
+{
+  "_id": "88c23d4332e8509d",
+  "name": "Spiny Toad Venom",
+  "type": "affliction",
+  "img": "icons/svg/acid.svg",
+  "system": {
+    "description": "Spiny Toad Venom: This venom takes a long time to kill but will do so if the antidote is not administered. It causes symptoms within an hour involving both mild hallucinations and seizures. Make an Endurance roll every hour to see if a seizure occurs. With every seizure that happens, the character suffers a progressive -1d10 penalty to Physical and Mental Skills (not permanent).",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 2: Rules",
+    "cost": "",
+    "rulesKey": "spinyToadVenom",
+    "afflictionType": "poison",
+    "lethality": "weeks",
+    "speed": "hours",
+    "effect": "Temporary",
+    "medicineTn": 7,
+    "treatmentMode": "standard",
+    "brewRating": 7,
+    "potency": "1d10",
+    "affectedSkills": "Mental, Physical",
+    "contagious": false,
+    "antidoteRequired": true,
+    "remedy": "Corresponding antidote",
+    "specialRules": "Make an Endurance roll every hour; each seizure causes a progressive -1d10 Mental and Physical penalty."
+  },
+  "effects": [],
+  "folder": "d57ca53d5ec7777d",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!88c23d4332e8509d"
+}

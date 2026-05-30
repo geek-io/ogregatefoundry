@@ -1,0 +1,26 @@
+{
+  "_id": "4362eec3e2a90f6e",
+  "name": "Lotus Oil",
+  "type": "substance",
+  "img": "icons/svg/acid.svg",
+  "system": {
+    "description": "Lotus Oil: Taken from the Red Lotus flower this oil can cure Fire Poison. Without this Fire Poison cannot be treated.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 2: Rules",
+    "cost": "",
+    "rulesKey": "lotusOil",
+    "substanceType": "antidote",
+    "quantity": 1,
+    "brewSkill": "talent.poisoning",
+    "brewTn": 0,
+    "targetAffliction": "Fire Poison",
+    "duration": "",
+    "effects": "Required to treat Fire Poison."
+  },
+  "effects": [],
+  "folder": "37bc1a8fb2a11e24",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!4362eec3e2a90f6e"
+}

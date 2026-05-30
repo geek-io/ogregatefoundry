@@ -18,7 +18,12 @@ async function applyWoundsFromChat(event) {
   const wounds = Math.max(0, Math.trunc(Number(button.dataset.wounds ?? 0)));
   if (!wounds) return;
 
-  const actors = getAffectedActors();
+  const specifiedActor = button.dataset.actorUuid
+    ? await fromUuid(button.dataset.actorUuid)
+    : button.dataset.actorId
+      ? game.actors.get(button.dataset.actorId)
+      : null;
+  const actors = specifiedActor ? [specifiedActor] : getAffectedActors();
   if (!actors.length) {
     ui.notifications.warn("Target or select at least one token before applying wounds.");
     return;

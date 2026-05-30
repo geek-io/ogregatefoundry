@@ -9,5 +9,7 @@
   "TYPES.Item.technique": "Kung Fu Technique",
   "TYPES.Item.combatTechnique": "Combat Perk",
   "TYPES.Item.ritual": "Ritual",
-  "TYPES.Item.flaw": "Flaw"
+  "TYPES.Item.flaw": "Flaw",
+  "TYPES.Item.affliction": "Poison or Disease",
+  "TYPES.Item.substance": "Substance"
 }

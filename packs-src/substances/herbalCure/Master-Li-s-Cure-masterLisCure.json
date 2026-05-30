@@ -1,0 +1,26 @@
+{
+  "_id": "523c0159fc227428",
+  "name": "Master Li's Cure",
+  "type": "substance",
+  "img": "icons/svg/acid.svg",
+  "system": {
+    "description": "Master Li's Cure: This is a well-known concoction, attributed to the great doctor Li. It contains 18 substances, including ginseng and fish bones. The ingredients are combined and brewed over heat for several hours then served as a bitter hot drink. It helps in the treatment of diseases, lowering their Medicine TN by 2 for a day. The Brew Rating: TN 7.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 2: Rules",
+    "cost": "",
+    "rulesKey": "masterLisCure",
+    "substanceType": "herbalCure",
+    "quantity": 1,
+    "brewSkill": "talent.poisoning",
+    "brewTn": 7,
+    "targetAffliction": "Diseases",
+    "duration": "One day",
+    "effects": "Lowers disease Medicine TN by 2 for one day."
+  },
+  "effects": [],
+  "folder": "aa404306a6c0c60e",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!523c0159fc227428"
+}

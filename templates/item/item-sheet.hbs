@@ -102,12 +102,11 @@
       <label data-tooltip="{{help.activationSkill}}">Activation Skill
         <select name="system.activationSkill">
           {{#each allSkills as |skill|}}
-            <option value="{{skill.key}}" {{#if (eq ../system.activationSkill skill.key)}}selected{{/if}}>{{skill.label}}</option>
+            <option value="{{skill.key}}" {{#if skill.selected}}selected{{/if}}>{{skill.label}}</option>
           {{/each}}
         </select>
       </label>
       <label data-tooltip="{{help.qiRank}}">Qi Rank <input type="number" name="system.qiRank" value="{{system.qiRank}}" min="0" /></label>
-      <label data-tooltip="{{help.qiCost}}">Qi Cost <input type="number" name="system.qiCost" value="{{system.qiCost}}" min="0" /></label>
       <label>Damage <input type="text" name="system.damage" value="{{system.damage}}" /></label>
       <label data-tooltip="{{help.openDamage}}">Open Damage <input type="checkbox" name="system.openDamage" {{checked system.openDamage}} /></label>
       <label>Counter <input type="text" name="system.counter" value="{{system.counter}}" /></label>
@@ -197,6 +196,67 @@
       <label data-tooltip="{{help.exemptFromCreationLimit}}">Exempt from Creation Limit <input type="checkbox" name="system.exemptFromCreationLimit" {{checked system.exemptFromCreationLimit}} /></label>
       <label data-tooltip="{{help.requiresResolveTest}}">Requires Resolve Test <input type="checkbox" name="system.requiresResolveTest" {{checked system.requiresResolveTest}} /></label>
       <label data-tooltip="{{help.flawPenalty}}">Penalty <input type="text" name="system.penalty" value="{{system.penalty}}" /></label>
+    </section>
+  {{/if}}
+
+  {{#if (eq item.type "affliction")}}
+    <section class="panel weapon-fields">
+      <h2>Poison or Disease</h2>
+      <label data-tooltip="{{help.afflictionType}}">Type
+        <select name="system.afflictionType">
+          {{#each afflictionTypes as |type|}}
+            <option value="{{type.key}}" {{#if (eq ../system.afflictionType type.key)}}selected{{/if}}>{{type.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label data-tooltip="{{help.lethality}}">Lethality
+        <select name="system.lethality">
+          {{#each afflictionIntervals as |interval|}}
+            <option value="{{interval.key}}" {{#if (eq ../system.lethality interval.key)}}selected{{/if}}>{{interval.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label data-tooltip="{{help.speed}}">Speed
+        <select name="system.speed">
+          {{#each afflictionIntervals as |interval|}}
+            <option value="{{interval.key}}" {{#if (eq ../system.speed interval.key)}}selected{{/if}}>{{interval.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>Effect <input type="text" name="system.effect" value="{{system.effect}}" /></label>
+      <label data-tooltip="{{help.medicineTn}}">Medicine TN <input type="number" name="system.medicineTn" value="{{system.medicineTn}}" min="0" max="10" /></label>
+      <label data-tooltip="{{help.treatmentMode}}">Treatment
+        <select name="system.treatmentMode">
+          <option value="standard" {{#if (eq system.treatmentMode "standard")}}selected{{/if}}>Standard</option>
+          <option value="staveOnly" {{#if (eq system.treatmentMode "staveOnly")}}selected{{/if}}>Stave Off Only</option>
+        </select>
+      </label>
+      <label data-tooltip="{{help.brewRating}}">Brew Rating <input type="number" name="system.brewRating" value="{{system.brewRating}}" min="0" max="10" /></label>
+      <label data-tooltip="{{help.potency}}">Potency <input type="text" name="system.potency" value="{{system.potency}}" /></label>
+      <label data-tooltip="{{help.affectedSkills}}">Affected Skills <input type="text" name="system.affectedSkills" value="{{system.affectedSkills}}" /></label>
+      <label>Contagious <input type="checkbox" name="system.contagious" {{checked system.contagious}} /></label>
+      <label data-tooltip="{{help.antidoteRequired}}">Remedy Required <input type="checkbox" name="system.antidoteRequired" {{checked system.antidoteRequired}} /></label>
+      <label>Remedy <input type="text" name="system.remedy" value="{{system.remedy}}" /></label>
+      <label>Special Rules <input type="text" name="system.specialRules" value="{{system.specialRules}}" /></label>
+    </section>
+  {{/if}}
+
+  {{#if (eq item.type "substance")}}
+    <section class="panel weapon-fields">
+      <h2>Substance</h2>
+      <label data-tooltip="{{help.substanceType}}">Category
+        <select name="system.substanceType">
+          {{#each substanceTypes as |type|}}
+            <option value="{{type.key}}" {{#if (eq ../system.substanceType type.key)}}selected{{/if}}>{{type.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label data-tooltip="{{help.substanceQuantity}}">Quantity <input type="number" name="system.quantity" value="{{system.quantity}}" min="0" /></label>
+      <label data-tooltip="{{help.brewSkill}}">Creation Skill <input type="text" name="system.brewSkill" value="{{system.brewSkill}}" /></label>
+      <label data-tooltip="{{help.brewTn}}">Creation TN <input type="number" name="system.brewTn" value="{{system.brewTn}}" min="0" max="10" /></label>
+      <label data-tooltip="{{help.targetAffliction}}">Treats/Affects <input type="text" name="system.targetAffliction" value="{{system.targetAffliction}}" /></label>
+      <label>Duration <input type="text" name="system.duration" value="{{system.duration}}" /></label>
+      <label>Effects <input type="text" name="system.effects" value="{{system.effects}}" /></label>
     </section>
   {{/if}}
 

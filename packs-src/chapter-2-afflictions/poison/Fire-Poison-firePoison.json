@@ -1,0 +1,32 @@
+{
+  "_id": "bacd455af3795dc5",
+  "name": "Fire Poison",
+  "type": "affliction",
+  "img": "icons/svg/acid.svg",
+  "system": {
+    "description": "Fire Poison: This poison is so named for the burning sensation it produces when ingested or injected. It causes nausea and weakens the muscles over the next few days. Soon madness takes hold, affecting the person's senses and their ability to process information. This makes communication very difficult, as the sufferer grows increasingly withdrawn and paranoid. If untreated it kills the victim in 1d10 days. Treatment requires the use of Lotus Oil. Even after treatment the scars it leaves are permanent. The venom is created by crushing a rare beetle found only in Suk lands and in certain large scorpions.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 2: Rules",
+    "cost": "",
+    "rulesKey": "firePoison",
+    "afflictionType": "poison",
+    "lethality": "days",
+    "speed": "days",
+    "effect": "Permanent",
+    "medicineTn": 6,
+    "treatmentMode": "standard",
+    "brewRating": 5,
+    "potency": "2d10",
+    "affectedSkills": "Mental, Physical",
+    "contagious": false,
+    "antidoteRequired": true,
+    "remedy": "Lotus Oil",
+    "specialRules": ""
+  },
+  "effects": [],
+  "folder": "d57ca53d5ec7777d",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!bacd455af3795dc5"
+}

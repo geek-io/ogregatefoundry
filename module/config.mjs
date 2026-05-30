@@ -123,10 +123,20 @@ export const OGRE_GATE = {
     disease: "Disease"
   },
   afflictionIntervals: {
+    none: "None",
+    seconds: "Seconds",
     minutes: "Minutes",
     hours: "Hours",
     days: "Days",
-    weeks: "Weeks"
+    weeks: "Weeks",
+    months: "Months",
+    years: "Years"
+  },
+  substanceTypes: {
+    herbalCure: "Herbal Cure",
+    antidote: "Antidote",
+    longevity: "Longevity Substance",
+    transformative: "Transformative Substance"
   },
   illumination: {
     normal: { label: "Normal", dice: 0, defense: 0, stealth: 0 },
@@ -293,6 +303,18 @@ export const OGRE_GATE = {
     immortal: "Immortal",
     other: "Other"
   },
+  qiSpirits: {
+    1: "Fox Spirit",
+    2: "Ogre Spirit",
+    3: "Water Spirit/Snake Spirit",
+    4: "Vulture Spirit",
+    5: "Compassionate Spirit",
+    6: "Swallow Spirit",
+    7: "Bull Spirit",
+    8: "Wolf Spirit",
+    9: "Unique Spirit",
+    10: "Pig Spirit"
+  },
   itemTypes: {
     weapon: "Weapon",
     armor: "Armor",
@@ -301,7 +323,9 @@ export const OGRE_GATE = {
     technique: "Kung Fu Technique",
     combatTechnique: "Combat Perk",
     ritual: "Ritual",
-    flaw: "Flaw"
+    flaw: "Flaw",
+    affliction: "Poison or Disease",
+    substance: "Substance"
   },
   races: {
     human: "Human",

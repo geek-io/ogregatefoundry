@@ -1,0 +1,32 @@
+{
+  "_id": "29c5af20df4ac076",
+  "name": "Water Thorn",
+  "type": "affliction",
+  "img": "icons/svg/acid.svg",
+  "system": {
+    "description": "Water Thorn: These are the water thorns of the Zhe Valley Chrysanthemum. Half of all Zhe Valley Chrysanthemums carry Water Thorns and they are impossible to distinguish from Viper Thorns. Anyone pricked by a Water Thorn heals a single Wound, experiences profound euphoria and suffers a -4 Penalty to Resolve and -2d10 to Speed and Athletics for 10 hours as the venom of the thorn affects coordination.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 2: Rules",
+    "cost": "",
+    "rulesKey": "waterThorn",
+    "afflictionType": "poison",
+    "lethality": "none",
+    "speed": "seconds",
+    "effect": "Temporary",
+    "medicineTn": 0,
+    "treatmentMode": "standard",
+    "brewRating": 0,
+    "potency": "4d10",
+    "affectedSkills": "Special",
+    "contagious": false,
+    "antidoteRequired": false,
+    "remedy": "",
+    "specialRules": "On exposure, heal one Wound, suffer -4 Resolve and -2d10 Speed and Athletics for 10 hours."
+  },
+  "effects": [],
+  "folder": "d57ca53d5ec7777d",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!29c5af20df4ac076"
+}

@@ -244,7 +244,7 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
 }
 
 .ogre-gate .skills .rank-row {
-  grid-template-columns: 32px minmax(90px, 1fr) 42px 42px minmax(112px, 1fr) auto auto;
+  grid-template-columns: 32px minmax(130px, 260px) 42px 42px minmax(180px, 1fr) auto auto;
 }
 
 .ogre-gate .defense-header,
@@ -265,7 +265,7 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
 }
 
 .ogre-gate .skill-header {
-  grid-template-columns: 32px minmax(90px, 1fr) 42px 42px minmax(112px, 1fr) auto auto;
+  grid-template-columns: 32px minmax(130px, 260px) 42px 42px minmax(180px, 1fr) auto auto;
 }
 
 .ogre-gate .expertise-row {
@@ -474,6 +474,12 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
   grid-template-columns: 1fr;
 }
 
+.ogre-gate .imbalance-actions {
+  grid-template-columns: repeat(2, minmax(108px, 1fr));
+  margin-top: 8px;
+  margin-bottom: 0;
+}
+
 .ogre-gate .item-actions button,
 .ogre-gate button[data-action="create-item"],
 .ogre-gate button[data-action="open-item"],
@@ -500,7 +506,34 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
 }
 
 .ogre-gate .item-line.compact {
-  grid-template-columns: minmax(110px, 1fr) 52px auto auto;
+  grid-template-columns: minmax(110px, 1fr) 52px auto;
+}
+
+.ogre-gate .item-line.technique-line {
+  grid-template-columns: minmax(120px, 1fr) 52px minmax(96px, auto) auto;
+}
+
+.ogre-gate .technique-damage {
+  min-width: 0;
+  color: var(--og-accent);
+  font-size: 11px;
+  font-weight: 800;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.ogre-gate .item-row-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.ogre-gate .item-row-actions button {
+  border: 1px solid var(--og-border);
+  background: var(--og-button);
+  color: var(--og-button-text);
+  font-weight: 700;
 }
 
 .ogre-gate .item-line.flaw-line {
@@ -516,6 +549,11 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
   padding: 6px;
   border: 1px dashed var(--og-border);
   background: color-mix(in srgb, var(--og-field) 78%, transparent);
+}
+
+.ogre-gate .affliction-drop-zone {
+  outline: 1px dashed var(--og-line);
+  outline-offset: -7px;
 }
 
 .ogre-gate .form-note {
@@ -627,6 +665,14 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
   min-width: 0;
   text-align: right;
   overflow-wrap: anywhere;
+}
+
+.ogre-gate .affliction-substances .metric-row {
+  align-items: center;
+}
+
+.ogre-gate .affliction-substances .metric-row button {
+  flex: 0 0 auto;
 }
 
 .ogre-gate .rules-grid button {
@@ -904,6 +950,18 @@ body.ogre-gate-dark-sheets .ogre-gate-chat-outcome.failure {
   border-color: #e57757;
   color: #ffc1b1;
   background: rgba(229, 119, 87, .12);
+}
+
+.ogre-gate-chat-checklist {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  color: #efe7d4;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.ogre-gate-chat-checklist li {
+  margin: 2px 0;
 }
 
 .ogre-gate-chat-button {

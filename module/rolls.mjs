@@ -29,6 +29,36 @@ async function createRollMessage({ actor, label, roll, results, selected, tn, su
   }, { rollMode: rollMode ?? game.settings.get("core", "rollMode") });
 }
 
+function buildSpecialDamageOutcome(outcomeHint, outcome) {
+  if (outcomeHint === "maim") {
+    const met = outcome.totalSuccesses >= 2;
+    return `
+      <div class="ogre-gate-chat-outcome ${met ? "success" : "failure"}">${met ? "Maiming condition met" : "Maiming condition not met"}</div>
+      <ul class="ogre-gate-chat-checklist">
+        <li>Attack must have succeeded.</li>
+        <li>Damage roll needs two total successes; this roll has ${outcome.totalSuccesses}.</li>
+        <li>${met ? "Apply an appropriate Flaw, such as Blind or Missing Limb." : "Resolve normal wounds only unless another rule applies."}</li>
+        <li>GM chooses the exact injury, consequences, and reputation fallout.</li>
+      </ul>
+    `;
+  }
+
+  if (outcomeHint === "disarm") {
+    return `
+      <div class="ogre-gate-chat-outcome ${outcome.success ? "success" : "failure"}">${outcome.success ? "Disarm succeeds" : "Disarm fails"}</div>
+      <ul class="ogre-gate-chat-checklist">
+        <li>Attack must have succeeded.</li>
+        <li>Damage roll is checked against the target's Parry, not Hardiness.</li>
+        <li>${outcome.success ? "Target drops the weapon." : "Target keeps the weapon."}</li>
+        <li>Picking up a dropped weapon takes a Move.</li>
+        <li>If this weapon is not suited for disarming, confirm the manual -3d10 attack penalty was applied.</li>
+      </ul>
+    `;
+  }
+
+  return "";
+}
+
 export class OgreGateRoll {
   static resolvePool(ranks, modifier = 0, { deepPenalties = false, breakCap = false } = {}) {
     const effective = Number(ranks ?? 0) + Number(modifier ?? 0);
@@ -84,6 +114,29 @@ export class OgreGateRoll {
     return returnOutcome ? { message, outcome, results, selected: outcome.selected } : message;
   }
 
+  static async potency({ actor, label = "Exposure", potency = "1d10", hardiness = 6, rollMode, extra = "" } = {}) {
+    const diceMatch = String(potency).match(/(\d+)\s*d10/i);
+    const dice = Math.max(1, Math.min(OGRE_GATE.hardCap, Number(diceMatch?.[1] ?? 1)));
+    const keep = /take\s+lowest|lowest/i.test(String(potency)) ? "lowest" : "highest";
+    const roll = await new Roll(`${dice}d10`).evaluate();
+    const results = getDiceResults(roll);
+    const outcome = this.evaluateResults(results, hardiness, keep);
+    const message = await createRollMessage({
+      actor,
+      label,
+      roll,
+      results,
+      selected: outcome.selected,
+      tn: hardiness,
+      success: outcome.success,
+      totalSuccesses: outcome.totalSuccesses,
+      poolLabel: `${dice}d10${keep === "lowest" ? "L" : ""}`,
+      rollMode,
+      extra
+    });
+    return { message, outcome, results, selected: outcome.selected };
+  }
+
   static async attack({ actor, label = "Attack", ranks, modifier = 0, defense = "Parry", mode = "", tn = 6, deadlyTens = false, deepPenalties = false, rollMode } = {}) {
     const pool = this.resolvePool(ranks, modifier, { deepPenalties });
     const roll = await new Roll(pool.formula).evaluate();
@@ -121,16 +174,12 @@ export class OgreGateRoll {
     const outcome = this.evaluateResults(results, hardiness, pool.keep, { open });
     const baseWounds = open ? outcome.successes + outcome.totalSuccesses : (outcome.success ? 1 + outcome.totalSuccesses : 0);
     const wounds = Math.max(0, baseWounds + Number(extraWounds ?? 0));
-    const outcomeText = outcomeHint === "maim"
-      ? (outcome.totalSuccesses >= 2 ? "Maiming condition met: apply an appropriate flaw if the attack succeeded." : "Maiming needs two total successes on the damage roll.")
-      : outcomeHint === "disarm"
-        ? (outcome.success ? "Disarm succeeds if this damage roll used the target's Parry as TN." : "Disarm fails unless the damage roll succeeds against the target's Parry.")
-        : "";
+    const specialOutcome = buildSpecialDamageOutcome(outcomeHint, outcome);
     const extra = `
       <div class="ogre-gate-chat-row"><strong>Wounds</strong><span>${wounds}</span></div>
       ${extraWounds ? `<div class="ogre-gate-chat-row"><strong>Wound Modifier</strong><span>${extraWounds}</span></div>` : ""}
       ${note ? `<div class="ogre-gate-chat-row"><strong>Note</strong><span>${note}</span></div>` : ""}
-      ${outcomeText ? `<div class="ogre-gate-chat-row"><strong>Special Outcome</strong><span>${outcomeText}</span></div>` : ""}
+      ${specialOutcome}
       ${wounds ? `<button type="button" class="ogre-gate-chat-button" data-action="ogre-apply-wounds" data-wounds="${wounds}">Apply Wounds</button>` : ""}
     `;
 

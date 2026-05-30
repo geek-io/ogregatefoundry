@@ -1,0 +1,32 @@
+{
+  "_id": "e770288a0fecfad6",
+  "name": "Malignant Wind Disease",
+  "type": "affliction",
+  "img": "icons/svg/acid.svg",
+  "system": {
+    "description": "Malignant Wind Disease: This is an illness caused by evil spirits. It is carried in the air in a cloud and anyone who inhales it risks exposure. It affects the mind within hours, causing outbursts of emotion and an inability to focus, and kills within 1d10 days. The sign of Malignant Wind Disease is a dark spot on the tip of the tongue. It kills by producing an overflow of heat and wetness in the heart, and eventually the full reversal of blood flow. This cannot be cured by medicine but must be cured by the correct Ritual. However a successful Medicine roll can stave off the effects (and prolong life) for one day (but each failed attempt causes one Wound).",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 2: Rules",
+    "cost": "",
+    "rulesKey": "malignantWindDisease",
+    "afflictionType": "disease",
+    "lethality": "days",
+    "speed": "hours",
+    "effect": "Permanent",
+    "medicineTn": 6,
+    "treatmentMode": "staveOnly",
+    "brewRating": 0,
+    "potency": "2d10",
+    "affectedSkills": "Mental",
+    "contagious": false,
+    "antidoteRequired": false,
+    "remedy": "Expulsion of the Malignant Winds Ritual cures the illness",
+    "specialRules": "Medicine only staves off effects and prolongs life for one day; each failed attempt causes one Wound."
+  },
+  "effects": [],
+  "folder": "01a8a7f9bb830bdd",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!e770288a0fecfad6"
+}

@@ -1,0 +1,32 @@
+{
+  "_id": "317ccfdc24c39ca0",
+  "name": "Mandrake",
+  "type": "affliction",
+  "img": "icons/svg/acid.svg",
+  "system": {
+    "description": "Mandrake: This root is found throughout Naqan and can be used to brew a Poison that is slow but causes terrible delirium. It kills in 1d10 days and causes symptoms in hours. Those affected become confused and lethargic, slipping into a coma prior to death. Locating mandrake is a TN 5 Talent (Poison) roll or a TN 7 Survival roll.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 2: Rules",
+    "cost": "",
+    "rulesKey": "mandrake",
+    "afflictionType": "poison",
+    "lethality": "days",
+    "speed": "hours",
+    "effect": "Temporary",
+    "medicineTn": 6,
+    "treatmentMode": "standard",
+    "brewRating": 6,
+    "potency": "2d10",
+    "affectedSkills": "Mental",
+    "contagious": false,
+    "antidoteRequired": true,
+    "remedy": "Yellow Phoenix Pills or corresponding antidote",
+    "specialRules": ""
+  },
+  "effects": [],
+  "folder": "d57ca53d5ec7777d",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!317ccfdc24c39ca0"
+}

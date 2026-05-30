@@ -43,6 +43,9 @@
           <label data-tooltip="{{help.imbalance}}">Current <input type="number" name="system.imbalance.value" value="{{system.imbalance.value}}" min="0" /></label>
           <label data-tooltip="{{help.imbalance}}">Max <input type="number" name="system.imbalance.max" value="{{system.imbalance.max}}" /></label>
         </div>
+        {{#if system.imbalance.possessed}}
+          <div class="status-pill dying" data-tooltip="{{help.possession}}">Possessed: {{system.imbalance.spirit}}</div>
+        {{/if}}
       </div>
     </section>
   </header>
@@ -217,6 +220,7 @@
 
         <section class="panel">
           <h2>Prepared Strike</h2>
+          <div class="metric-row" data-tooltip="{{help.preparedStrike}}"><span>Status</span><strong>{{preparedStrikeStatus}}</strong></div>
           <label data-tooltip="{{help.preparedStrike}}">Ready <input type="checkbox" name="system.preparedStrike.ready" {{checked system.preparedStrike.ready}} /></label>
           <label data-tooltip="{{help.preparedStrike}}">Zone <input type="text" name="system.preparedStrike.zone" value="{{system.preparedStrike.zone}}" /></label>
           <label data-tooltip="{{help.preparedStrike}}">Trigger <input type="text" name="system.preparedStrike.trigger" value="{{system.preparedStrike.trigger}}" /></label>
@@ -229,8 +233,25 @@
         <section class="panel">
           <h2>Charge & Mounted</h2>
           <label data-tooltip="{{help.charge}}">Distance <input type="number" name="system.combat.chargeDistance" value="{{system.combat.chargeDistance}}" min="0" max="1000" /></label>
+          <label data-tooltip="{{help.charge}}">Straight Line <input type="checkbox" name="system.combat.chargeStraightLine" {{checked system.combat.chargeStraightLine}} /></label>
+          <label data-tooltip="{{help.charge}}">Continues Past Target <input type="checkbox" name="system.combat.mountedChargeContinues" {{checked system.combat.mountedChargeContinues}} /></label>
+          <label data-tooltip="{{help.charge}}">Opponent Unmounted <input type="checkbox" name="system.combat.targetUnmounted" {{checked system.combat.targetUnmounted}} /></label>
           <label data-tooltip="{{help.charge}}">Mounted Bow Shot <input type="checkbox" name="system.combat.mountedBowShot" {{checked system.combat.mountedBowShot}} /></label>
+          <label data-tooltip="{{help.charge}}">Moving Mount <input type="checkbox" name="system.combat.movingMount" {{checked system.combat.movingMount}} /></label>
           <button type="button" data-action="validate-charge" data-tooltip="{{help.charge}}">Validate</button>
+        </section>
+
+        <section class="panel" data-tooltip="{{help.qiDuel}}">
+          <h2>Qi Duel</h2>
+          <p class="form-note">Target one opposing actor, then resolve each contested Qi round here.</p>
+          <div class="metric-row"><span>Your Effective Qi</span><strong>{{system.status.effectiveQi}}</strong></div>
+          <div class="metric-row"><span>Your Neigong Rank</span><strong>{{system.disciplines.neigong.ranks}}</strong></div>
+          <div class="metric-row"><span>Tied Rounds Stored</span><strong>{{system.qiDuel.ties}}</strong></div>
+          <div class="metric-row"><span>Stored Extra Wounds</span><strong>+{{qiDuelStoredWounds}}</strong></div>
+          <div class="creation-actions">
+            <button type="button" data-action="resolve-qi-duel" data-tooltip="{{help.qiDuel}}">Resolve Round</button>
+            <button type="button" data-action="clear-qi-duel" data-tooltip="Clear tied-round buildup without resolving a victor.">Clear Buildup</button>
+          </div>
         </section>
 
         <section class="panel">
@@ -260,8 +281,28 @@
           <button type="button" data-action="stabilize-dying" data-method="meditation" data-tooltip="{{help.healing}}">Meditation TN 7</button>
         </section>
 
-        <section class="panel">
+        <section class="panel affliction-drop-zone" data-tooltip="{{help.affliction}}">
           <h2>Poison & Disease</h2>
+          <h3>Tracked Afflictions</h3>
+          <div class="affliction-substances">
+            {{#if system.affliction.name}}
+              <div class="metric-row">
+                <span>{{system.affliction.name}}</span>
+                <strong>Selected - {{system.affliction.status}}</strong>
+                <button type="button" data-action="remove-selected-affliction" data-tooltip="Discard this tracker entry. This is not a cure and does not restore already applied effects.">Discard</button>
+              </div>
+            {{else}}
+              <p class="form-note">Drop a Poison or Disease item onto the sheet to begin tracking it.</p>
+            {{/if}}
+            {{#each system.additionalAfflictions as |affliction|}}
+              <div class="metric-row">
+                <span>{{affliction.name}}</span>
+                <strong>{{affliction.status}}{{#if affliction.progression}} / -{{affliction.progression}}d10{{/if}}</strong>
+                <button type="button" data-action="select-affliction" data-index="{{@index}}" data-tooltip="Select {{affliction.name}} for treatment and time advancement.">Select</button>
+                <button type="button" data-action="remove-additional-affliction" data-index="{{@index}}" data-tooltip="Discard this tracker entry. This is not a cure and does not restore already applied effects.">Discard</button>
+              </div>
+            {{/each}}
+          </div>
           <label data-tooltip="{{help.affliction}}">Name <input type="text" name="system.affliction.name" value="{{system.affliction.name}}" /></label>
           <label data-tooltip="{{help.affliction}}">Type
             <select name="system.affliction.type">
@@ -270,7 +311,30 @@
               {{/each}}
             </select>
           </label>
-          <label data-tooltip="{{help.affliction}}">Medicine TN <input type="number" name="system.affliction.medicineTn" value="{{system.affliction.medicineTn}}" min="1" max="10" /></label>
+          <label data-tooltip="{{help.affliction}}">Lethality
+            <select name="system.affliction.lethality">
+              {{#each afflictionIntervals as |interval|}}
+                <option value="{{interval.key}}" {{#if (eq ../system.affliction.lethality interval.key)}}selected{{/if}}>{{interval.label}}</option>
+              {{/each}}
+            </select>
+          </label>
+          <label data-tooltip="{{help.affliction}}">Speed
+            <select name="system.affliction.speed">
+              {{#each afflictionIntervals as |interval|}}
+                <option value="{{interval.key}}" {{#if (eq ../system.affliction.speed interval.key)}}selected{{/if}}>{{interval.label}}</option>
+              {{/each}}
+            </select>
+          </label>
+          <label data-tooltip="{{help.affliction}}">Effect <input type="text" name="system.affliction.effect" value="{{system.affliction.effect}}" /></label>
+          <label data-tooltip="{{help.affliction}}">Potency <input type="text" name="system.affliction.potency" value="{{system.affliction.potency}}" /></label>
+          <label data-tooltip="{{help.affliction}}">Affected Skills <input type="text" name="system.affliction.affectedSkills" value="{{system.affliction.affectedSkills}}" /></label>
+          <label data-tooltip="{{help.affliction}}">Medicine TN <input type="number" name="system.affliction.medicineTn" value="{{system.affliction.medicineTn}}" min="0" max="10" /></label>
+          <label data-tooltip="{{help.affliction}}">Treatment
+            <select name="system.affliction.treatmentMode">
+              <option value="standard" {{#if (eq system.affliction.treatmentMode "standard")}}selected{{/if}}>Standard</option>
+              <option value="staveOnly" {{#if (eq system.affliction.treatmentMode "staveOnly")}}selected{{/if}}>Stave Off Only</option>
+            </select>
+          </label>
           <label data-tooltip="{{help.affliction}}">Cadence
             <select name="system.affliction.interval">
               {{#each afflictionIntervals as |interval|}}
@@ -280,9 +344,43 @@
           </label>
           <label data-tooltip="{{help.affliction}}">Remedy Required <input type="checkbox" name="system.affliction.antidoteRequired" {{checked system.affliction.antidoteRequired}} /></label>
           <label data-tooltip="{{help.affliction}}">Remedy Applied <input type="checkbox" name="system.affliction.antidoteApplied" {{checked system.affliction.antidoteApplied}} /></label>
+          <label data-tooltip="{{help.affliction}}">Remedy <input type="text" name="system.affliction.remedy" value="{{system.affliction.remedy}}" /></label>
           <div class="metric-row"><span>Status</span><strong>{{system.affliction.status}}</strong></div>
+          <div class="metric-row"><span>Contracted</span><strong>{{#if system.affliction.contracted}}Yes{{else}}No{{/if}}</strong></div>
+          {{#if system.affliction.progression}}
+            <div class="metric-row"><span>Cumulative Skill Penalty</span><strong>-{{system.affliction.progression}}d10</strong></div>
+          {{/if}}
+          {{#if system.affliction.lethalityLimit}}
+            <div class="metric-row"><span>Lethality Clock</span><strong>{{system.affliction.lethalityElapsed}} / {{system.affliction.lethalityLimit}} {{system.affliction.lethality}}</strong></div>
+          {{/if}}
+          {{#if system.affliction.qiDrainApplied}}
+            <div class="metric-row"><span>Blocked Qi</span><strong>-{{system.affliction.qiDrainApplied}}</strong></div>
+          {{/if}}
+          {{#if system.affliction.medicineDiceBonus}}
+            <div class="metric-row"><span>Medicine Bonus</span><strong>+{{system.affliction.medicineDiceBonus}}d10</strong></div>
+          {{/if}}
+          {{#if system.affliction.appliedSubstances.length}}
+            <h3>Applied Substances</h3>
+            <div class="affliction-substances">
+              {{#each system.affliction.appliedSubstances as |application|}}
+                <div class="metric-row" data-tooltip="{{application.effect}}">
+                  <span>{{application.name}}</span>
+                  <strong>{{#if application.duration}}{{application.duration}}{{else}}Applied{{/if}}</strong>
+                  {{#if application.duration}}
+                    <button type="button" data-action="expire-affliction-substance" data-index="{{@index}}" data-tooltip="Expire {{application.name}} and restore values it was modifying.">Expire</button>
+                  {{/if}}
+                </div>
+              {{/each}}
+            </div>
+            <button type="button" data-action="clear-affliction-substances" data-tooltip="Clear applied substances and restore the active affliction's original treatment values.">Reset Substance Effects</button>
+          {{/if}}
           <label data-tooltip="{{help.affliction}}">Notes <input type="text" name="system.affliction.notes" value="{{system.affliction.notes}}" /></label>
-          <button type="button" data-action="treat-affliction" data-tooltip="{{help.affliction}}">Medicine</button>
+          <div class="creation-actions">
+            <button type="button" data-action="roll-affliction-exposure" data-tooltip="Roll the affliction's Potency against current Hardiness to determine whether it takes hold.">Exposure</button>
+            <button type="button" data-action="advance-affliction-progression" data-tooltip="Advance one Speed interval. For Spiny Toad Venom, use only after a seizure occurs.">Advance Effect</button>
+            <button type="button" data-action="advance-affliction-lethality" data-tooltip="Advance one Lethality interval toward the rolled deadline.">Advance Lethality</button>
+            <button type="button" data-action="treat-affliction" data-tooltip="{{help.affliction}}">Medicine</button>
+          </div>
         </section>
 
         <section class="panel">
@@ -297,6 +395,39 @@
             <button type="button" data-action="apply-drain" data-tooltip="{{help.drain}}">Apply Drain</button>
             <button type="button" data-action="recover-drain" data-tooltip="{{help.drain}}">Recover 1 Drain</button>
           </div>
+        </section>
+
+        <section class="panel">
+          <h2>Active Substances</h2>
+          {{#if system.activeSubstances.length}}
+            <div class="affliction-substances">
+              {{#each system.activeSubstances as |application|}}
+                <div class="metric-row" data-tooltip="{{application.effect}}">
+                  <span>{{application.name}}</span>
+                  <strong>{{#if application.duration}}{{application.duration}}{{else}}Active{{/if}}</strong>
+                  <button type="button" data-action="expire-active-substance" data-index="{{@index}}" data-tooltip="End {{application.name}} and remove any roll modifier it supplies.">Expire</button>
+                </div>
+              {{/each}}
+            </div>
+          {{else}}
+            <p class="form-note">No duration-based substance effects are active.</p>
+          {{/if}}
+        </section>
+
+        <section class="panel" data-tooltip="{{help.longevity}}">
+          <h2>Longevity</h2>
+          <div class="metric-row"><span>Life Prolonging Pill Course</span><strong>{{system.longevity.lifeProlongingPill.consecutiveDays}} / 10 days</strong></div>
+          {{#if system.longevity.lifeProlongingPill.completed}}
+            <div class="metric-row"><span>Course Completed</span><strong>Yes</strong></div>
+            <div class="metric-row"><span>Lifespan Granted</span><strong>+{{system.longevity.lifeProlongingPill.yearsAdded}} years</strong></div>
+            <div class="metric-row"><span>Later Uses</span><strong>{{system.longevity.lifeProlongingPill.additionalUses}}</strong></div>
+            <div class="metric-row"><span>Lifespan Lost</span><strong>-{{system.longevity.lifeProlongingPill.yearsLost}} years</strong></div>
+            <div class="metric-row"><span>Net Adjustment</span><strong>{{system.longevity.lifeProlongingPill.netYears}} years</strong></div>
+          {{else}}
+            {{#if system.longevity.lifeProlongingPill.consecutiveDays}}
+              <button type="button" data-action="reset-life-pill-streak" data-tooltip="Record that the required consecutive-day course was interrupted.">Streak Broken</button>
+            {{/if}}
+          {{/if}}
         </section>
 
         <section class="panel">
@@ -491,25 +622,45 @@
             <label data-tooltip="{{help.karma}}">Value <input type="number" name="system.karma.value" value="{{system.karma.value}}" min="-10" max="10" /></label>
           </section>
         {{/if}}
+        <section class="panel imbalance-tools">
+          <h2>Imbalance & Qi Spirits</h2>
+          <div class="metric-row" data-tooltip="{{help.imbalance}}"><span>Imbalance Rating</span><strong>{{system.status.imbalanceRating}}</strong></div>
+          <div class="metric-row" data-tooltip="{{help.possession}}"><span>Possession TN</span><strong>{{possessionTn}}</strong></div>
+          {{#if system.imbalance.possessed}}
+            <div class="metric-row"><span>Spirit</span><strong>{{system.imbalance.spirit}}</strong></div>
+            <div class="metric-row"><span>Daily Control</span><strong>{{possessionControlLabel}} {{#if system.imbalance.possessionControlDays}}({{system.imbalance.possessionControlDays}} day(s)){{/if}}</strong></div>
+          {{/if}}
+          <div class="item-actions imbalance-actions">
+            <button type="button" data-action="meditate-imbalance" data-tooltip="{{help.meditateImbalance}}">Meditate</button>
+            <button type="button" data-action="check-possession" data-tooltip="{{help.possession}}">Check Possession</button>
+            {{#if system.imbalance.possessed}}
+              <button type="button" data-action="roll-possession-control" data-tooltip="{{help.possession}}">Daily Control</button>
+              <button type="button" data-action="purge-possession" data-tooltip="{{help.possession}}">Mark Purged</button>
+            {{/if}}
+          </div>
+        </section>
         <section class="panel technique-columns">
           <h2>Kung Fu Techniques</h2>
           <div class="item-actions">
             <button type="button" data-action="create-item" data-type="technique" data-tooltip="{{help.newTechnique}}">New Kung Fu Technique</button>
             <span>Drop technique items anywhere on this sheet.</span>
           </div>
-          {{#each config.techniqueTypes as |label key|}}
+          {{#each techniqueGroups as |group|}}
             <div>
               <h3>{{label}}</h3>
               <div class="item-list">
-              {{#each ../techniques as |item|}}
-                {{#if (eq item.system.techniqueType ../key)}}
-                  <div class="item-line compact" data-item-id="{{item.id}}">
-                    <span>{{item.name}}</span>
-                    <span>Qi {{item.system.qiRank}}</span>
-                    <button type="button" data-action="open-item" data-item-id="{{item.id}}" data-tooltip="{{../../help.editItem}}">Edit</button>
-                    <button type="button" data-action="delete-item" data-item-id="{{item.id}}" data-tooltip="{{../../help.deleteItem}}">Delete</button>
+              {{#each items as |technique|}}
+                  <div class="item-line compact technique-line" data-item-id="{{technique.item.id}}">
+                    <span>{{technique.item.name}}</span>
+                    <span data-tooltip="Required Qi Rank; techniques do not spend Qi.">Qi {{technique.item.system.qiRank}}</span>
+                    <span class="technique-damage" data-tooltip="{{technique.damage.tooltip}}">{{technique.damage.label}}</span>
+                    <span class="item-row-actions">
+                      <button type="button" data-action="roll-technique" data-item-id="{{technique.item.id}}" data-tooltip="{{../../help.useTechnique}}">Use</button>
+                      <button type="button" data-action="roll-technique" data-cathartic="true" data-item-id="{{technique.item.id}}" data-tooltip="{{../../help.catharticTechnique}}">Cathartic</button>
+                      <button type="button" data-action="open-item" data-item-id="{{technique.item.id}}" data-tooltip="{{../../help.editItem}}">Edit</button>
+                      <button type="button" data-action="delete-item" data-item-id="{{technique.item.id}}" data-tooltip="{{../../help.deleteItem}}">Delete</button>
+                    </span>
                   </div>
-                {{/if}}
               {{/each}}
               </div>
             </div>
@@ -568,16 +719,20 @@
           <h2>Equipment</h2>
           <div class="item-actions compact">
             <button type="button" data-action="create-item" data-type="equipment" data-tooltip="{{help.newGear}}">New Gear</button>
+            <button type="button" data-action="create-item" data-type="substance" data-tooltip="{{help.newSubstance}}">New Substance</button>
             <span data-tooltip="{{help.equipmentDrop}}">{{help.equipmentDrop}}</span>
           </div>
           <div class="item-list equipment-drop-zone" data-tooltip="{{help.equipmentDrop}}">
             {{#each equipment as |item|}}
               <div class="item-line equipment-line" data-item-id="{{item.id}}" data-tooltip="Right-click to edit or delete {{item.name}}.">
                 <span>{{item.name}}</span>
-                <span>{{item.type}}</span>
+                <span>{{#if (eq item.type "substance")}}{{item.system.substanceType}}{{else}}{{item.type}}{{/if}}</span>
                 {{#if (eq item.type "weapon")}}
                   <button type="button" data-action="roll-weapon-attack" data-item-id="{{item.id}}" data-tooltip="{{../help.weaponAttack}}">Attack</button>
                   <button type="button" data-action="roll-weapon-damage" data-item-id="{{item.id}}" data-tooltip="{{../help.weaponDamage}}">Damage</button>
+                {{else if (eq item.type "substance")}}
+                  <span>Qty {{item.system.quantity}}</span>
+                  <button type="button" data-action="apply-substance" data-item-id="{{item.id}}" data-tooltip="Consume one dose and apply this substance's rules effect.">Use</button>
                 {{else}}
                   <span></span>
                   <span></span>

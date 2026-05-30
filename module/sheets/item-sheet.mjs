@@ -9,6 +9,10 @@ function getInputValue(input) {
   return input.value;
 }
 
+function normalizeKey(value = "") {
+  return String(value).trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
 const ITEM_HELP = {
   weaponCategory: "Weapon category determines the default combat skill family for attacks.",
   attackSkill: "Skill used when this weapon rolls an attack.",
@@ -33,8 +37,7 @@ const ITEM_HELP = {
   techniqueDiscipline: "Martial discipline required or associated with this technique.",
   techniqueType: "Technique bucket used to organize it on the actor sheet.",
   activationSkill: "Skill used to activate or roll the technique when one is required.",
-  qiRank: "Minimum or associated Qi rank for the technique.",
-  qiCost: "Qi spent to use the technique when the rules call for a cost.",
+  qiRank: "Minimum Qi rank required to use the technique; using techniques does not spend Qi.",
   combatPerkGroup: "Combat Perk group this perk belongs to.",
   combatPerkSkill: "Specific skill or combat skill this perk modifies.",
   combatPerkBonus: "Rules text or dice bonus granted by this Combat Perk.",
@@ -44,18 +47,46 @@ const ITEM_HELP = {
   acquiredAtCreation: "Marks whether this flaw was selected during character creation.",
   exemptFromCreationLimit: "Marks flaws that do not count against the standard flaw limit.",
   requiresResolveTest: "Marks flaws that may require a Resolve test during play.",
-  flawPenalty: "Mechanical penalty or reminder text for the flaw."
+  flawPenalty: "Mechanical penalty or reminder text for the flaw.",
+  afflictionType: "Whether this Chapter 2 hazard is a poison or disease.",
+  lethality: "Time increment before an untreated lethal affliction kills; it also sets treatment roll cadence.",
+  speed: "How often the affliction advances its cumulative -1d10 penalties or stated effect.",
+  medicineTn: "Target number for Medicine treatment. A value of 0 means standard Medicine treatment is not listed.",
+  treatmentMode: "Standard treatment can cure; Stave Off Only is for effects such as Malignant Wind Disease, which Medicine cannot cure.",
+  potency: "Dice rolled against a victim's Hardiness when exposed.",
+  affectedSkills: "Skill categories affected by progressive penalties: Combat, Mental, or Physical.",
+  brewRating: "Talent (Poison) TN required to brew a poison.",
+  antidoteRequired: "Requires the listed antidote or remedy before Medicine can cure or stabilize it.",
+  substanceType: "Rules category of this prepared substance.",
+  brewSkill: "Skill used to create this substance when a creation TN is stated.",
+  brewTn: "Target number required to create the substance, when stated.",
+  targetAffliction: "Disease, poison, or condition this substance treats or affects.",
+  substanceQuantity: "Number of prepared doses available when this Substance is stored on an actor. Applying an actor-owned dose reduces this value by one."
 };
 
-function skillOptions({ includeBlank = false } = {}) {
+function isSkillOptionSelected(selected, groupKey, skillKey, label) {
+  const normalized = normalizeKey(selected);
+  if (!normalized) return false;
+  const groupLabel = OGRE_GATE.skillGroups[groupKey]?.label ?? groupKey;
+  return [
+    skillKey,
+    `${groupKey}.${skillKey}`,
+    `${groupKey}:${skillKey}`,
+    `${groupLabel}: ${label}`,
+    `${groupLabel} ${label}`
+  ].some((candidate) => normalizeKey(candidate) === normalized);
+}
+
+function skillOptions({ includeBlank = false, selected = "" } = {}) {
   const options = [];
-  if (includeBlank) options.push({ key: "", label: "None" });
+  if (includeBlank) options.push({ key: "", label: "None", selected: !selected });
   for (const [groupKey, group] of Object.entries(OGRE_GATE.skillGroups)) {
     if (groupKey === "defenses") continue;
     for (const [skillKey, label] of Object.entries(group.skills)) {
       options.push({
-        key: skillKey,
-        label: `${group.label}: ${label}`
+        key: `${groupKey}.${skillKey}`,
+        label: `${group.label}: ${label}`,
+        selected: isSkillOptionSelected(selected, groupKey, skillKey, label)
       });
     }
   }
@@ -114,7 +145,7 @@ export class OgreGateItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
         label: group.label
       })),
       combatSkills: combatSkillOptions(),
-      allSkills: skillOptions({ includeBlank: true }),
+      allSkills: skillOptions({ includeBlank: true, selected: this.item.system.activationSkill }),
       defenses: defenseOptions(),
       weaponDamageTypes: Object.entries(OGRE_GATE.weaponDamageTypes).map(([key, label]) => ({ key, label })),
       disciplines: Object.entries(OGRE_GATE.disciplines).map(([key, label]) => ({ key, label })),
@@ -139,7 +170,10 @@ export class OgreGateItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       reachOptions: Object.entries(OGRE_GATE.reachCategories).map(([key, label]) => ({
         key,
         label
-      }))
+      })),
+      afflictionTypes: Object.entries(OGRE_GATE.afflictionTypes).map(([key, label]) => ({ key, label })),
+      afflictionIntervals: Object.entries(OGRE_GATE.afflictionIntervals).map(([key, label]) => ({ key, label })),
+      substanceTypes: Object.entries(OGRE_GATE.substanceTypes).map(([key, label]) => ({ key, label }))
     };
   }
 

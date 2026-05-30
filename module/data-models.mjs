@@ -146,7 +146,11 @@ function combatSchema() {
     attackMode: textField("normal"),
     pendingDamageBonus: numberField(0, { min: 0, max: 20 }),
     chargeDistance: numberField(0, { min: 0, max: 1000 }),
+    chargeStraightLine: new BooleanField({ required: true, initial: false }),
+    mountedChargeContinues: new BooleanField({ required: true, initial: false }),
+    targetUnmounted: new BooleanField({ required: true, initial: true }),
     mountedBowShot: new BooleanField({ required: true, initial: false }),
+    movingMount: new BooleanField({ required: true, initial: false }),
     situationalDice: numberField(0, { min: -10, max: 10 }),
     situationalDefense: numberField(0, { min: -10, max: 10 }),
     cover: textField("none"),
@@ -168,16 +172,61 @@ function preparedStrikeSchema() {
   });
 }
 
+function qiDuelSchema() {
+  return new SchemaField({
+    ties: numberField(0, { min: 0, max: 99 })
+  });
+}
+
+function appliedSubstanceSchema() {
+  return new SchemaField({
+    rulesKey: textField(""),
+    name: textField(""),
+    effect: textField(""),
+    duration: textField("")
+  });
+}
+
+function lifeProlongingPillSchema() {
+  return new SchemaField({
+    consecutiveDays: numberField(0, { min: 0, max: 10 }),
+    completed: new BooleanField({ required: true, initial: false }),
+    yearsAdded: numberField(0, { min: 0, max: 10 }),
+    additionalUses: numberField(0, { min: 0 }),
+    yearsLost: numberField(0, { min: 0 }),
+    netYears: numberField(0, { min: -999, max: 999 })
+  });
+}
+
 function afflictionSchema() {
   return new SchemaField({
+    rulesKey: textField(""),
     name: textField(""),
     type: textField("poison"),
-    medicineTn: numberField(6, { min: 1, max: 10 }),
+    lethality: textField("hours"),
+    speed: textField("hours"),
+    baseSpeed: textField("hours"),
+    effect: textField("temporary"),
+    potency: textField(""),
+    affectedSkills: textField(""),
+    brewRating: numberField(0, { min: 0, max: 10 }),
+    contagious: new BooleanField({ required: true, initial: false }),
+    medicineTn: numberField(6, { min: 0, max: 10 }),
+    baseMedicineTn: numberField(6, { min: 0, max: 10 }),
+    medicineDiceBonus: numberField(0, { min: -10, max: 10 }),
+    treatmentMode: textField("standard"),
     interval: textField("hours"),
     antidoteRequired: new BooleanField({ required: true, initial: false }),
     antidoteApplied: new BooleanField({ required: true, initial: false }),
+    remedy: textField(""),
     status: textField("untreated"),
-    notes: textField("")
+    notes: textField(""),
+    contracted: new BooleanField({ required: true, initial: false }),
+    progression: numberField(0, { min: 0, max: 20 }),
+    lethalityLimit: numberField(0, { min: 0, max: 10 }),
+    lethalityElapsed: numberField(0, { min: 0, max: 10 }),
+    qiDrainApplied: numberField(0, { min: 0, max: 99 }),
+    appliedSubstances: new ArrayField(appliedSubstanceSchema())
   });
 }
 
@@ -215,7 +264,11 @@ class OgreGateBaseActorData extends foundry.abstract.TypeDataModel {
       imbalance: new SchemaField({
         value: numberField(0, { min: 0 }),
         max: numberField(13, { min: 0 }),
-        autoMax: new BooleanField({ required: true, initial: true })
+        autoMax: new BooleanField({ required: true, initial: true }),
+        possessed: new BooleanField({ required: true, initial: false }),
+        spirit: textField(""),
+        possessionControl: textField("unchecked"),
+        possessionControlDays: numberField(0, { min: 0 })
       }),
       karma: new SchemaField({
         value: numberField(0, { min: -10, max: 10 })
@@ -233,7 +286,13 @@ class OgreGateBaseActorData extends foundry.abstract.TypeDataModel {
       }),
       combat: combatSchema(),
       preparedStrike: preparedStrikeSchema(),
+      qiDuel: qiDuelSchema(),
       affliction: afflictionSchema(),
+      additionalAfflictions: new ArrayField(afflictionSchema()),
+      activeSubstances: new ArrayField(appliedSubstanceSchema()),
+      longevity: new SchemaField({
+        lifeProlongingPill: lifeProlongingPillSchema()
+      }),
       status: new SchemaField({
         woundState: textField("healthy"),
         effectiveQi: numberField(1, { min: 0 }),
@@ -295,6 +354,7 @@ class OgreGateBaseActorData extends foundry.abstract.TypeDataModel {
     this.movement.swim = 10 + (Math.max(0, swim) * 5);
     this.movement.climb = 10 + (Math.max(0, athletics) * 5);
     this.status.imbalanceRating = Math.max(...Object.values(this.disciplines).map((discipline) => discipline.ranks));
+    this.longevity.lifeProlongingPill.netYears = this.longevity.lifeProlongingPill.yearsAdded - this.longevity.lifeProlongingPill.yearsLost;
     this.status.dyingRoundsMax = this.defenses.hardiness.rating;
     if (this.resources.wounds.value > 0) this.combat.stabilized = false;
     this.combat.dying = this.resources.wounds.value <= 0 && !this.combat.stabilized;
@@ -398,7 +458,6 @@ export class OgreGateTechniqueData extends OgreGateBaseItemData {
       techniqueType: textField("normal"),
       activationSkill: textField(""),
       qiRank: numberField(1, { min: 0, max: 12 }),
-      qiCost: numberField(0, { min: 0, max: 99 }),
       damage: textField(""),
       openDamage: new BooleanField({ required: true, initial: false }),
       counter: textField("")
@@ -457,6 +516,44 @@ export class OgreGateFlawData extends OgreGateBaseItemData {
       exemptFromCreationLimit: new BooleanField({ required: true, initial: false }),
       requiresResolveTest: new BooleanField({ required: true, initial: false }),
       penalty: textField("")
+    };
+  }
+}
+
+export class OgreGateAfflictionData extends OgreGateBaseItemData {
+  static defineSchema() {
+    return {
+      ...super.defineSchema(),
+      rulesKey: textField(""),
+      afflictionType: textField("poison"),
+      lethality: textField("hours"),
+      speed: textField("hours"),
+      effect: textField("temporary"),
+      medicineTn: numberField(6, { min: 0, max: 10 }),
+      treatmentMode: textField("standard"),
+      brewRating: numberField(0, { min: 0, max: 10 }),
+      potency: textField(""),
+      affectedSkills: textField(""),
+      contagious: new BooleanField({ required: true, initial: false }),
+      antidoteRequired: new BooleanField({ required: true, initial: false }),
+      remedy: textField(""),
+      specialRules: textField("")
+    };
+  }
+}
+
+export class OgreGateSubstanceData extends OgreGateBaseItemData {
+  static defineSchema() {
+    return {
+      ...super.defineSchema(),
+      rulesKey: textField(""),
+      substanceType: textField("herbalCure"),
+      quantity: numberField(1, { min: 0 }),
+      brewSkill: textField("talent.poisoning"),
+      brewTn: numberField(0, { min: 0, max: 10 }),
+      targetAffliction: textField(""),
+      duration: textField(""),
+      effects: textField("")
     };
   }
 }

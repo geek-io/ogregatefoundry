@@ -1,0 +1,32 @@
+{
+  "_id": "04aae57baab10437",
+  "name": "Zhen Bird Venom",
+  "type": "affliction",
+  "img": "icons/svg/acid.svg",
+  "system": {
+    "description": "Zhen Bird Venom: As soon as a person is exposed roll 4d10 against their Hardiness. If it meets or exceeds their Hardiness rating they are affected, suffering cumulative -1d10 penalties every 10 seconds as their body and mind are overwhelmed with violent tremors and a profound mental fatigue. The Poison of the Zhen Bird is incredibly lethal, killing in hours. The antidote requires the use of ground rhinoceros horn and a human tooth (in addition to 27 other ingredients).",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 2: Rules",
+    "cost": "",
+    "rulesKey": "zhenBirdVenom",
+    "afflictionType": "poison",
+    "lethality": "hours",
+    "speed": "seconds",
+    "effect": "Temporary",
+    "medicineTn": 7,
+    "treatmentMode": "standard",
+    "brewRating": 10,
+    "potency": "4d10",
+    "affectedSkills": "All",
+    "contagious": false,
+    "antidoteRequired": true,
+    "remedy": "Ground rhinoceros horn, human tooth, and 27 other ingredients",
+    "specialRules": ""
+  },
+  "effects": [],
+  "folder": "d57ca53d5ec7777d",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!04aae57baab10437"
+}
