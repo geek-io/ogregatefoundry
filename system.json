@@ -2,10 +2,10 @@
   "id": "ogregatefoundry",
   "title": "The Wandering Heroes of Ogre Gate",
   "description": "A Foundry VTT v13 game system for The Wandering Heroes of Ogre Gate.",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "url": "https://github.com/geek-io/ogregatefoundry",
   "manifest": "https://github.com/geek-io/ogregatefoundry/releases/latest/download/system.json",
-  "download": "https://github.com/geek-io/ogregatefoundry/releases/download/0.1.6/system.zip",
+  "download": "https://github.com/geek-io/ogregatefoundry/releases/download/0.1.7/system.zip",
   "readme": "https://github.com/geek-io/ogregatefoundry/blob/master/README.md",
   "bugs": "https://github.com/geek-io/ogregatefoundry/issues",
   "license": "GPL-3.0-or-later",
@@ -36,6 +36,27 @@
       "name": "techniques",
       "label": "Kung Fu Techniques",
       "path": "packs/techniques",
+      "type": "Item",
+      "system": "ogregatefoundry"
+    },
+    {
+      "name": "weapons",
+      "label": "Weapons",
+      "path": "packs/weapons",
+      "type": "Item",
+      "system": "ogregatefoundry"
+    },
+    {
+      "name": "armor",
+      "label": "Armor and Shields",
+      "path": "packs/armor",
+      "type": "Item",
+      "system": "ogregatefoundry"
+    },
+    {
+      "name": "goods",
+      "label": "Goods, Services, and Transport",
+      "path": "packs/goods",
       "type": "Item",
       "system": "ogregatefoundry"
     },

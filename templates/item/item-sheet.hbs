@@ -37,13 +37,16 @@
       </label>
       <label data-tooltip="{{help.damageSkill}}">Damage Skill
         <select name="system.damageSkill">
-          {{#each allSkills as |skill|}}
-            <option value="{{skill.key}}" {{#if (eq ../system.damageSkill skill.key)}}selected{{/if}}>{{skill.label}}</option>
+          {{#each weaponDamageSkills as |skill|}}
+            <option value="{{skill.key}}" {{#if skill.selected}}selected{{/if}}>{{skill.label}}</option>
           {{/each}}
         </select>
       </label>
       <label data-tooltip="{{help.damageDice}}">Damage Bonus Dice <input type="number" name="system.damageDice" value="{{system.damageDice}}" min="-1" max="10" /></label>
       <label data-tooltip="{{help.accuracyModifier}}">Accuracy <input type="number" name="system.accuracyModifier" value="{{system.accuracyModifier}}" min="-10" max="10" /></label>
+      <label data-tooltip="{{help.wieldedWeapon}}">Wielded <input type="checkbox" name="system.equipped" {{checked system.equipped}} /></label>
+      <label data-tooltip="{{help.weaponDefenseBonus}}">Parry Bonus <input type="number" name="system.parryBonus" value="{{system.parryBonus}}" min="0" max="10" /></label>
+      <label data-tooltip="{{help.weaponDefenseBonus}}">Evade Bonus <input type="number" name="system.evadeBonus" value="{{system.evadeBonus}}" min="0" max="10" /></label>
       <label data-tooltip="{{help.muscleRequirement}}">Muscle Requirement <input type="number" name="system.muscleRequirement" value="{{system.muscleRequirement}}" min="0" max="10" /></label>
       <label data-tooltip="{{help.damageType}}">Damage Type
         <select name="system.damageType">
@@ -218,9 +221,29 @@
   {{#if (eq item.type "equipment")}}
     <section class="panel">
       <h2>Equipment</h2>
+      <label data-tooltip="{{help.equipmentCategory}}">Category
+        <select name="system.category">
+          {{#each equipmentCategories as |category|}}
+            <option value="{{category.key}}" {{#if (eq ../system.category category.key)}}selected{{/if}}>{{category.label}}</option>
+          {{/each}}
+        </select>
+      </label>
       <label>Quantity <input type="number" name="system.quantity" value="{{system.quantity}}" min="0" /></label>
       <label>Weight <input type="text" name="system.weight" value="{{system.weight}}" /></label>
     </section>
+    {{#if (eq system.category "mountTransport")}}
+      <section class="panel weapon-fields">
+        <h2>Mount or Transport</h2>
+        <label data-tooltip="{{help.transportPerformance}}">Performance Rating <input type="number" name="system.performanceRating" value="{{system.performanceRating}}" min="0" max="20" /></label>
+        <label data-tooltip="{{help.transportHandling}}">Handling Speed <input type="text" name="system.handlingSpeed" value="{{system.handlingSpeed}}" /></label>
+        <label>Miles per Day <input type="text" name="system.milesPerDay" value="{{system.milesPerDay}}" /></label>
+        <label data-tooltip="{{help.transportSpeedScore}}">Speed Score <input type="text" name="system.speedScore" value="{{system.speedScore}}" /></label>
+        <label data-tooltip="{{help.transportDefenses}}">Evade <input type="number" name="system.evade" value="{{system.evade}}" min="0" max="20" /></label>
+        <label data-tooltip="{{help.transportDefenses}}">Hardiness <input type="number" name="system.hardiness" value="{{system.hardiness}}" min="0" max="20" /></label>
+        <label data-tooltip="{{help.transportDefenses}}">Integrity / Health <input type="number" name="system.integrity" value="{{system.integrity}}" min="0" max="99" /></label>
+        <label>Damage <input type="text" name="system.damage" value="{{system.damage}}" /></label>
+      </section>
+    {{/if}}
   {{/if}}
 
   {{#if (eq item.type "ritual")}}

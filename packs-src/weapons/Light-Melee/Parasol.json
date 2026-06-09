@@ -1,0 +1,33 @@
+{
+  "_id": "8da760cf7b1fa144",
+  "name": "Parasol",
+  "type": "weapon",
+  "img": "icons/weapons/swords/sword-broad-serrated-blue.webp",
+  "system": {
+    "description": "Sharp and/or Blunt; lethal or non-lethal. Opened parasol grants +2 Evade against projectiles and +1d10 Athletics to reduce falling damage.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "75+",
+    "category": "lightMelee",
+    "attackSkill": "lightMelee",
+    "targetDefense": "parry",
+    "damageSkill": "physical.muscle",
+    "damageDice": 1,
+    "accuracyModifier": 0,
+    "equipped": false,
+    "parryBonus": 0,
+    "evadeBonus": 2,
+    "muscleRequirement": 0,
+    "lethal": true,
+    "damageType": "special",
+    "reach": "normal",
+    "openDamage": false,
+    "qualities": "Sharp and/or Blunt; lethal or non-lethal. Opened parasol grants +2 Evade against projectiles and +1d10 Athletics to reduce falling damage."
+  },
+  "effects": [],
+  "folder": "6fbd3a79188d14a1",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!8da760cf7b1fa144"
+}

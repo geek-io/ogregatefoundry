@@ -1,0 +1,33 @@
+{
+  "_id": "93d5067dfe112f1d",
+  "name": "Yellow Wine (Huang jiu)",
+  "type": "equipment",
+  "img": "icons/containers/bags/pack-leather-white-tan.webp",
+  "system": {
+    "description": "Grain-based wine, usually rice-based, with several color and ingredient subtypes. Traditional cup: blue porcelain.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "",
+    "category": "foodDrink",
+    "quantity": 1,
+    "weight": "",
+    "performanceRating": 0,
+    "handlingSpeed": "",
+    "milesPerDay": "",
+    "speedScore": "",
+    "evade": 0,
+    "hardiness": 0,
+    "integrity": 0,
+    "damage": ""
+  },
+  "effects": [],
+  "folder": "981e9f474ce194c3",
+  "flags": {
+    "ogregatefoundry": {
+      "categoryLabel": "Food and Drink"
+    }
+  },
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!93d5067dfe112f1d"
+}

@@ -1,0 +1,33 @@
+{
+  "_id": "7cb986a0e9e6d2a4",
+  "name": "Triple Bow Small Bed (Ballista)",
+  "type": "weapon",
+  "img": "icons/weapons/swords/sword-broad-serrated-blue.webp",
+  "system": {
+    "description": "Range 200/400/800 feet.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "2000",
+    "category": "largeRanged",
+    "attackSkill": "largeRanged",
+    "targetDefense": "evade",
+    "damageSkill": "",
+    "damageDice": 6,
+    "accuracyModifier": 0,
+    "equipped": false,
+    "parryBonus": 0,
+    "evadeBonus": 0,
+    "muscleRequirement": 2,
+    "lethal": true,
+    "damageType": "mighty",
+    "reach": "normal",
+    "openDamage": false,
+    "qualities": "Range 200/400/800 feet."
+  },
+  "effects": [],
+  "folder": "c2f4a621c8f133e7",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!7cb986a0e9e6d2a4"
+}

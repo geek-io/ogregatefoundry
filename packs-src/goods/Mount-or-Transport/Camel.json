@@ -1,0 +1,33 @@
+{
+  "_id": "5fdc386ab8bb5d31",
+  "name": "Camel",
+  "type": "equipment",
+  "img": "icons/environment/settlement/wagon.webp",
+  "system": {
+    "description": "Mount or transport entry from the Chapter 5 Mounts and Transports table.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "1000",
+    "category": "mountTransport",
+    "quantity": 1,
+    "weight": "",
+    "performanceRating": 5,
+    "handlingSpeed": "30 MPH / 1d10 (40 ft.)",
+    "milesPerDay": "35",
+    "speedScore": "3d10 (60 ft. / 12 hex)",
+    "evade": 5,
+    "hardiness": 3,
+    "integrity": 1,
+    "damage": "0d10"
+  },
+  "effects": [],
+  "folder": "d1c2298b8cf6dda7",
+  "flags": {
+    "ogregatefoundry": {
+      "categoryLabel": "Mount or Transport"
+    }
+  },
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!5fdc386ab8bb5d31"
+}

@@ -1,0 +1,32 @@
+{
+  "_id": "ccdf6d54b545a8f5",
+  "name": "Combat Shield",
+  "type": "armor",
+  "img": "icons/equipment/shield/buckler-wooden-boss-steel-brown.webp",
+  "system": {
+    "description": "Shields do not protect against Kung Fu Techniques.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "325",
+    "armorKey": "combatShield",
+    "equipped": false,
+    "defenseModifier": 0,
+    "penalty": 0,
+    "sharpReduction": 0,
+    "bluntReduction": 0,
+    "mightyReduction": 0,
+    "arrowReduction": 0,
+    "speedPenalty": 0,
+    "parryBonus": 2,
+    "evadeBonus": 0,
+    "muscleRequirement": 1,
+    "shield": true,
+    "qualities": "Shields do not protect against Kung Fu Techniques."
+  },
+  "effects": [],
+  "folder": "549793c8970b2f6f",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!ccdf6d54b545a8f5"
+}

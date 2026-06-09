@@ -1,0 +1,33 @@
+{
+  "_id": "46e46385f1f4df6d",
+  "name": "Iron Thread",
+  "type": "weapon",
+  "img": "icons/weapons/swords/sword-broad-serrated-blue.webp",
+  "system": {
+    "description": "Up to 30 feet. Can restrain at distance. Counters against it suffer -1d10.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "100",
+    "category": "lightMelee",
+    "attackSkill": "lightMelee",
+    "targetDefense": "parry",
+    "damageSkill": "physical.muscle",
+    "damageDice": 1,
+    "accuracyModifier": 0,
+    "equipped": false,
+    "parryBonus": 0,
+    "evadeBonus": 0,
+    "muscleRequirement": 0,
+    "lethal": true,
+    "damageType": "sharp",
+    "reach": "normal",
+    "openDamage": false,
+    "qualities": "Up to 30 feet. Can restrain at distance. Counters against it suffer -1d10."
+  },
+  "effects": [],
+  "folder": "6fbd3a79188d14a1",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!46e46385f1f4df6d"
+}

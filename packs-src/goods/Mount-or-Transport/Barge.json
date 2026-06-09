@@ -1,0 +1,33 @@
+{
+  "_id": "23d3fec85ea3ae99",
+  "name": "Barge",
+  "type": "equipment",
+  "img": "icons/environment/settlement/wagon.webp",
+  "system": {
+    "description": "Mount or transport entry from the Chapter 5 Mounts and Transports table.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "88,500",
+    "category": "mountTransport",
+    "quantity": 1,
+    "weight": "",
+    "performanceRating": 6,
+    "handlingSpeed": "3 MPH / 1d10 (40 ft.)",
+    "milesPerDay": "40",
+    "speedScore": "6d10 (90 ft. / 18 hex)",
+    "evade": 5,
+    "hardiness": 5,
+    "integrity": 3,
+    "damage": "1d10"
+  },
+  "effects": [],
+  "folder": "d1c2298b8cf6dda7",
+  "flags": {
+    "ogregatefoundry": {
+      "categoryLabel": "Mount or Transport"
+    }
+  },
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!23d3fec85ea3ae99"
+}

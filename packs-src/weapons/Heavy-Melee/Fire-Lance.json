@@ -1,0 +1,33 @@
+{
+  "_id": "ea74a57ff9f304a4",
+  "name": "Fire Lance",
+  "type": "weapon",
+  "img": "icons/weapons/swords/sword-broad-serrated-blue.webp",
+  "system": {
+    "description": "Can also use Small Ranged at 20 feet for 3d10 Fire Damage, or 1d10 plus poison effect with a poisoned dart.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "700",
+    "category": "heavyMelee",
+    "attackSkill": "heavyMelee",
+    "targetDefense": "parry",
+    "damageSkill": "physical.muscle",
+    "damageDice": 2,
+    "accuracyModifier": 0,
+    "equipped": false,
+    "parryBonus": 0,
+    "evadeBonus": 0,
+    "muscleRequirement": 1,
+    "lethal": true,
+    "damageType": "special",
+    "reach": "long",
+    "openDamage": false,
+    "qualities": "Can also use Small Ranged at 20 feet for 3d10 Fire Damage, or 1d10 plus poison effect with a poisoned dart."
+  },
+  "effects": [],
+  "folder": "81fc96cca1717e35",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!ea74a57ff9f304a4"
+}

@@ -1,0 +1,33 @@
+{
+  "_id": "b519f05b8c17143e",
+  "name": "Catapults",
+  "type": "weapon",
+  "img": "icons/weapons/swords/sword-broad-serrated-blue.webp",
+  "system": {
+    "description": "Range 100/300/600 feet.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "4000",
+    "category": "largeRanged",
+    "attackSkill": "largeRanged",
+    "targetDefense": "evade",
+    "damageSkill": "",
+    "damageDice": 6,
+    "accuracyModifier": -2,
+    "equipped": false,
+    "parryBonus": 0,
+    "evadeBonus": 0,
+    "muscleRequirement": 2,
+    "lethal": true,
+    "damageType": "mighty",
+    "reach": "normal",
+    "openDamage": true,
+    "qualities": "Range 100/300/600 feet."
+  },
+  "effects": [],
+  "folder": "c2f4a621c8f133e7",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!b519f05b8c17143e"
+}

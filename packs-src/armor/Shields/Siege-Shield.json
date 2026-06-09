@@ -1,0 +1,32 @@
+{
+  "_id": "9177c038f7ba22f3",
+  "name": "Siege Shield",
+  "type": "armor",
+  "img": "icons/equipment/shield/buckler-wooden-boss-steel-brown.webp",
+  "system": {
+    "description": "Evade bonus represents cover. Shields do not protect against Kung Fu Techniques.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "600",
+    "armorKey": "siegeShield",
+    "equipped": false,
+    "defenseModifier": 0,
+    "penalty": 2,
+    "sharpReduction": 0,
+    "bluntReduction": 0,
+    "mightyReduction": 0,
+    "arrowReduction": 0,
+    "speedPenalty": 2,
+    "parryBonus": 0,
+    "evadeBonus": 3,
+    "muscleRequirement": 2,
+    "shield": true,
+    "qualities": "Evade bonus represents cover. Shields do not protect against Kung Fu Techniques."
+  },
+  "effects": [],
+  "folder": "549793c8970b2f6f",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!9177c038f7ba22f3"
+}

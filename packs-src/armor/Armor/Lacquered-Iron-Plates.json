@@ -1,0 +1,32 @@
+{
+  "_id": "b72789b4bf2c09af",
+  "name": "Lacquered Iron Plates",
+  "type": "armor",
+  "img": "icons/equipment/chest/breastplate-layered-steel.webp",
+  "system": {
+    "description": "Protects only against mundane attacks.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "8000",
+    "armorKey": "lacqueredIronPlates",
+    "equipped": false,
+    "defenseModifier": 0,
+    "penalty": 2,
+    "sharpReduction": 2,
+    "bluntReduction": 2,
+    "mightyReduction": 0,
+    "arrowReduction": 0,
+    "speedPenalty": 2,
+    "parryBonus": 0,
+    "evadeBonus": 0,
+    "muscleRequirement": 0,
+    "shield": false,
+    "qualities": "Protects only against mundane attacks."
+  },
+  "effects": [],
+  "folder": "ae7b9ba91b09b64a",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!b72789b4bf2c09af"
+}

@@ -1,0 +1,33 @@
+{
+  "_id": "6f733d948f404d31",
+  "name": "Qiang (Spear)",
+  "type": "weapon",
+  "img": "icons/weapons/swords/sword-broad-serrated-blue.webp",
+  "system": {
+    "description": "Reach 10 feet / Long Reach. One-handed use deals Muscle damage.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "230",
+    "category": "heavyMelee",
+    "attackSkill": "heavyMelee",
+    "targetDefense": "parry",
+    "damageSkill": "physical.muscle",
+    "damageDice": 2,
+    "accuracyModifier": 0,
+    "equipped": false,
+    "parryBonus": 0,
+    "evadeBonus": 0,
+    "muscleRequirement": 1,
+    "lethal": true,
+    "damageType": "sharp",
+    "reach": "long",
+    "openDamage": false,
+    "qualities": "Reach 10 feet / Long Reach. One-handed use deals Muscle damage."
+  },
+  "effects": [],
+  "folder": "81fc96cca1717e35",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!6f733d948f404d31"
+}

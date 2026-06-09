@@ -1,0 +1,33 @@
+{
+  "_id": "e0b4af6ae3ba7d34",
+  "name": "Junk, Imperial War",
+  "type": "equipment",
+  "img": "icons/environment/settlement/wagon.webp",
+  "system": {
+    "description": "Mount or transport entry from the Chapter 5 Mounts and Transports table.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "295,000",
+    "category": "mountTransport",
+    "quantity": 1,
+    "weight": "",
+    "performanceRating": 8,
+    "handlingSpeed": "6 MPH / 2d10 (70 ft.)",
+    "milesPerDay": "100",
+    "speedScore": "4d10 (110 ft. / 22 hex)",
+    "evade": 5,
+    "hardiness": 9,
+    "integrity": 6,
+    "damage": "6d10"
+  },
+  "effects": [],
+  "folder": "d1c2298b8cf6dda7",
+  "flags": {
+    "ogregatefoundry": {
+      "categoryLabel": "Mount or Transport"
+    }
+  },
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!e0b4af6ae3ba7d34"
+}

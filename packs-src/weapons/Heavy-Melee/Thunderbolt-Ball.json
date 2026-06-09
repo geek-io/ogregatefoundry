@@ -1,0 +1,33 @@
+{
+  "_id": "5bfae8c0e5cdf9b9",
+  "name": "Thunderbolt Ball",
+  "type": "weapon",
+  "img": "icons/weapons/swords/sword-broad-serrated-blue.webp",
+  "system": {
+    "description": "Thrown 15 feet plus 5 per Rank of Muscle. Explodes in 10-foot radius when attack roll exceeds targets' Evade.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "400",
+    "category": "heavyMelee",
+    "attackSkill": "heavyMelee",
+    "targetDefense": "evade",
+    "damageSkill": "",
+    "damageDice": 5,
+    "accuracyModifier": -1,
+    "equipped": false,
+    "parryBonus": 0,
+    "evadeBonus": 0,
+    "muscleRequirement": 2,
+    "lethal": true,
+    "damageType": "mighty",
+    "reach": "normal",
+    "openDamage": false,
+    "qualities": "Thrown 15 feet plus 5 per Rank of Muscle. Explodes in 10-foot radius when attack roll exceeds targets' Evade."
+  },
+  "effects": [],
+  "folder": "81fc96cca1717e35",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!5bfae8c0e5cdf9b9"
+}

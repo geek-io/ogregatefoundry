@@ -1,0 +1,33 @@
+{
+  "_id": "1e0a2cd29c74585f",
+  "name": "Kushen Steed",
+  "type": "equipment",
+  "img": "icons/environment/settlement/wagon.webp",
+  "system": {
+    "description": "Mount or transport entry from the Chapter 5 Mounts and Transports table.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "15,000",
+    "category": "mountTransport",
+    "quantity": 1,
+    "weight": "",
+    "performanceRating": 3,
+    "handlingSpeed": "60 MPH / 5d10 (70 ft.)",
+    "milesPerDay": "60",
+    "speedScore": "6d10 (90 ft. / 18 hex)",
+    "evade": 7,
+    "hardiness": 6,
+    "integrity": 3,
+    "damage": "1d10"
+  },
+  "effects": [],
+  "folder": "d1c2298b8cf6dda7",
+  "flags": {
+    "ogregatefoundry": {
+      "categoryLabel": "Mount or Transport"
+    }
+  },
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!1e0a2cd29c74585f"
+}

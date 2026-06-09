@@ -1,0 +1,33 @@
+{
+  "_id": "aec3fced5ad53b44",
+  "name": "Needle",
+  "type": "weapon",
+  "img": "icons/weapons/swords/sword-broad-serrated-blue.webp",
+  "system": {
+    "description": "Thrown 5 feet. Good poison medium; multiple needles increase damage.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "5",
+    "category": "lightMelee",
+    "attackSkill": "lightMelee",
+    "targetDefense": "parry",
+    "damageSkill": "",
+    "damageDice": 0,
+    "accuracyModifier": 0,
+    "equipped": false,
+    "parryBonus": 0,
+    "evadeBonus": 0,
+    "muscleRequirement": 0,
+    "lethal": false,
+    "damageType": "none",
+    "reach": "normal",
+    "openDamage": false,
+    "qualities": "Thrown 5 feet. Good poison medium; multiple needles increase damage."
+  },
+  "effects": [],
+  "folder": "6fbd3a79188d14a1",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!aec3fced5ad53b44"
+}

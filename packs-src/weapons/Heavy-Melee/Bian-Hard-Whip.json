@@ -1,0 +1,33 @@
+{
+  "_id": "d83bbb12dbb512ea",
+  "name": "Bian (Hard Whip)",
+  "type": "weapon",
+  "img": "icons/weapons/swords/sword-broad-serrated-blue.webp",
+  "system": {
+    "description": "Aimed Strike Total Success stuns for one round. Attacks against objects use Open Damage.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "450",
+    "category": "heavyMelee",
+    "attackSkill": "heavyMelee",
+    "targetDefense": "parry",
+    "damageSkill": "physical.muscle",
+    "damageDice": 2,
+    "accuracyModifier": -1,
+    "equipped": false,
+    "parryBonus": 0,
+    "evadeBonus": 0,
+    "muscleRequirement": 2,
+    "lethal": true,
+    "damageType": "blunt",
+    "reach": "none",
+    "openDamage": false,
+    "qualities": "Aimed Strike Total Success stuns for one round. Attacks against objects use Open Damage."
+  },
+  "effects": [],
+  "folder": "81fc96cca1717e35",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!d83bbb12dbb512ea"
+}

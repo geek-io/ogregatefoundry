@@ -29,6 +29,33 @@ function effectiveRanks(entry) {
   return Math.max(0, Number(entry?.ranks ?? 0) - Number(entry?.drain ?? 0));
 }
 
+function getExpertiseEntries(entry) {
+  const entries = Array.from(entry?.expertiseList ?? [])
+    .map((expertise) => ({
+      name: String(expertise?.name ?? "").trim(),
+      note: String(expertise?.note ?? "").trim()
+    }))
+    .filter((expertise) => expertise.name);
+  const legacyName = String(entry?.expertise ?? "").trim();
+  if (legacyName && !entries.some((expertise) => expertise.name === legacyName)) {
+    entries.unshift({
+      name: legacyName,
+      note: String(entry?.expertiseNote ?? "").trim()
+    });
+  }
+  return entries;
+}
+
+function matchingWeaponExpertise(skill, weapon) {
+  const weaponKey = normalizeKey(weapon?.name ?? "");
+  if (!weaponKey) return null;
+  return getExpertiseEntries(skill).find((expertise) => {
+    const expertiseKey = normalizeKey(expertise.name);
+    if (!expertiseKey) return false;
+    return expertiseKey === weaponKey || weaponKey.includes(expertiseKey) || expertiseKey.includes(weaponKey);
+  }) ?? null;
+}
+
 function systemRule(key) {
   return game.settings.get(OGRE_GATE.id, key);
 }
@@ -599,9 +626,9 @@ export class OgreGateActor extends Actor {
 
   getEquippedArmorEffects() {
     return this.items
-      .filter((item) => item.type === "armor" && item.system.equipped)
+      .filter((item) => ["armor", "weapon"].includes(item.type) && item.system.equipped)
       .reduce((effects, item) => {
-        effects.speedPenalty += Number(item.system.speedPenalty ?? item.system.penalty ?? 0);
+        if (item.type === "armor") effects.speedPenalty += Number(item.system.speedPenalty ?? item.system.penalty ?? 0);
         effects.parryBonus += Number(item.system.parryBonus ?? 0);
         effects.evadeBonus += Number(item.system.evadeBonus ?? 0);
         return effects;
@@ -1549,10 +1576,13 @@ export class OgreGateActor extends Actor {
     const actionModifier = Number(action.skill ?? 0);
     const muscle = this.getSkill("physical", "muscle");
     const muscleRequirementPenalty = Number(muscle?.ranks ?? 0) < Number(item.system.muscleRequirement ?? 0) ? -1 : 0;
+    const weaponExpertise = matchingWeaponExpertise(skill, item);
+    const expertiseModifier = weaponExpertise ? 1 : 0;
     const totalModifier = skill.modifier
       + actionModifier
       + Number(item.system.accuracyModifier ?? 0)
       + Number(attackMode.attack ?? 0)
+      + expertiseModifier
       + raceModifier
       + afflictionModifier
       + muscleRequirementPenalty
@@ -1569,6 +1599,7 @@ export class OgreGateActor extends Actor {
       mode: [
         attackMode.label,
         Number(item.system.accuracyModifier ?? 0) ? `Accuracy ${Number(item.system.accuracyModifier) > 0 ? "+" : ""}${item.system.accuracyModifier}d10` : "",
+        weaponExpertise ? `Expertise: ${weaponExpertise.name} +1d10` : "",
         raceModifier ? `Race ${raceModifier > 0 ? "+" : ""}${raceModifier}d10` : "",
         afflictionModifier ? `Affliction ${afflictionModifier}d10` : "",
         `Reach: ${OGRE_GATE.reachCategories[item.system.reach] ?? item.system.reach}`,
@@ -1581,7 +1612,9 @@ export class OgreGateActor extends Actor {
       tn: options.tn ?? 6,
       deadlyTens: systemRule("deadlyTens"),
       deepPenalties: systemRule("deepPenalties"),
-      rollMode: options.rollMode
+      rollMode: options.rollMode,
+      itemId: item.id,
+      itemUuid: item.uuid
     });
     if (preparedStrikeReady) await this.clearPreparedStrike();
     return message;
@@ -1597,13 +1630,20 @@ export class OgreGateActor extends Actor {
     const damageSkillKey = item.system.damageSkill;
     let skillRanks = 0;
     let missingDamageSkill = "";
+    let damageGroupKey = "physical";
+    let resolvedDamageSkillKey = damageSkillKey;
     if (damageSkillKey) {
-      const skillMatch = this.findSkillPath(`physical.${damageSkillKey}`) ?? this.findSkillPath(damageSkillKey);
+      const skillMatch = this.findSkillPath(damageSkillKey) ?? this.findSkillPath(`physical.${damageSkillKey}`);
       skillRanks = effectiveRanks(skillMatch?.skill);
-      if (!skillMatch) missingDamageSkill = OGRE_GATE.skillGroups.physical.skills[damageSkillKey] ?? damageSkillKey;
+      if (skillMatch) {
+        damageGroupKey = skillMatch.groupKey;
+        resolvedDamageSkillKey = skillMatch.skillKey;
+      } else {
+        missingDamageSkill = OGRE_GATE.skillGroups.physical.skills[damageSkillKey] ?? damageSkillKey;
+      }
     }
-    const substanceDamageModifier = this.getActiveSubstanceSkillModifier("physical", damageSkillKey);
-    const afflictionDamageModifier = this.getAfflictionSkillModifier("physical");
+    const substanceDamageModifier = this.getActiveSubstanceSkillModifier(damageGroupKey, resolvedDamageSkillKey);
+    const afflictionDamageModifier = this.getAfflictionSkillModifier(damageGroupKey);
 
     const attackMode = OGRE_GATE.attackModes[this.system.combat.attackMode] ?? OGRE_GATE.attackModes.normal;
     const controlledStrike = Boolean(this.system.combat.controlledStrike);

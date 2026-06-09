@@ -533,6 +533,7 @@
           <label data-tooltip="{{help.bonusSkillPoints}}">Manual Bonus Skill Points <input type="number" name="system.creation.bonusSkillPoints" value="{{system.creation.bonusSkillPoints}}" min="0" /></label>
           <div class="creation-actions">
             <button type="button" data-action="apply-creation-defaults" data-tooltip="{{help.applyCreationDefaults}}">Apply Creation Defaults</button>
+            <button type="button" data-action="add-starter-gear" data-tooltip="{{help.addStarterGear}}">Add Starter Gear</button>
             <button type="button" data-action="post-creation-summary" data-tooltip="{{help.postCreationSummary}}">Post Summary</button>
           </div>
         </section>
@@ -764,6 +765,12 @@
         </section>
         <section class="panel wide">
           <h2>Equipment</h2>
+          <div class="equipment-summary">
+            <div class="metric-row"><span>Equipped Defense Gear</span><strong>{{equippedArmorSummary.names}}</strong></div>
+            <div class="metric-row"><span>Speed Penalty</span><strong>-{{equippedArmorSummary.speedPenalty}}d10</strong></div>
+            <div class="metric-row"><span>Parry / Evade</span><strong>+{{equippedArmorSummary.parryBonus}} / +{{equippedArmorSummary.evadeBonus}}</strong></div>
+            <div class="metric-row"><span>Damage Reductions</span><strong>Sharp {{equippedArmorSummary.reductions.sharp}}, Blunt {{equippedArmorSummary.reductions.blunt}}, Mighty {{equippedArmorSummary.reductions.mighty}}, Arrows {{equippedArmorSummary.reductions.arrow}}</strong></div>
+          </div>
           <div class="item-actions compact">
             <button type="button" data-action="create-item" data-type="equipment" data-tooltip="{{help.newGear}}">New Gear</button>
             <button type="button" data-action="create-item" data-type="substance" data-tooltip="{{help.newSubstance}}">New Substance</button>
@@ -773,13 +780,29 @@
             {{#each equipment as |item|}}
               <div class="item-line equipment-line" data-item-id="{{item.id}}" data-tooltip="Right-click to edit or delete {{item.name}}.">
                 <span>{{item.name}}</span>
-                <span>{{#if (eq item.type "substance")}}{{item.system.substanceType}}{{else}}{{item.type}}{{/if}}</span>
+                <span>{{item.categoryLabel}}</span>
+                <span>
+                  {{#if item.status}}
+                    {{item.status}}
+                  {{else if item.quantity}}
+                    Qty {{item.quantity}}
+                  {{else if item.cost}}
+                    Cost {{item.cost}}
+                  {{/if}}
+                </span>
                 {{#if (eq item.type "weapon")}}
                   <button type="button" data-action="roll-weapon-attack" data-item-id="{{item.id}}" data-tooltip="{{../help.weaponAttack}}">Attack</button>
                   <button type="button" data-action="roll-weapon-damage" data-item-id="{{item.id}}" data-tooltip="{{../help.weaponDamage}}">Damage</button>
+                  <button type="button" data-action="toggle-weapon-equipped" data-item-id="{{item.id}}" data-tooltip="Wield or sheathe {{item.name}}. Wielded weapons can add Parry or Evade bonuses.">{{item.equipLabel}}</button>
                 {{else if (eq item.type "substance")}}
-                  <span>Qty {{item.system.quantity}}</span>
                   <button type="button" data-action="apply-substance" data-item-id="{{item.id}}" data-tooltip="Consume one dose and apply this substance's rules effect.">Use</button>
+                  <span></span>
+                {{else if (eq item.type "armor")}}
+                  <button type="button" data-action="toggle-armor-equipped" data-item-id="{{item.id}}" data-tooltip="Equip or unequip {{item.name}}. Equipped armor and shields affect Speed, Parry, Evade, and damage reduction helpers.">{{item.equipLabel}}</button>
+                  <span></span>
+                {{else if item.isTransport}}
+                  <button type="button" data-action="roll-transport-control" data-item-id="{{item.id}}" data-tooltip="{{../help.transportControl}}">{{item.transportSkill}}</button>
+                  <button type="button" data-action="post-transport-stats" data-item-id="{{item.id}}" data-tooltip="{{../help.transportStats}}">Stats</button>
                 {{else}}
                   <span></span>
                   <span></span>

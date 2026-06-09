@@ -1,4 +1,5 @@
 import { OGRE_GATE } from "../config.mjs";
+import { GOODS_CATALOG, MOUNT_TRANSPORT_CATALOG, WEAPON_CATALOG } from "../content/equipment-catalog.mjs";
 import { prepareCharacterCreation } from "../rules/character-creation.mjs";
 
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -49,6 +50,7 @@ const ACTOR_HELP = {
   ironHeroes: "Uses the Iron Heroes Health formula: Qi x 3 + 3.",
   bonusSkillPoints: "Manual extra skill points added to creation budget checks.",
   applyCreationDefaults: "Applies starting Qi, money, and race-granted ranks where this system can automate them.",
+  addStarterGear: "Choose and add the Chapter 5 starting equipment bundle: one weapon, one set of clothes, and one other item.",
   postCreationSummary: "Posts the current creation checks and race/primary group summary to chat.",
   newFlaw: "Create an embedded Flaw item. Drag/drop flaw items onto the sheet to add them too.",
   newSkill: "Create an embedded Skill item in this group. Drag/drop Skills items onto the sheet to add them too.",
@@ -60,6 +62,8 @@ const ACTOR_HELP = {
   equipmentDrop: "Drop weapon, armor, equipment, and substance items here. Right-click an item to edit or delete it.",
   editItem: "Open this embedded item for editing.",
   deleteItem: "Remove this embedded item from the actor.",
+  transportControl: "Roll Ride or Sail against this transport's Performance Rating for risky maneuvers or exceeding Handling Speed.",
+  transportStats: "Post this mount or transport's Chapter 5 combat and travel stats to chat.",
   rollTurnOrder: "Roll Speed for turn order, including race and situational dice modifiers.",
   falling: "Roll falling damage for the listed distance.",
   fire: "Roll fire damage for the selected fire size.",
@@ -81,6 +85,98 @@ function signed(value, suffix = "") {
   const number = Number(value ?? 0);
   if (!number) return "0";
   return `${number > 0 ? "+" : ""}${number}${suffix}`;
+}
+
+function qualifiedDamageSkill(skillKey = "") {
+  const key = String(skillKey ?? "").trim();
+  if (!key) return "";
+  if (key.includes(".")) return key;
+  if (["athletics", "endurance", "muscle", "speed", "swim", "ride", "sail"].includes(key)) return `physical.${key}`;
+  if (["reason", "reasoning"].includes(key)) return "mental.reasoning";
+  return key;
+}
+
+function starterWeaponData(entry) {
+  const attackSkill = entry.attackSkill ?? entry.category;
+  return {
+    name: entry.name,
+    type: "weapon",
+    system: {
+      description: entry.description ?? entry.qualities ?? "",
+      source: "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+      cost: entry.cost ?? "",
+      category: entry.category,
+      attackSkill,
+      targetDefense: entry.targetDefense ?? OGRE_GATE.combatSkillDefense[attackSkill] ?? "parry",
+      damageSkill: qualifiedDamageSkill(entry.damageSkill ?? "physical.muscle"),
+      damageDice: Number(entry.damageDice ?? 0),
+      accuracyModifier: Number(entry.accuracyModifier ?? 0),
+      muscleRequirement: Number(entry.muscleRequirement ?? 0),
+      lethal: entry.lethal ?? true,
+      damageType: entry.damageType ?? "special",
+      reach: entry.reach ?? "normal",
+      openDamage: Boolean(entry.openDamage),
+      qualities: entry.qualities ?? ""
+    }
+  };
+}
+
+function starterEquipmentData(entry) {
+  return {
+    name: entry.name,
+    type: "equipment",
+    system: {
+      description: entry.description ?? "",
+      source: "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+      cost: entry.cost ?? "",
+      category: entry.category ?? "general",
+      quantity: 1,
+      weight: entry.weight ?? "",
+      performanceRating: Number(entry.performanceRating ?? 0),
+      handlingSpeed: entry.handlingSpeed ?? "",
+      milesPerDay: entry.milesPerDay ?? "",
+      speedScore: entry.speedScore ?? "",
+      evade: Number(entry.evade ?? 0),
+      hardiness: Number(entry.hardiness ?? 0),
+      integrity: Number(entry.integrity ?? 0),
+      damage: entry.damage ?? ""
+    }
+  };
+}
+
+function starterArmorData(key, rule) {
+  return {
+    name: rule.label,
+    type: "armor",
+    system: {
+      description: rule.notes,
+      source: "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+      cost: rule.cost,
+      armorKey: key,
+      equipped: false,
+      defenseModifier: 0,
+      penalty: rule.speedPenalty,
+      sharpReduction: rule.sharpReduction,
+      bluntReduction: rule.bluntReduction,
+      mightyReduction: rule.mightyReduction,
+      arrowReduction: rule.arrowReduction,
+      speedPenalty: rule.speedPenalty,
+      parryBonus: rule.parryBonus,
+      evadeBonus: rule.evadeBonus,
+      muscleRequirement: rule.muscleRequirement,
+      shield: Boolean(rule.shield),
+      qualities: rule.notes
+    }
+  };
+}
+
+function isWaterTransport(itemOrSystem) {
+  const name = normalizeKey(itemOrSystem?.name ?? "");
+  return ["barge", "junk"].some((key) => name.includes(key));
+}
+
+function transportControlSkill(item) {
+  return isWaterTransport(item) ? "physical.sail" : "physical.ride";
 }
 
 function getExpertiseEntries(entry) {
@@ -345,7 +441,8 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       }[actor.system.imbalance.possessionControl] ?? "Not Rolled",
       combatTechniques: actor.items.filter((item) => item.type === "combatTechnique"),
       flaws: actor.items.filter((item) => item.type === "flaw"),
-      equipment: actor.items.filter((item) => ["weapon", "armor", "equipment", "substance"].includes(item.type))
+      equipment: this.#prepareEquipment(actor),
+      equippedArmorSummary: this.#prepareEquippedArmorSummary(actor)
     };
   }
 
@@ -408,6 +505,18 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     });
     this.element.querySelectorAll("[data-action='apply-substance']").forEach((button) => {
       button.addEventListener("click", (event) => this.#onApplySubstance(event), listenerOptions);
+    });
+    this.element.querySelectorAll("[data-action='toggle-armor-equipped']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onToggleArmorEquipped(event), listenerOptions);
+    });
+    this.element.querySelectorAll("[data-action='toggle-weapon-equipped']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onToggleWeaponEquipped(event), listenerOptions);
+    });
+    this.element.querySelectorAll("[data-action='roll-transport-control']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onRollTransportControl(event), listenerOptions);
+    });
+    this.element.querySelectorAll("[data-action='post-transport-stats']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onPostTransportStats(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='roll-falling-damage']").forEach((button) => {
       button.addEventListener("click", (event) => this.#onRollFallingDamage(event), listenerOptions);
@@ -483,6 +592,9 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     });
     this.element.querySelectorAll("[data-action='apply-creation-defaults']").forEach((button) => {
       button.addEventListener("click", (event) => this.#onApplyCreationDefaults(event), listenerOptions);
+    });
+    this.element.querySelectorAll("[data-action='add-starter-gear']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onAddStarterGear(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='post-creation-summary']").forEach((button) => {
       button.addEventListener("click", (event) => this.#onPostCreationSummary(event), listenerOptions);
@@ -964,10 +1076,73 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     }));
   }
 
+  #prepareEquipment(actor) {
+    return actor.items
+      .filter((item) => ["weapon", "armor", "equipment", "substance"].includes(item.type))
+      .map((item) => {
+        const system = item.system;
+        const categoryLabel = item.type === "equipment"
+          ? OGRE_GATE.equipmentCategories[system.category] ?? system.category ?? "General"
+          : item.type === "substance"
+            ? OGRE_GATE.substanceTypes[system.substanceType] ?? "Substance"
+            : OGRE_GATE.itemTypes[item.type] ?? item.type;
+        const isTransport = item.type === "equipment" && system.category === "mountTransport";
+        const quantity = ["equipment", "substance"].includes(item.type) ? Number(system.quantity ?? 1) : null;
+        const status = item.type === "armor"
+          ? (system.equipped ? "Equipped" : "Carried")
+          : item.type === "weapon"
+            ? (system.equipped ? "Wielded" : "Carried")
+            : isTransport
+              ? `Evade ${system.evade || 0} / Hard ${system.hardiness || 0}`
+              : "";
+        const equipLabel = item.type === "armor"
+          ? (system.equipped ? "Unequip" : "Equip")
+          : item.type === "weapon"
+            ? (system.equipped ? "Sheathe" : "Wield")
+            : "";
+        const transportSkill = isTransport ? (isWaterTransport(item) ? "Sail" : "Ride") : "";
+        return {
+          id: item.id,
+          name: item.name,
+          type: item.type,
+          system,
+          categoryLabel,
+          cost: system.cost ?? "",
+          quantity,
+          status,
+          equipLabel,
+          isTransport,
+          transportSkill
+        };
+      });
+  }
+
+  #prepareEquippedArmorSummary(actor) {
+    const effects = actor.getEquippedArmorEffects();
+    const equippedArmor = actor.items.filter((item) => item.type === "armor" && item.system.equipped);
+    const wieldedWeapons = actor.items.filter((item) => item.type === "weapon" && item.system.equipped);
+    const reductions = equippedArmor.reduce((total, item) => {
+      total.sharp += Number(item.system.sharpReduction ?? 0);
+      total.blunt += Number(item.system.bluntReduction ?? 0);
+      total.mighty += Number(item.system.mightyReduction ?? 0);
+      total.arrow += Number(item.system.arrowReduction ?? 0);
+      return total;
+    }, { sharp: 0, blunt: 0, mighty: 0, arrow: 0 });
+    const defenseGear = [...equippedArmor, ...wieldedWeapons]
+      .filter((item) => item.type === "armor" || Number(item.system.parryBonus ?? 0) || Number(item.system.evadeBonus ?? 0));
+    return {
+      names: defenseGear.map((item) => item.name).join(", ") || "None",
+      speedPenalty: effects.speedPenalty,
+      parryBonus: effects.parryBonus,
+      evadeBonus: effects.evadeBonus,
+      reductions
+    };
+  }
+
   #defenseTooltip(definition, defense, armorBonus = 0, substanceModifier = 0, rating = defense.rating) {
     return [
       `Roll ${definition.label}: ranks ${defense.ranks} + modifier ${signed(defense.modifier, "d10")}.`,
-      `Rating is Base ${defense.base} + Rank ${defense.ranks} + Qi ${defense.qiBonus} + Mod ${signed(defense.modifier)}${defense.drain ? ` - Drain ${defense.drain}` : ""}${armorBonus ? ` + Armor/Shield ${armorBonus}` : ""}${substanceModifier ? ` + Active Effect ${substanceModifier}` : ""} = ${rating}.`,
+      `Rating is Base ${defense.base} + Rank ${defense.ranks} + Qi ${defense.qiBonus} + Mod ${signed(defense.modifier)}${defense.drain ? ` - Drain ${defense.drain}` : ""}${armorBonus ? ` + Defense Gear ${armorBonus}` : ""}${substanceModifier ? ` + Active Effect ${substanceModifier}` : ""} = ${rating}.`,
       definition.relevant?.length ? `Relevant against: ${definition.relevant.join(", ")}.` : ""
     ].filter(Boolean).join(" ");
   }
@@ -1480,6 +1655,78 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     return this.actor.useSubstanceItem(item);
   }
 
+  async #onToggleArmorEquipped(event) {
+    event.preventDefault();
+    this.#captureSheetScroll();
+    await this.#submitActorFields();
+    const item = this.actor.items.get(event.currentTarget.dataset.itemId);
+    if (!item || item.type !== "armor") return null;
+    const equipped = !item.system.equipped;
+    await item.update({ "system.equipped": equipped });
+    ui.notifications.info(`${item.name} ${equipped ? "equipped" : "unequipped"}.`);
+    return item;
+  }
+
+  async #onToggleWeaponEquipped(event) {
+    event.preventDefault();
+    this.#captureSheetScroll();
+    await this.#submitActorFields();
+    const item = this.actor.items.get(event.currentTarget.dataset.itemId);
+    if (!item || item.type !== "weapon") return null;
+    const equipped = !item.system.equipped;
+    await item.update({ "system.equipped": equipped });
+    ui.notifications.info(`${item.name} ${equipped ? "wielded" : "sheathed"}.`);
+    return item;
+  }
+
+  async #onRollTransportControl(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    const item = this.actor.items.get(event.currentTarget.dataset.itemId);
+    if (!item || item.type !== "equipment" || item.system.category !== "mountTransport") return null;
+
+    const skillRef = transportControlSkill(item);
+    const skill = this.actor.findSkillPath(skillRef);
+    if (!skill) {
+      ui.notifications.warn(`${this.actor.name} needs the ${isWaterTransport(item) ? "Sail" : "Ride"} Skill item to control ${item.name}.`);
+      return null;
+    }
+
+    const tn = await this.#promptTargetNumber(`${item.name} Control`, Number(item.system.performanceRating ?? 6) || 6);
+    if (!tn) return null;
+    const extra = `
+      <div class="ogre-gate-chat-row"><strong>Transport</strong><span>${escapeHtml(item.name)}</span></div>
+      <div class="ogre-gate-chat-row"><strong>Performance Rating</strong><span>${Number(item.system.performanceRating ?? 0) || "Not set"}</span></div>
+      <div class="ogre-gate-chat-row"><strong>Handling Speed</strong><span>${escapeHtml(item.system.handlingSpeed || "Not set")}</span></div>
+      <div class="ogre-gate-chat-row"><strong>Speed Score</strong><span>${escapeHtml(item.system.speedScore || "Not set")}</span></div>
+    `;
+    return skill.item
+      ? this.actor.rollSkillItem(skill.item, { label: `${item.name} Control (${isWaterTransport(item) ? "Sail" : "Ride"})`, tn, extra })
+      : this.actor.rollSkill(skill.groupKey, skill.skillKey, { label: `${item.name} Control (${isWaterTransport(item) ? "Sail" : "Ride"})`, tn, extra });
+  }
+
+  async #onPostTransportStats(event) {
+    event.preventDefault();
+    const item = this.actor.items.get(event.currentTarget.dataset.itemId);
+    if (!item || item.type !== "equipment" || item.system.category !== "mountTransport") return null;
+    const system = item.system;
+    return ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+      content: `
+        <section class="ogre-gate-chat-card">
+          <h3>${escapeHtml(item.name)}</h3>
+          <div class="ogre-gate-chat-row"><strong>Control Skill</strong><span>${isWaterTransport(item) ? "Sail" : "Ride"} vs Performance ${Number(system.performanceRating ?? 0) || "Not set"}</span></div>
+          <div class="ogre-gate-chat-row"><strong>Handling Speed</strong><span>${escapeHtml(system.handlingSpeed || "Not set")}</span></div>
+          <div class="ogre-gate-chat-row"><strong>Miles per Day</strong><span>${escapeHtml(system.milesPerDay || "Not set")}</span></div>
+          <div class="ogre-gate-chat-row"><strong>Speed Score</strong><span>${escapeHtml(system.speedScore || "Not set")}</span></div>
+          <div class="ogre-gate-chat-row"><strong>Evade / Hardiness</strong><span>${Number(system.evade ?? 0) || "Not set"} / ${Number(system.hardiness ?? 0) || "Not set"}</span></div>
+          <div class="ogre-gate-chat-row"><strong>Integrity / Health</strong><span>${Number(system.integrity ?? 0) || "Not set"}</span></div>
+          <div class="ogre-gate-chat-row"><strong>Damage</strong><span>${escapeHtml(system.damage || "None")}</span></div>
+        </section>
+      `
+    });
+  }
+
   async #onExpireActiveSubstance(event) {
     event.preventDefault();
     await this.#submitActorFields();
@@ -1585,6 +1832,110 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     const count = Object.keys(updates).length;
     if (count) ui.notifications.info(`Applied ${count} creation default(s).`);
     else ui.notifications.info("Creation defaults were already satisfied.");
+  }
+
+  async #onAddStarterGear(event) {
+    event.preventDefault();
+    this.#captureSheetScroll();
+    await this.#submitActorFields();
+
+    const hasWeapon = this.actor.items.some((item) => item.type === "weapon");
+    const hasClothing = this.actor.items.some((item) => item.type === "equipment" && item.system.category === "clothing");
+    const hasOther = this.actor.items.some((item) => {
+      if (item.type === "weapon") return false;
+      if (!["armor", "equipment", "substance"].includes(item.type)) return false;
+      return item.type !== "equipment" || item.system.category !== "clothing";
+    });
+    const clothingOptions = GOODS_CATALOG.filter((entry) => entry.category === "clothing");
+    const otherOptions = [
+      ...GOODS_CATALOG.filter((entry) => entry.category !== "clothing").map((entry) => ({
+        label: `${OGRE_GATE.equipmentCategories[entry.category] ?? "Goods"}: ${entry.name}${entry.cost ? ` (${entry.cost})` : ""}`,
+        itemData: starterEquipmentData(entry)
+      })),
+      ...MOUNT_TRANSPORT_CATALOG.map((entry) => ({
+        label: `Mount or Transport: ${entry.name}${entry.cost ? ` (${entry.cost})` : ""}`,
+        itemData: starterEquipmentData({ ...entry, category: "mountTransport" })
+      })),
+      ...Object.entries(OGRE_GATE.armorRules)
+        .filter(([key]) => key !== "custom")
+        .map(([key, rule]) => ({
+          label: `${rule.shield ? "Shield" : "Armor"}: ${rule.label}${rule.cost ? ` (${rule.cost})` : ""}`,
+          itemData: starterArmorData(key, rule)
+        }))
+    ];
+    const weaponDefault = Math.max(0, WEAPON_CATALOG.findIndex((entry) => entry.name === "Jian"));
+    const clothingDefault = Math.max(0, clothingOptions.findIndex((entry) => entry.name === "Wrap Robe, Cotton"));
+    const otherDefault = Math.max(0, otherOptions.findIndex((entry) => entry.itemData.name === "Blanket"));
+
+    const optionHtml = (entries, selectedIndex, labelAccessor = (entry) => entry.name) => entries.map((entry, index) => {
+      const label = labelAccessor(entry);
+      return `<option value="${index}" ${index === selectedIndex ? "selected" : ""}>${escapeHtml(label)}</option>`;
+    }).join("");
+
+    return new Promise((resolve) => {
+      new Dialog({
+        title: "Add Starter Gear",
+        content: `
+          <form class="ogre-gate-dialog">
+            <p class="form-note">Chapter 5 starting equipment includes one weapon, one set of clothes, and one additional item.</p>
+            <label><input type="checkbox" name="addWeapon" ${hasWeapon ? "" : "checked"} /> Weapon
+              <select name="weaponIndex">
+                ${optionHtml(WEAPON_CATALOG, weaponDefault, (entry) => `${entry.name}${entry.cost ? ` (${entry.cost})` : ""}`)}
+              </select>
+            </label>
+            <label><input type="checkbox" name="addClothing" ${hasClothing ? "" : "checked"} /> Clothes
+              <select name="clothingIndex">
+                ${optionHtml(clothingOptions, clothingDefault, (entry) => `${entry.name}${entry.cost ? ` (${entry.cost})` : ""}`)}
+              </select>
+            </label>
+            <label><input type="checkbox" name="addOther" ${hasOther ? "" : "checked"} /> Other Item
+              <select name="otherIndex">
+                ${optionHtml(otherOptions, otherDefault, (entry) => entry.label)}
+              </select>
+            </label>
+          </form>
+        `,
+        buttons: {
+          add: {
+            label: "Add Gear",
+            callback: async (html) => {
+              this.#captureSheetScroll();
+              const root = html instanceof HTMLElement ? html : html?.[0];
+              const itemData = [];
+              if (root?.querySelector("[name='addWeapon']")?.checked) {
+                const entry = WEAPON_CATALOG[Number(root.querySelector("[name='weaponIndex']")?.value ?? weaponDefault)];
+                if (entry) itemData.push(starterWeaponData(entry));
+              }
+              if (root?.querySelector("[name='addClothing']")?.checked) {
+                const entry = clothingOptions[Number(root.querySelector("[name='clothingIndex']")?.value ?? clothingDefault)];
+                if (entry) itemData.push(starterEquipmentData(entry));
+              }
+              if (root?.querySelector("[name='addOther']")?.checked) {
+                const entry = otherOptions[Number(root.querySelector("[name='otherIndex']")?.value ?? otherDefault)];
+                if (entry) itemData.push(entry.itemData);
+              }
+
+              const existing = new Set(this.actor.items.map((item) => `${item.type}:${normalizeKey(item.name)}`));
+              const uniqueItems = itemData.filter((data) => !existing.has(`${data.type}:${normalizeKey(data.name)}`));
+              if (!uniqueItems.length) {
+                ui.notifications.info("Selected starter gear is already on this actor.");
+                resolve(false);
+                return;
+              }
+              await this.actor.createEmbeddedDocuments("Item", uniqueItems);
+              ui.notifications.info(`Added ${uniqueItems.length} starter gear item(s) to ${this.actor.name}.`);
+              resolve(true);
+            }
+          },
+          cancel: {
+            label: "Cancel",
+            callback: () => resolve(false)
+          }
+        },
+        default: "add",
+        close: () => resolve(false)
+      }).render(true);
+    });
   }
 
   async #onPostCreationSummary(event) {

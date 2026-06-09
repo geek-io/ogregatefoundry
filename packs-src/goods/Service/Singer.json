@@ -1,0 +1,33 @@
+{
+  "_id": "506da216bcc04a60",
+  "name": "Singer",
+  "type": "equipment",
+  "img": "icons/containers/bags/pack-leather-white-tan.webp",
+  "system": {
+    "description": "",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "5 per song",
+    "category": "service",
+    "quantity": 1,
+    "weight": "",
+    "performanceRating": 0,
+    "handlingSpeed": "",
+    "milesPerDay": "",
+    "speedScore": "",
+    "evade": 0,
+    "hardiness": 0,
+    "integrity": 0,
+    "damage": ""
+  },
+  "effects": [],
+  "folder": "40687b3accef103a",
+  "flags": {
+    "ogregatefoundry": {
+      "categoryLabel": "Service"
+    }
+  },
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!506da216bcc04a60"
+}

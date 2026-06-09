@@ -1,0 +1,33 @@
+{
+  "_id": "eda44a0424c1edab",
+  "name": "Paints and Inks",
+  "type": "equipment",
+  "img": "icons/containers/bags/pack-leather-white-tan.webp",
+  "system": {
+    "description": "Writing and art substances of varied quality and color. General creation TN 6.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "Varies",
+    "category": "alchemical",
+    "quantity": 1,
+    "weight": "",
+    "performanceRating": 0,
+    "handlingSpeed": "",
+    "milesPerDay": "",
+    "speedScore": "",
+    "evade": 0,
+    "hardiness": 0,
+    "integrity": 0,
+    "damage": ""
+  },
+  "effects": [],
+  "folder": "20bf6f2bd2a97bfb",
+  "flags": {
+    "ogregatefoundry": {
+      "categoryLabel": "Alchemical"
+    }
+  },
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!eda44a0424c1edab"
+}

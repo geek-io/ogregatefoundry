@@ -1,0 +1,33 @@
+{
+  "_id": "0fd9b249fd5d1b77",
+  "name": "Chain Whip",
+  "type": "weapon",
+  "img": "icons/weapons/swords/sword-broad-serrated-blue.webp",
+  "system": {
+    "description": "Blunt or Sharp. Reach 10 feet / Long Reach.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "370",
+    "category": "mediumMelee",
+    "attackSkill": "mediumMelee",
+    "targetDefense": "parry",
+    "damageSkill": "physical.speed",
+    "damageDice": 1,
+    "accuracyModifier": -1,
+    "equipped": false,
+    "parryBonus": 0,
+    "evadeBonus": 0,
+    "muscleRequirement": 0,
+    "lethal": true,
+    "damageType": "special",
+    "reach": "long",
+    "openDamage": false,
+    "qualities": "Blunt or Sharp. Reach 10 feet / Long Reach."
+  },
+  "effects": [],
+  "folder": "1b96bf164893ca11",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!0fd9b249fd5d1b77"
+}

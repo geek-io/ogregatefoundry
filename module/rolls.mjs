@@ -145,7 +145,7 @@ export class OgreGateRoll {
     return { message, outcome, results, selected: outcome.selected };
   }
 
-  static async attack({ actor, label = "Attack", ranks, modifier = 0, defense = "Parry", mode = "", tn = 6, deadlyTens = false, deepPenalties = false, rollMode } = {}) {
+  static async attack({ actor, label = "Attack", ranks, modifier = 0, defense = "Parry", mode = "", tn = 6, deadlyTens = false, deepPenalties = false, rollMode, itemId = "", itemUuid = "" } = {}) {
     const pool = this.resolvePool(ranks, modifier, { deepPenalties });
     const roll = await new Roll(pool.formula).evaluate();
     const results = getDiceResults(roll);
@@ -156,6 +156,7 @@ export class OgreGateRoll {
       ${mode ? `<div class="ogre-gate-chat-row"><strong>Mode</strong><span>${mode}</span></div>` : ""}
       <div class="ogre-gate-chat-row"><strong>Defense</strong><span>${defense}</span></div>
       <div class="ogre-gate-chat-row"><strong>Damage Bonus</strong><span>+${damageBonus}d10</span></div>
+      ${itemId || itemUuid ? `<button type="button" class="ogre-gate-chat-button" data-action="ogre-roll-weapon-damage" data-actor-uuid="${actor?.uuid ?? ""}" data-actor-id="${actor?.id ?? ""}" data-item-id="${itemId}" data-item-uuid="${itemUuid}" data-bonus="${damageBonus}">Roll Damage${damageBonus ? ` (+${damageBonus}d10)` : ""}</button>` : ""}
       ${damageBonus ? `<button type="button" class="ogre-gate-chat-button" data-action="ogre-bank-damage-bonus" data-actor-uuid="${actor?.uuid ?? ""}" data-actor-id="${actor?.id ?? ""}" data-bonus="${damageBonus}">Use +${damageBonus}d10 Damage Bonus</button>` : ""}
       ${deadlyWounds ? `<div class="ogre-gate-chat-row"><strong>Deadly 10s</strong><span>${deadlyWounds} extra Wound(s)</span></div>` : ""}
     `;

@@ -1,0 +1,33 @@
+{
+  "_id": "d940ab9f1d3bc748",
+  "name": "Pear Blossom Wine",
+  "type": "equipment",
+  "img": "icons/containers/bags/pack-leather-white-tan.webp",
+  "system": {
+    "description": "Sweet spring wine made when pear flowers bloom. Traditional cup: jade.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "",
+    "category": "foodDrink",
+    "quantity": 1,
+    "weight": "",
+    "performanceRating": 0,
+    "handlingSpeed": "",
+    "milesPerDay": "",
+    "speedScore": "",
+    "evade": 0,
+    "hardiness": 0,
+    "integrity": 0,
+    "damage": ""
+  },
+  "effects": [],
+  "folder": "981e9f474ce194c3",
+  "flags": {
+    "ogregatefoundry": {
+      "categoryLabel": "Food and Drink"
+    }
+  },
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!d940ab9f1d3bc748"
+}

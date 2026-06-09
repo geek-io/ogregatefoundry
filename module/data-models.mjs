@@ -415,6 +415,9 @@ export class OgreGateWeaponData extends OgreGateBaseItemData {
       damageSkill: textField("muscle"),
       damageDice: numberField(1, { min: -1, max: 10 }),
       accuracyModifier: numberField(0, { min: -10, max: 10 }),
+      equipped: new BooleanField({ required: true, initial: false }),
+      parryBonus: numberField(0, { min: 0, max: 10 }),
+      evadeBonus: numberField(0, { min: 0, max: 10 }),
       muscleRequirement: numberField(0, { min: 0, max: 10 }),
       lethal: new BooleanField({ required: true, initial: true }),
       damageType: textField("sharp"),
@@ -451,8 +454,17 @@ export class OgreGateEquipmentData extends OgreGateBaseItemData {
   static defineSchema() {
     return {
       ...super.defineSchema(),
+      category: textField("general"),
       quantity: numberField(1, { min: 0 }),
-      weight: textField("")
+      weight: textField(""),
+      performanceRating: numberField(0, { min: 0, max: 20 }),
+      handlingSpeed: textField(""),
+      milesPerDay: textField(""),
+      speedScore: textField(""),
+      evade: numberField(0, { min: 0, max: 20 }),
+      hardiness: numberField(0, { min: 0, max: 20 }),
+      integrity: numberField(0, { min: 0, max: 99 }),
+      damage: textField("")
     };
   }
 }

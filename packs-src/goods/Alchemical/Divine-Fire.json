@@ -1,0 +1,33 @@
+{
+  "_id": "e85ab394b0f017fc",
+  "name": "Divine Fire",
+  "type": "equipment",
+  "img": "icons/containers/bags/pack-leather-white-tan.webp",
+  "system": {
+    "description": "Combustible powder used in firelances or fireworks. One pound creates a 10-foot explosion dealing 3d10 Open Damage; each additional pound adds 10 feet of radius. Trade (Alchemy) TN 9.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "800 per duo",
+    "category": "alchemical",
+    "quantity": 1,
+    "weight": "",
+    "performanceRating": 0,
+    "handlingSpeed": "",
+    "milesPerDay": "",
+    "speedScore": "",
+    "evade": 0,
+    "hardiness": 0,
+    "integrity": 0,
+    "damage": ""
+  },
+  "effects": [],
+  "folder": "20bf6f2bd2a97bfb",
+  "flags": {
+    "ogregatefoundry": {
+      "categoryLabel": "Alchemical"
+    }
+  },
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!e85ab394b0f017fc"
+}

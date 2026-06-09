@@ -47,6 +47,18 @@ function countCreationFlaws(actor) {
   }).length;
 }
 
+function countStartingClothing(actor) {
+  return actor.items.filter((item) => item.type === "equipment" && item.system.category === "clothing").length;
+}
+
+function countStartingOtherItems(actor) {
+  return actor.items.filter((item) => {
+    if (item.type === "weapon") return false;
+    if (!["armor", "equipment", "substance"].includes(item.type)) return false;
+    return item.type !== "equipment" || item.system.category !== "clothing";
+  }).length;
+}
+
 function getOpenSkillBaseKey(skillKey) {
   return skillKey.split(/[.:]/)[0].replace(/[0-9]+$/, "");
 }
@@ -175,6 +187,9 @@ export function prepareCharacterCreation(actor) {
   const kungFuCount = countItems(actor, "technique");
   const combatTechniqueCount = countItems(actor, "combatTechnique");
   const creationFlawCount = countCreationFlaws(actor);
+  const startingWeaponCount = countItems(actor, "weapon");
+  const startingClothingCount = countStartingClothing(actor);
+  const startingOtherItemCount = countStartingOtherItems(actor);
   const disciplineRanks = getDisciplineRanks(actor);
   const defenseQiBonus = getDefenseQiBonus(actor);
   const optionalRaceNeedsApproval = creation.race && creation.race !== "human" && !creation.optionalRaceApproved;
@@ -206,6 +221,9 @@ export function prepareCharacterCreation(actor) {
     buildCheck("Qi defense dots", defenseQiBonus, actor.system.qi.rank),
     buildCheck("Skill point overage covered by flaws", totalOverage, flawPoints, { mode: "max", detail: "Flaw item values plus manual bonus points." }),
     buildCheck("Starting spade coins", actor.system.money.spades, OGRE_GATE.creation.startingSpadeCoins, { mode: "min" }),
+    buildCheck("Starting weapon", startingWeaponCount, 1, { mode: "min", detail: "Chapter 5 starting equipment includes one weapon." }),
+    buildCheck("Starting clothes", startingClothingCount, 1, { mode: "min", detail: "Chapter 5 starting equipment includes one set of clothes." }),
+    buildCheck("Starting other item", startingOtherItemCount, 1, { mode: "min", detail: "Chapter 5 starting equipment includes one additional item." }),
     ...raceChecks
   ];
 
@@ -223,6 +241,9 @@ export function prepareCharacterCreation(actor) {
     combatTechniqueCount,
     combatTechniqueRemaining: OGRE_GATE.creation.startingCombatTechniques - combatTechniqueCount,
     creationFlawCount,
+    startingWeaponCount,
+    startingClothingCount,
+    startingOtherItemCount,
     expertiseWarnings: GROUP_KEYS.flatMap((groupKey) => getMissingExpertiseWarnings(actor, groupKey)),
     raceRule: OGRE_GATE.raceRules[creation.race] ?? OGRE_GATE.raceRules.human,
     raceRollEffects: getRaceRollEffects(actor),

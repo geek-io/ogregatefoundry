@@ -1,0 +1,33 @@
+{
+  "_id": "eef2ccda5a0e9f38",
+  "name": "Flying Guillotine",
+  "type": "weapon",
+  "img": "icons/weapons/swords/sword-broad-serrated-blue.webp",
+  "system": {
+    "description": "Rumored weapon. Up to 20 feet; traps the target's head on a successful attack.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "Special",
+    "category": "mediumMelee",
+    "attackSkill": "mediumMelee",
+    "targetDefense": "parry",
+    "damageSkill": "",
+    "damageDice": 0,
+    "accuracyModifier": -3,
+    "equipped": false,
+    "parryBonus": 0,
+    "evadeBonus": 0,
+    "muscleRequirement": 0,
+    "lethal": true,
+    "damageType": "sharp",
+    "reach": "normal",
+    "openDamage": false,
+    "qualities": "Rumored weapon. Up to 20 feet; traps the target's head on a successful attack."
+  },
+  "effects": [],
+  "folder": "1b96bf164893ca11",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!eef2ccda5a0e9f38"
+}

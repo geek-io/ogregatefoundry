@@ -1,0 +1,33 @@
+{
+  "_id": "cb071ca0a7765d6b",
+  "name": "Net",
+  "type": "weapon",
+  "img": "icons/weapons/swords/sword-broad-serrated-blue.webp",
+  "system": {
+    "description": "No Damage. Successful attack removes two Moves and imposes -1d10 on all Physical/Combat Skills; Total Success removes three Moves.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "10",
+    "category": "lightMelee",
+    "attackSkill": "lightMelee",
+    "targetDefense": "parry",
+    "damageSkill": "",
+    "damageDice": 0,
+    "accuracyModifier": -2,
+    "equipped": false,
+    "parryBonus": 0,
+    "evadeBonus": 0,
+    "muscleRequirement": 0,
+    "lethal": false,
+    "damageType": "none",
+    "reach": "normal",
+    "openDamage": false,
+    "qualities": "No Damage. Successful attack removes two Moves and imposes -1d10 on all Physical/Combat Skills; Total Success removes three Moves."
+  },
+  "effects": [],
+  "folder": "6fbd3a79188d14a1",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!cb071ca0a7765d6b"
+}

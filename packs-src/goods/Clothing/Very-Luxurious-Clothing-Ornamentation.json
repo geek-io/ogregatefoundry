@@ -1,0 +1,33 @@
+{
+  "_id": "07777f25260a466d",
+  "name": "Very Luxurious Clothing Ornamentation",
+  "type": "equipment",
+  "img": "icons/containers/bags/pack-leather-white-tan.webp",
+  "system": {
+    "description": "",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "Add +2,000-8,000",
+    "category": "clothing",
+    "quantity": 1,
+    "weight": "",
+    "performanceRating": 0,
+    "handlingSpeed": "",
+    "milesPerDay": "",
+    "speedScore": "",
+    "evade": 0,
+    "hardiness": 0,
+    "integrity": 0,
+    "damage": ""
+  },
+  "effects": [],
+  "folder": "7834892f221272e1",
+  "flags": {
+    "ogregatefoundry": {
+      "categoryLabel": "Clothing"
+    }
+  },
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!07777f25260a466d"
+}

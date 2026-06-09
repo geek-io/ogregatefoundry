@@ -1,0 +1,32 @@
+{
+  "_id": "eae8946422f36e71",
+  "name": "Cord and Plaque Armor (Ancient)",
+  "type": "armor",
+  "img": "icons/equipment/chest/breastplate-layered-steel.webp",
+  "system": {
+    "description": "Restrictive heavy armor. Protects only against mundane attacks.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "5000",
+    "armorKey": "cordPlaqueAncient",
+    "equipped": false,
+    "defenseModifier": 0,
+    "penalty": 3,
+    "sharpReduction": 2,
+    "bluntReduction": 2,
+    "mightyReduction": 0,
+    "arrowReduction": 0,
+    "speedPenalty": 3,
+    "parryBonus": 0,
+    "evadeBonus": 0,
+    "muscleRequirement": 0,
+    "shield": false,
+    "qualities": "Restrictive heavy armor. Protects only against mundane attacks."
+  },
+  "effects": [],
+  "folder": "ae7b9ba91b09b64a",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!eae8946422f36e71"
+}

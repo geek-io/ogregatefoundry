@@ -1,0 +1,33 @@
+{
+  "_id": "4e84040387a2e7cc",
+  "name": "Silver",
+  "type": "equipment",
+  "img": "icons/containers/bags/pack-leather-white-tan.webp",
+  "system": {
+    "description": "",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "1,000 per ounce",
+    "category": "tradeGood",
+    "quantity": 1,
+    "weight": "",
+    "performanceRating": 0,
+    "handlingSpeed": "",
+    "milesPerDay": "",
+    "speedScore": "",
+    "evade": 0,
+    "hardiness": 0,
+    "integrity": 0,
+    "damage": ""
+  },
+  "effects": [],
+  "folder": "f2c6cc4d37005064",
+  "flags": {
+    "ogregatefoundry": {
+      "categoryLabel": "Trade Good"
+    }
+  },
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!4e84040387a2e7cc"
+}

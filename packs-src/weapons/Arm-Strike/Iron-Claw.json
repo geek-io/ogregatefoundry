@@ -1,0 +1,33 @@
+{
+  "_id": "6e1b3e7d3a3e8ba3",
+  "name": "Iron Claw",
+  "type": "weapon",
+  "img": "icons/weapons/swords/sword-broad-serrated-blue.webp",
+  "system": {
+    "description": "Total Success damage becomes Muscle +2d10.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "10",
+    "category": "armStrike",
+    "attackSkill": "armStrike",
+    "targetDefense": "parry",
+    "damageSkill": "physical.muscle",
+    "damageDice": 0,
+    "accuracyModifier": 0,
+    "equipped": false,
+    "parryBonus": 0,
+    "evadeBonus": 0,
+    "muscleRequirement": 0,
+    "lethal": true,
+    "damageType": "sharp",
+    "reach": "none",
+    "openDamage": false,
+    "qualities": "Total Success damage becomes Muscle +2d10."
+  },
+  "effects": [],
+  "folder": "ce202c529df75343",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!6e1b3e7d3a3e8ba3"
+}

@@ -6,6 +6,24 @@ A Foundry VTT v13 game system for *The Wandering Heroes of Ogre Gate* by Bedrock
 ***This projrect uses copyright material owned by Bedrock Games, under their Bedrock Games Community Use Policy. This is not an official product of Bedrock Games.***
 
 
+# v 0.1.7
+## Equipment pass 1
+- Bug fixes
+- Added packaged Weapons and Armor/Shields compendiums from the Chapter 5 equipment tables.
+- Weapons are organized by combat skill and include attack skill, target defense, damage skill, damage dice, accuracy, reach, damage type, Muscle requirement, lethality, and special-rule notes.
+- Armor and shields are organized into Armor and Shields folders and include equipped state, damage reductions, Speed penalties, shield defense bonuses, Muscle requirement, and cost.
+- Equipment items now have a category dropdown for future goods, tools, food/drink, instruments, mounts/transport, treasure, and trade goods.
+- Gear tab inventory rows now show category/type, quantity or equipped state, and cost metadata.
+- Weapon damage rolls now resolve grouped damage skills such as Physical: Speed and Mental: Reasoning, while preserving older bare `muscle`-style weapon data.
+- Added a packaged Goods, Services, and Transport compendium covering Chapter 5 mounts, ships, vehicles, food/drink, instruments, alchemical supplies, trade goods, clothing, common goods, and services.
+- Equipment items in the Mount or Transport category now show Performance Rating, Handling Speed, Miles per Day, Speed Score, Evade, Hardiness, Integrity/Health, and Damage fields.
+- Character creation checks now warn for missing Chapter 5 starting equipment: one weapon, one set of clothes, and one additional item.
+- Creation tab now includes an Add Starter Gear dialog for selecting and adding the Chapter 5 starting weapon, clothing, and additional item without browsing compendiums manually.
+- Gear tab now shows an equipped armor/shield summary and lets armor or shield items be equipped/unequipped directly from the inventory row.
+- Mount and Transport gear rows now show Evade/Hardiness, can roll Ride or Sail control checks against Performance Rating, and can post their travel/combat stats to chat.
+- Weapon attacks now apply matching weapon Expertise from the attack Skill item, and attack chat cards include a Roll Damage button that carries total-success damage bonus dice into that roll.
+- Weapon items now include editable Wielded, Parry Bonus, and Evade Bonus fields; wielded weapon bonuses appear in the Gear tab defense summary and defense rolls.
+
 # v 0.1.6
 ## Chapter 3 foundations
 - Bug fixes
@@ -47,9 +65,6 @@ A Foundry VTT v13 game system for *The Wandering Heroes of Ogre Gate* by Bedrock
 - Technique items now support structured required Flaws and Skill-rank minimums, with use blocked for clear actor-known requirements such as Missing Limb or Medicine rank prerequisites.
 - Techniques with clear temporary-drain outcomes now show Target Drain fields, post target-locked Apply Drain chat buttons on success, and seed obvious Hardiness/Qi drain reminders in the Chapter 3 compendium.
 - Technique Target Effect reminders now cover common Chapter 3 state outcomes such as stunned, prone, drunk, passed out, paralyzed, frozen, limb injury, emotion removal, Mental Affliction prompts, and controlled actions.
-- Defense rows now show the full Defense name next to the roll abbreviation, and skill category panels can collapse to make the Main tab easier to scan.
-- Expertise entries no longer count against creation skill point budgets; the sheet still displays and warns on custom Expertise for review.
-- Main tab scroll position is preserved when changing actor fields, editing skill ranks/modifiers, adding skills, dropping skill items or folders, and saving Expertise.
 
 # v 0.1.5
 ## Chapter 2 itemization

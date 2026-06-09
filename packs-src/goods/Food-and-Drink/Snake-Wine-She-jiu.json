@@ -1,0 +1,33 @@
+{
+  "_id": "c33932204b7d15ef",
+  "name": "Snake Wine (She jiu)",
+  "type": "equipment",
+  "img": "icons/containers/bags/pack-leather-white-tan.webp",
+  "system": {
+    "description": "Rice wine infused with a snake. Lost Hardiness or Qi returns at twice the normal rate; at full Hardiness, one serving grants +1 Hardiness for one hour but inflicts 1d10 Damage. Traditional cup: wooden horn.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "",
+    "category": "foodDrink",
+    "quantity": 1,
+    "weight": "",
+    "performanceRating": 0,
+    "handlingSpeed": "",
+    "milesPerDay": "",
+    "speedScore": "",
+    "evade": 0,
+    "hardiness": 0,
+    "integrity": 0,
+    "damage": ""
+  },
+  "effects": [],
+  "folder": "981e9f474ce194c3",
+  "flags": {
+    "ogregatefoundry": {
+      "categoryLabel": "Food and Drink"
+    }
+  },
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!c33932204b7d15ef"
+}

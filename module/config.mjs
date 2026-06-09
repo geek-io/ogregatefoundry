@@ -1,3 +1,5 @@
+import { EQUIPMENT_CATEGORIES } from "./content/equipment-catalog.mjs";
+
 export const OGRE_GATE = {
   id: "ogregatefoundry",
   shortName: "Ogre Gate",
@@ -330,6 +332,7 @@ export const OGRE_GATE = {
     affliction: "Poison or Disease",
     substance: "Substance"
   },
+  equipmentCategories: EQUIPMENT_CATEGORIES,
   races: {
     human: "Human",
     kithiri: "Kithiri",

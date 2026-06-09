@@ -1,0 +1,33 @@
+{
+  "_id": "02e65e1475b736e6",
+  "name": "Axe",
+  "type": "weapon",
+  "img": "icons/weapons/swords/sword-broad-serrated-blue.webp",
+  "system": {
+    "description": "",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "430",
+    "category": "mediumMelee",
+    "attackSkill": "mediumMelee",
+    "targetDefense": "parry",
+    "damageSkill": "physical.muscle",
+    "damageDice": 1,
+    "accuracyModifier": 0,
+    "equipped": false,
+    "parryBonus": 0,
+    "evadeBonus": 0,
+    "muscleRequirement": 0,
+    "lethal": true,
+    "damageType": "sharp",
+    "reach": "normal",
+    "openDamage": false,
+    "qualities": ""
+  },
+  "effects": [],
+  "folder": "1b96bf164893ca11",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!02e65e1475b736e6"
+}

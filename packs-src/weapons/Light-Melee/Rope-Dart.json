@@ -1,0 +1,33 @@
+{
+  "_id": "4a41c7031d47bdda",
+  "name": "Rope Dart",
+  "type": "weapon",
+  "img": "icons/weapons/swords/sword-broad-serrated-blue.webp",
+  "system": {
+    "description": "Reach 20 feet / Long Reach. Accuracy penalty improves to -1d10 with 2+ Athletics ranks. Total Success may restrain or add 1 Extra Wound.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "200",
+    "category": "lightMelee",
+    "attackSkill": "lightMelee",
+    "targetDefense": "parry",
+    "damageSkill": "physical.speed",
+    "damageDice": 2,
+    "accuracyModifier": -3,
+    "equipped": false,
+    "parryBonus": 0,
+    "evadeBonus": 0,
+    "muscleRequirement": 3,
+    "lethal": true,
+    "damageType": "sharp",
+    "reach": "long",
+    "openDamage": false,
+    "qualities": "Reach 20 feet / Long Reach. Accuracy penalty improves to -1d10 with 2+ Athletics ranks. Total Success may restrain or add 1 Extra Wound."
+  },
+  "effects": [],
+  "folder": "6fbd3a79188d14a1",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!4a41c7031d47bdda"
+}

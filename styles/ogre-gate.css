@@ -599,7 +599,7 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
 }
 
 .ogre-gate .item-line.equipment-line {
-  grid-template-columns: minmax(140px, 1fr) 80px auto auto auto auto;
+  grid-template-columns: minmax(130px, 1fr) minmax(90px, 0.65fr) minmax(76px, 0.45fr) repeat(5, minmax(58px, auto));
 }
 
 .ogre-gate .equipment-drop-zone {
@@ -607,6 +607,13 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
   padding: 6px;
   border: 1px dashed var(--og-border);
   background: color-mix(in srgb, var(--og-field) 78%, transparent);
+}
+
+.ogre-gate .equipment-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(160px, 1fr));
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
 .ogre-gate .affliction-drop-zone {

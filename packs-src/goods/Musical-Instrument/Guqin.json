@@ -1,0 +1,33 @@
+{
+  "_id": "85c956b9f5938309",
+  "name": "Guqin",
+  "type": "equipment",
+  "img": "icons/containers/bags/pack-leather-white-tan.webp",
+  "system": {
+    "description": "Seven-string zither regarded as an elegant instrument.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "",
+    "category": "instrument",
+    "quantity": 1,
+    "weight": "",
+    "performanceRating": 0,
+    "handlingSpeed": "",
+    "milesPerDay": "",
+    "speedScore": "",
+    "evade": 0,
+    "hardiness": 0,
+    "integrity": 0,
+    "damage": ""
+  },
+  "effects": [],
+  "folder": "9558754928043be6",
+  "flags": {
+    "ogregatefoundry": {
+      "categoryLabel": "Musical Instrument"
+    }
+  },
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!85c956b9f5938309"
+}

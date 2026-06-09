@@ -1,0 +1,33 @@
+{
+  "_id": "f5c0acf6f05abe25",
+  "name": "Pet Cat",
+  "type": "equipment",
+  "img": "icons/containers/bags/pack-leather-white-tan.webp",
+  "system": {
+    "description": "",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "500",
+    "category": "general",
+    "quantity": 1,
+    "weight": "",
+    "performanceRating": 0,
+    "handlingSpeed": "",
+    "milesPerDay": "",
+    "speedScore": "",
+    "evade": 0,
+    "hardiness": 0,
+    "integrity": 0,
+    "damage": ""
+  },
+  "effects": [],
+  "folder": "117bb1857b599385",
+  "flags": {
+    "ogregatefoundry": {
+      "categoryLabel": "General"
+    }
+  },
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!f5c0acf6f05abe25"
+}

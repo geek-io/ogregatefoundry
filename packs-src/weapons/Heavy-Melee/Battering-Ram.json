@@ -1,0 +1,33 @@
+{
+  "_id": "78d7604116aaecd7",
+  "name": "Battering Ram",
+  "type": "weapon",
+  "img": "icons/weapons/swords/sword-broad-serrated-blue.webp",
+  "system": {
+    "description": "Damage is 1d10 per wielder.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "40",
+    "category": "heavyMelee",
+    "attackSkill": "heavyMelee",
+    "targetDefense": "parry",
+    "damageSkill": "",
+    "damageDice": 1,
+    "accuracyModifier": 0,
+    "equipped": false,
+    "parryBonus": 0,
+    "evadeBonus": 0,
+    "muscleRequirement": 1,
+    "lethal": true,
+    "damageType": "mighty",
+    "reach": "none",
+    "openDamage": false,
+    "qualities": "Damage is 1d10 per wielder."
+  },
+  "effects": [],
+  "folder": "81fc96cca1717e35",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!78d7604116aaecd7"
+}

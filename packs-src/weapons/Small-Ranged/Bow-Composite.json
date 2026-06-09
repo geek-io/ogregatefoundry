@@ -1,0 +1,33 @@
+{
+  "_id": "e05980ae1164fbb3",
+  "name": "Bow, Composite",
+  "type": "weapon",
+  "img": "icons/weapons/swords/sword-broad-serrated-blue.webp",
+  "system": {
+    "description": "Range 100/200/300 feet.",
+    "source": "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods",
+    "cost": "100/500",
+    "category": "smallRanged",
+    "attackSkill": "smallRanged",
+    "targetDefense": "evade",
+    "damageSkill": "",
+    "damageDice": 3,
+    "accuracyModifier": 1,
+    "equipped": false,
+    "parryBonus": 0,
+    "evadeBonus": 0,
+    "muscleRequirement": 1,
+    "lethal": true,
+    "damageType": "sharp",
+    "reach": "normal",
+    "openDamage": false,
+    "qualities": "Range 100/200/300 feet."
+  },
+  "effects": [],
+  "folder": "c78ec1ca7a9217a3",
+  "flags": {},
+  "ownership": {
+    "default": 0
+  },
+  "_key": "!items!e05980ae1164fbb3"
+}
