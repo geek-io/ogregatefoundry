@@ -157,7 +157,7 @@ export function prepareCharacterCreation(actor) {
     const budget = getGroupBudget(creation, groupKey);
     const skillSpent = getGroupSpent(actor, groupKey);
     const expertiseSpent = getExpertiseSpent(actor, groupKey);
-    const spent = skillSpent + expertiseSpent;
+    const spent = skillSpent;
     return {
       key: groupKey,
       label: OGRE_GATE.skillGroups[groupKey].label,

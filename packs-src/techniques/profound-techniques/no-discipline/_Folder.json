@@ -1,0 +1,23 @@
+{
+  "_id": "a0bd05670440c737",
+  "name": "No Discipline",
+  "type": "Item",
+  "sorting": "a",
+  "sort": 0,
+  "color": null,
+  "folder": "0aad17139b38ffe0",
+  "description": "",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": "Folder.a0bd05670440c737",
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "ogregatefoundry",
+    "systemVersion": "0.1.6",
+    "createdTime": 0,
+    "modifiedTime": 0,
+    "lastModifiedBy": null
+  },
+  "_key": "!folders!a0bd05670440c737"
+}

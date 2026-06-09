@@ -1,0 +1,23 @@
+{
+  "_id": "ef23d190890f1660",
+  "name": "Qi Rank 4",
+  "type": "Item",
+  "sorting": "a",
+  "sort": 0,
+  "color": null,
+  "folder": "65946ea9700379c2",
+  "description": "",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": "Folder.ef23d190890f1660",
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "ogregatefoundry",
+    "systemVersion": "0.1.6",
+    "createdTime": 0,
+    "modifiedTime": 0,
+    "lastModifiedBy": null
+  },
+  "_key": "!folders!ef23d190890f1660"
+}

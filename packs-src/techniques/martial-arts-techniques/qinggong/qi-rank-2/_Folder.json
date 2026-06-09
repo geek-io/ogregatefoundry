@@ -1,0 +1,23 @@
+{
+  "_id": "2fd05cef6a455f43",
+  "name": "Qi Rank 2",
+  "type": "Item",
+  "sorting": "a",
+  "sort": 0,
+  "color": null,
+  "folder": "119b8811ea791781",
+  "description": "",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": "Folder.2fd05cef6a455f43",
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "ogregatefoundry",
+    "systemVersion": "0.1.6",
+    "createdTime": 0,
+    "modifiedTime": 0,
+    "lastModifiedBy": null
+  },
+  "_key": "!folders!2fd05cef6a455f43"
+}

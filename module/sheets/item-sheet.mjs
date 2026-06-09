@@ -37,7 +37,29 @@ const ITEM_HELP = {
   techniqueDiscipline: "Martial discipline required or associated with this technique.",
   techniqueType: "Technique bucket used to organize it on the actor sheet.",
   activationSkill: "Skill used to activate or roll the technique when one is required.",
+  techniqueTargetDefense: "What the activation roll is checked against. Targeting an actor pre-fills this defense rating when available.",
+  techniqueTargetNumber: "Default TN used when the technique rolls against a fixed target number instead of a target defense.",
   qiRank: "Minimum Qi rank required to use the technique; using techniques does not spend Qi.",
+  techniqueAttackModifier: "Dice modifier applied to the technique activation or attack roll.",
+  catharticAttackModifier: "Additional activation or attack dice modifier applied only to Cathartic use.",
+  techniqueDamageModifier: "Dice modifier applied to this technique's damage roll.",
+  catharticDamageModifier: "Additional damage dice modifier applied only to Cathartic use.",
+  directWounds: "Wounds applied directly after a successful technique roll, without a damage roll. Supports fixed numbers and expressions such as 1 per Rank of Qi.",
+  targetDrains: "Temporary drain applied to a targeted actor after a successful technique roll. Use entries such as defense.hardiness=1, defense.hardiness=1 per Rank of Neigong, skill.physical.athletics=1, or qi=1.",
+  targetEffects: "Visible non-numeric outcome reminder posted after a successful technique roll, such as stunned, prone, immobilized, drunk, unable to use a technique, or GM-assigned mental affliction.",
+  techniqueConsequence: "User-facing cost or consequence reminder. User Wounds can be applied from a chat button; other consequences remain reminders.",
+  catharticOpenDamage: "Marks techniques whose damage becomes Open only when used Cathartically.",
+  techniqueExtraWounds: "Fixed Extra Wounds added to this technique's damage roll on a successful damage result.",
+  catharticExtraWounds: "Fixed Extra Wounds added only when this technique is used Cathartically.",
+  catharticEffect: "Cathartic effect text separated from the main description for quick reading.",
+  techniqueSecret: "Marks techniques identified as Secret in the Chapter 3 entry.",
+  accessNotes: "Learning or access notes such as lost manuals, known-only restrictions, sect or clan availability, or rumor text.",
+  techniqueCombination: "Marks a technique that combines or depends on other techniques.",
+  prerequisiteTechniques: "Semicolon-separated technique names the actor must know before this technique can be used.",
+  requirementNotes: "Visible table-state requirements from the technique entry. These warn the user but are not hard-blocked yet.",
+  requiredFlaws: "Semicolon-separated Flaw names the actor must have before using this technique.",
+  requiredSkillRanks: "Semicolon-separated Skill rank requirements such as specialist.medicine:2 or medicine:1.",
+  formationDetails: "Formation setup or coordination reminder shown on the actor sheet and in chat.",
   combatPerkGroup: "Combat Perk group this perk belongs to.",
   combatPerkSkill: "Specific skill or combat skill this perk modifies.",
   combatPerkBonus: "Rules text or dice bonus granted by this Combat Perk.",
@@ -107,13 +129,25 @@ function defenseOptions() {
   }));
 }
 
+function techniqueTargetOptions(selected = "") {
+  return [
+    { key: "tn", label: "Fixed TN", selected: selected === "tn" || !selected },
+    { key: "none", label: "Manual / Special", selected: selected === "none" },
+    ...Object.entries(OGRE_GATE.defenses).map(([key, defense]) => ({
+      key,
+      label: defense.label,
+      selected: selected === key
+    }))
+  ];
+}
+
 export class OgreGateItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
   static DEFAULT_OPTIONS = {
     ...super.DEFAULT_OPTIONS,
     classes: ["ogre-gate", "item-sheet"],
     position: {
-      width: 700,
-      height: 620
+      width: 860,
+      height: 760
     },
     window: {
       ...super.DEFAULT_OPTIONS.window,
@@ -147,6 +181,7 @@ export class OgreGateItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
       combatSkills: combatSkillOptions(),
       allSkills: skillOptions({ includeBlank: true, selected: this.item.system.activationSkill }),
       defenses: defenseOptions(),
+      techniqueTargets: techniqueTargetOptions(this.item.system.targetDefense),
       weaponDamageTypes: Object.entries(OGRE_GATE.weaponDamageTypes).map(([key, label]) => ({ key, label })),
       disciplines: Object.entries(OGRE_GATE.disciplines).map(([key, label]) => ({ key, label })),
       techniqueTypes: Object.entries(OGRE_GATE.techniqueTypes).map(([key, label]) => ({ key, label })),

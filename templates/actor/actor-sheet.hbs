@@ -71,6 +71,7 @@
           <h2>Defenses</h2>
           <div class="defense-header">
             <span>Roll</span>
+            <span>Defense</span>
             <span>Base</span>
             <span></span>
             <span>Rank</span>
@@ -81,8 +82,9 @@
             <span>Total</span>
           </div>
           {{#each defenses as |defense|}}
-            <div class="rank-row">
+            <div class="rank-row defense-row">
               <button class="roll-icon-button" type="button" data-action="roll-defense" data-defense="{{defense.key}}" data-tooltip="{{defense.tooltip}}">{{defense.shortLabel}}</button>
+              <span class="defense-label" data-tooltip="{{defense.tooltip}}">{{defense.label}}</span>
               <input type="number" name="system.defenses.{{defense.key}}.base" value="{{defense.data.base}}" />
               <span>+</span>
               <input type="number" name="system.defenses.{{defense.key}}.ranks" value="{{defense.data.ranks}}" />
@@ -108,52 +110,57 @@
         </section>
 
         {{#each skillGroups as |group|}}
-          <section class="panel skills {{group.key}}" data-skill-group="{{group.key}}">
-            <h2>{{group.label}}</h2>
-            <div class="item-actions compact">
-              <button type="button" data-action="create-item" data-type="skills" data-group="{{group.key}}" data-tooltip="{{help.newSkill}}">New Skill</button>
+          <section class="panel skills {{group.key}} {{#if group.collapsed}}collapsed{{/if}}" data-skill-group="{{group.key}}">
+            <div class="collapsible-heading">
+              <button class="collapse-toggle" type="button" data-action="toggle-skill-group" data-group="{{group.key}}" data-tooltip="{{#if group.collapsed}}Expand{{else}}Collapse{{/if}} {{group.label}}">{{#if group.collapsed}}+{{else}}-{{/if}}</button>
+              <h2>{{group.label}}</h2>
             </div>
-            <div class="skill-header">
-              <span>Roll</span>
-              <span>Skill</span>
-              <span>Rank</span>
-              <span>Mod</span>
-              <span>Expertise</span>
-              <span></span>
-              <span></span>
-            </div>
-            {{#each group.skills as |skill|}}
-              <div class="rank-row skill-row item-line" data-item-id="{{skill.item.id}}" data-tooltip="Right-click to edit or delete {{skill.item.name}}.">
-                <button class="roll-icon-button" type="button" data-action="roll-skill" data-item-id="{{skill.item.id}}" data-label="{{skill.displayLabel}}" data-tooltip="{{skill.tooltip}}">{{skill.shortLabel}}</button>
-                <input class="skill-label" type="text" data-item-id="{{skill.item.id}}" data-item-field="name" value="{{skill.item.name}}" />
-                <input type="number" data-item-id="{{skill.item.id}}" data-item-field="system.ranks" value="{{skill.data.ranks}}" min="0" max="10" />
-                <input type="number" data-item-id="{{skill.item.id}}" data-item-field="system.modifier" value="{{skill.data.modifier}}" min="-10" max="10" />
-                <div class="skill-expertise-cell">
-                  {{#if skill.hasExpertise}}
-                    <div class="skill-expertise-list">
-                      {{#each skill.expertiseEntries as |expertise|}}
-                        <label data-tooltip="{{expertise.note}}">
-                          <input type="checkbox" data-expertise-toggle="{{expertise.toggleKey}}" data-expertise-name="{{expertise.name}}" />
-                          <span>{{expertise.name}}</span>
-                        </label>
-                      {{/each}}
-                    </div>
-                    <button type="button" data-action="edit-expertise" data-item-id="{{skill.item.id}}" data-label="{{skill.displayLabel}}" data-tooltip="Edit {{skill.displayLabel}} Expertise">Edit</button>
-                  {{else}}
-                    <button type="button" data-action="edit-expertise" data-item-id="{{skill.item.id}}" data-label="{{skill.displayLabel}}" data-tooltip="Add {{skill.displayLabel}} Expertise">+ Expertise</button>
-                  {{/if}}
+            <div class="collapsible-content">
+              <div class="item-actions compact">
+                <button type="button" data-action="create-item" data-type="skills" data-group="{{group.key}}" data-tooltip="{{help.newSkill}}">New Skill</button>
+              </div>
+              <div class="skill-header">
+                <span>Roll</span>
+                <span>Skill</span>
+                <span>Rank</span>
+                <span>Mod</span>
+                <span>Expertise</span>
+                <span></span>
+                <span></span>
+              </div>
+              {{#each group.skills as |skill|}}
+                <div class="rank-row skill-row item-line" data-item-id="{{skill.item.id}}" data-tooltip="Right-click to edit or delete {{skill.item.name}}.">
+                  <button class="roll-icon-button" type="button" data-action="roll-skill" data-item-id="{{skill.item.id}}" data-label="{{skill.displayLabel}}" data-tooltip="{{skill.tooltip}}">{{skill.shortLabel}}</button>
+                  <input class="skill-label" type="text" data-item-id="{{skill.item.id}}" data-item-field="name" value="{{skill.item.name}}" />
+                  <input type="number" data-item-id="{{skill.item.id}}" data-item-field="system.ranks" value="{{skill.data.ranks}}" min="0" max="10" />
+                  <input type="number" data-item-id="{{skill.item.id}}" data-item-field="system.modifier" value="{{skill.data.modifier}}" min="-10" max="10" />
+                  <div class="skill-expertise-cell">
+                    {{#if skill.hasExpertise}}
+                      <div class="skill-expertise-list">
+                        {{#each skill.expertiseEntries as |expertise|}}
+                          <label data-tooltip="{{expertise.note}}">
+                            <input type="checkbox" data-expertise-toggle="{{expertise.toggleKey}}" data-expertise-name="{{expertise.name}}" />
+                            <span>{{expertise.name}}</span>
+                          </label>
+                        {{/each}}
+                      </div>
+                      <button type="button" data-action="edit-expertise" data-item-id="{{skill.item.id}}" data-label="{{skill.displayLabel}}" data-tooltip="Edit {{skill.displayLabel}} Expertise">Edit</button>
+                    {{else}}
+                      <button type="button" data-action="edit-expertise" data-item-id="{{skill.item.id}}" data-label="{{skill.displayLabel}}" data-tooltip="Add {{skill.displayLabel}} Expertise">+ Expertise</button>
+                    {{/if}}
+                  </div>
+                  <button type="button" data-action="open-item" data-item-id="{{skill.item.id}}" data-tooltip="{{../help.editItem}}">Edit</button>
+                  <button type="button" data-action="delete-item" data-item-id="{{skill.item.id}}" data-tooltip="{{../help.deleteItem}}">Delete</button>
                 </div>
-                <button type="button" data-action="open-item" data-item-id="{{skill.item.id}}" data-tooltip="{{../help.editItem}}">Edit</button>
-                <button type="button" data-action="delete-item" data-item-id="{{skill.item.id}}" data-tooltip="{{../help.deleteItem}}">Delete</button>
-              </div>
-            {{/each}}
-            {{#if group.budget}}
-              <div class="section-budget {{#if group.budget.over}}warn{{/if}}">
-                <span>Creation Budget</span>
-                <strong>{{group.budget.spent}} / {{group.budget.budget}}</strong>
-                <span>Remaining {{group.budget.remaining}}</span>
-              </div>
-            {{/if}}
+              {{/each}}
+              {{#if group.budget}}
+                <div class="section-budget {{#if group.budget.over}}warn{{/if}}">
+                  <span>Creation Budget</span>
+                  <strong>{{group.budget.spent}} / {{group.budget.budget}}</strong>
+                  <span>Remaining {{group.budget.remaining}}</span>
+                </div>
+              {{/if}}
+            </div>
           </section>
         {{/each}}
 
@@ -265,8 +272,8 @@
         <section class="panel">
           <h2>Damage Roll</h2>
           <label data-tooltip="{{help.pendingDamageBonus}}">Attack Total-Success Bonus <input type="number" name="system.combat.pendingDamageBonus" value="{{system.combat.pendingDamageBonus}}" min="0" max="20" /></label>
-          <label data-tooltip="{{help.damageModifier}}">Damage Modifier <input type="number" name="damage-modifier" value="0" min="-10" max="10" /></label>
-          <label data-tooltip="{{help.extraWounds}}">Extra Wounds <input type="number" name="extra-wounds" value="0" min="0" max="10" /></label>
+          <label data-tooltip="{{help.damageModifier}}">Damage Modifier <input type="number" name="system.combat.pendingDamageModifier" value="{{system.combat.pendingDamageModifier}}" min="-20" max="20" /></label>
+          <label data-tooltip="{{help.extraWounds}}">Extra Wounds <input type="number" name="system.combat.pendingExtraWounds" value="{{system.combat.pendingExtraWounds}}" min="0" max="99" /></label>
           <label data-tooltip="{{help.openDamage}}">Open Damage <input type="checkbox" name="damage-open" /></label>
           <label data-tooltip="{{help.controlledStrike}}">Controlled Strike <input type="checkbox" name="system.combat.controlledStrike" {{checked system.combat.controlledStrike}} /></label>
         </section>
@@ -584,7 +591,7 @@
         <section class="panel wide">
           <h2>Skill Point Budgets</h2>
           <div class="budget-table">
-            <div class="budget-header"><span>Group</span><span>Skills</span><span>Expertise</span><span>Budget</span><span>Remaining</span></div>
+            <div class="budget-header"><span>Group</span><span>Skills</span><span>Expertise (Free)</span><span>Budget</span><span>Remaining</span></div>
             {{#each creation.groupRows as |row|}}
               <div class="budget-row {{#if row.over}}warn{{/if}}">
                 <span>{{row.label}}</span>
@@ -608,11 +615,11 @@
             <span>Rank</span>
             <span>Mod</span>
           </div>
-          {{#each config.disciplines as |label key|}}
+          {{#each martialDisciplines as |discipline|}}
             <div class="discipline-row">
-              <span>{{label}}</span>
-              <input type="number" name="system.disciplines.{{key}}.ranks" value="{{lookup (lookup ../system.disciplines key) 'ranks'}}" min="0" max="12" />
-              <input type="number" name="system.disciplines.{{key}}.modifier" value="{{lookup (lookup ../system.disciplines key) 'modifier'}}" min="-10" max="10" />
+              <span>{{discipline.label}}</span>
+              <input type="number" name="system.disciplines.{{discipline.key}}.ranks" value="{{lookup (lookup ../system.disciplines discipline.key) 'ranks'}}" min="0" max="12" />
+              <input type="number" name="system.disciplines.{{discipline.key}}.modifier" value="{{lookup (lookup ../system.disciplines discipline.key) 'modifier'}}" min="-10" max="10" />
             </div>
           {{/each}}
         </section>
@@ -633,11 +640,38 @@
           <div class="item-actions imbalance-actions">
             <button type="button" data-action="meditate-imbalance" data-tooltip="{{help.meditateImbalance}}">Meditate</button>
             <button type="button" data-action="check-possession" data-tooltip="{{help.possession}}">Check Possession</button>
+            <button type="button" data-action="roll-demon-flaw" data-tooltip="{{help.demonFlaw}}">Roll Demon Flaw</button>
             {{#if system.imbalance.possessed}}
               <button type="button" data-action="roll-possession-control" data-tooltip="{{help.possession}}">Daily Control</button>
               <button type="button" data-action="purge-possession" data-tooltip="{{help.possession}}">Mark Purged</button>
             {{/if}}
           </div>
+        </section>
+        <section class="panel active-stance-panel">
+          <h2>Active Stance</h2>
+          {{#if activeStance}}
+            <div class="metric-row" data-tooltip="{{activeStance.tooltip}}"><span>Stance</span><strong>{{activeStance.name}}</strong></div>
+            <div class="metric-row"><span>Mode</span><strong>{{#if activeStance.cathartic}}Cathartic{{else}}Normal{{/if}}</strong></div>
+            {{#if activeStance.cathartic}}
+              <div class="metric-row"><span>Rounds Maintained</span><strong>{{activeStance.rounds}}</strong></div>
+            {{/if}}
+            {{#if activeStance.formation}}
+              <div class="metric-row" data-tooltip="{{activeStance.formationTooltip}}"><span>Formation</span><strong>{{#if activeStance.formationParticipants}}{{activeStance.formationParticipants}}+{{else}}Yes{{/if}}</strong></div>
+            {{/if}}
+            {{#if activeStance.itemMissing}}
+              <p class="form-note">The original stance item is missing; end this stance and re-assume it from the technique list.</p>
+            {{else}}
+              <p class="form-note">{{activeStance.notes}}</p>
+            {{/if}}
+            <div class="item-actions compact">
+              {{#if activeStance.cathartic}}
+                <button type="button" data-action="maintain-stance" data-tooltip="Roll the active Cathartic stance's Skill to maintain it for another round.">Maintain</button>
+              {{/if}}
+              <button type="button" data-action="end-stance" data-tooltip="End the active stance.">End Stance</button>
+            </div>
+          {{else}}
+            <p class="form-note">No stance active.</p>
+          {{/if}}
         </section>
         <section class="panel technique-columns">
           <h2>Kung Fu Techniques</h2>
@@ -651,11 +685,24 @@
               <div class="item-list">
               {{#each items as |technique|}}
                   <div class="item-line compact technique-line" data-item-id="{{technique.item.id}}">
-                    <span>{{technique.item.name}}</span>
+                    <span>
+                      {{technique.item.name}}
+                      {{#if technique.secret}} <strong class="technique-tag" data-tooltip="Secret Technique">Secret</strong>{{/if}}
+                      {{#if technique.accessNotes}} <strong class="technique-tag" data-tooltip="{{technique.accessNotes}}">Access</strong>{{/if}}
+                      {{#if technique.catharticOnly}} <strong class="technique-tag" data-tooltip="Profound, Evil, and Immortal Techniques must be used Cathartically.">Cathartic Only</strong>{{/if}}
+                      {{#if technique.demonFlaw}} <strong class="technique-tag warning" data-tooltip="Mastering an Evil Technique requires a Demon Flaw Table roll; the Demon Flaw is permanent.">Demon Flaw</strong>{{/if}}
+                      {{#if technique.missingDiscipline}} <strong class="technique-tag warning" data-tooltip="{{technique.disciplineTooltip}}">Discipline</strong>{{/if}}
+                      {{#if technique.combination}} <strong class="technique-tag" data-tooltip="{{technique.prerequisiteTooltip}}">Combination</strong>{{/if}}
+                      {{#if technique.missingPrerequisites.length}} <strong class="technique-tag warning" data-tooltip="{{technique.missingPrerequisiteTooltip}}">Missing</strong>{{/if}}
+                      {{#if technique.actorRequirementTooltip}} <strong class="technique-tag" data-tooltip="{{technique.actorRequirementTooltip}}">Actor Req</strong>{{/if}}
+                      {{#if technique.missingActorRequirements.length}} <strong class="technique-tag warning" data-tooltip="{{technique.missingActorRequirementTooltip}}">Missing Actor</strong>{{/if}}
+                      {{#if technique.requirementNotes}} <strong class="technique-tag" data-tooltip="{{technique.requirementNotes}}">Req</strong>{{/if}}
+                      {{#if technique.formation}} <strong class="technique-tag" data-tooltip="{{technique.formationTooltip}}">Formation{{#if technique.formationParticipants}} {{technique.formationParticipants}}+{{/if}}</strong>{{/if}}
+                    </span>
                     <span data-tooltip="Required Qi Rank; techniques do not spend Qi.">Qi {{technique.item.system.qiRank}}</span>
                     <span class="technique-damage" data-tooltip="{{technique.damage.tooltip}}">{{technique.damage.label}}</span>
                     <span class="item-row-actions">
-                      <button type="button" data-action="roll-technique" data-item-id="{{technique.item.id}}" data-tooltip="{{../../help.useTechnique}}">Use</button>
+                      <button type="button" data-action="roll-technique" data-item-id="{{technique.item.id}}" data-tooltip="{{../../help.useTechnique}}">{{#if (eq ../key "counter")}}Counter{{else if (eq ../key "stance")}}Assume{{else}}Use{{/if}}</button>
                       <button type="button" data-action="roll-technique" data-cathartic="true" data-item-id="{{technique.item.id}}" data-tooltip="{{../../help.catharticTechnique}}">Cathartic</button>
                       <button type="button" data-action="open-item" data-item-id="{{technique.item.id}}" data-tooltip="{{../../help.editItem}}">Edit</button>
                       <button type="button" data-action="delete-item" data-item-id="{{technique.item.id}}" data-tooltip="{{../../help.deleteItem}}">Delete</button>

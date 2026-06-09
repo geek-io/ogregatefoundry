@@ -6,6 +6,51 @@ A Foundry VTT v13 game system for *The Wandering Heroes of Ogre Gate* by Bedrock
 ***This projrect uses copyright material owned by Bedrock Games, under their Bedrock Games Community Use Policy. This is not an official product of Bedrock Games.***
 
 
+# v 0.1.6
+## Chapter 3 foundations
+- Bug fixes
+- Added a packaged Kung Fu Techniques compendium with Chapter 3 Special, Stance, Waijia, Qinggong, Neigong, Dianxue, Profound, and Evil technique entries.
+- Technique compendium entries include structured discipline, technique type, activation skill, Qi rank, damage, open-damage flag, counter marker, and item-specific Chapter 3 description text.
+- Kung Fu Technique items can be used normally or Cathartically from the Martial tab using their Activation Skill.
+- Cathartic use now awards printed Imbalance amounts, rolls Qi Spirit Possession at `12 + Qi`, tracks daily Meditation control, and supports printed no-roll meditation recovery.
+- Removed the misleading Qi Cost field: techniques require the listed Qi Rank but do not spend Qi when used.
+- Fixed Kung Fu Technique items failing to appear on the Martial tab after creation or drag and drop.
+- Added Qi Duel round resolution against a targeted actor, including Qi/Neigong penalties, tied-round energy buildup, and Extra Wound application.
+- Prevented duplicate Kung Fu Technique imports on a single drop and added first-use Activation Skill selection for unconfigured techniques.
+- Kung Fu Technique rolls now resolve book-style activation strings like `Light Melee against Parry`, and blocked technique clicks now show visible errors instead of failing silently.
+- Kung Fu Technique rolls now flush visible Skill item ranks before rolling, and successful techniques with parseable Damage dice roll a damage card with Apply Wounds.
+- Technique activation rolls no longer inherit the Combat Round action bonus, so a 3-rank activation skill rolls 3d10 unless the technique or a future explicit modifier says otherwise.
+- Technique Activation Skills are now stored and resolved with their skill group, so `Physical: Athletics`, `physical.athletics`, and older bare `athletics` values all resolve to the actor's owned Athletics Skill item.
+- Kung Fu Technique rows now show their current damage dice on the Martial tab when the Damage field can be calculated from fixed dice, skill ranks, discipline ranks, or Qi rank.
+- Purge Spirit now enforces Cathartic use, targets a possessed actor, purges the target on success, clears the target's Imbalance on Total Success, and applies its extra failure Imbalance.
+- Purge Affliction now enforces Cathartic use, targets an actor with tracked Mental Affliction entries, purges one on success, purges up to two on Total Success, and applies its extra failure Imbalance.
+- Added Mental Affliction as an affliction tracker category ahead of the full Chapter 4 mental-affliction compendium pass.
+- Stance techniques now track an active stance on the Martial tab: normal stances assume as a Move Action without a roll, Cathartic stances roll normally, and active Cathartic stances expose a maintenance roll each round.
+- Formation stances now carry structured participant counts and formation reminders in the compendium, item sheet, Martial tab, active stance panel, and stance chat cards.
+- Counter techniques now label their normal action as Counter, remind users they are off-turn free actions, enforce Cathartic use against targeted attackers whose Qi equals or exceeds the user's Qi, and show trigger/Qi context in chat.
+- Combination techniques now have structured prerequisite fields; I Am the Arrow is flagged as requiring Spear of the Infinite Emperor and Great Stride, and use is blocked until the actor knows both.
+- Technique entries now show Requirement badges for table-state prerequisites such as substances, weather, intoxication, missing limbs, or other non-automated conditions.
+- Technique damage now distinguishes normal Open Damage from Cathartic-only Open Damage, and obvious fixed Extra Wounds are added to technique damage cards.
+- Technique item sheets now hide non-rule Cost and raw Counter fields, separate Cathartic effects, expose rolled-against/default TN fields, and support attack/damage modifiers.
+- The Kung Fu Techniques compendium is now foldered by Tier, Discipline, and Qi Rank requirement for faster lookup.
+- Secret techniques and lost/manual access notes now appear as technique item fields, Martial tab badges, and roll-card reminders.
+- Technique rolls now enforce core Chapter 3 mastery requirements: listed Martial Discipline techniques require at least 1 rank in that Discipline, and Profound, Evil, and Immortal Techniques must be used Cathartically.
+- The Martial tab now badges Cathartic-only techniques and techniques whose required Discipline rank is missing.
+- Profound, Evil, and Immortal Technique Cathartic use now applies the Chapter 3 Imbalance Rating 2 rule instead of the actor's normal Imbalance Rating.
+- Evil Techniques now show Demon Flaw reminders on the Martial tab and post a Demon Flaw Table reminder when first added to an actor.
+- Added the Chapter 1 Demon Flaw Table as a Martial-tab `Roll Demon Flaw` helper for Evil Technique mastery.
+- Cleaned Chapter 3 technique compendium text where generated entries had swallowed section headers or retained a PDF line-break hyphen.
+- Successful Normal Damage techniques now post a follow-up damage reminder and can load their printed damage modifiers or fixed Extra Wounds into the actor's next weapon damage roll.
+- Techniques with clear direct-Wound outcomes now show those values on the Martial tab and post an Apply Wounds chat card after successful use.
+- Technique consequence fields now cover user Wound costs, consequence reminders, and special Cathartic Imbalance multipliers such as Merciless Black Claw.
+- Chat Apply Wounds buttons no longer fall back to controlled tokens; generic damage now requires an explicit target, while target-aware damage cards remember the target selected when rolled.
+- Technique items now support structured required Flaws and Skill-rank minimums, with use blocked for clear actor-known requirements such as Missing Limb or Medicine rank prerequisites.
+- Techniques with clear temporary-drain outcomes now show Target Drain fields, post target-locked Apply Drain chat buttons on success, and seed obvious Hardiness/Qi drain reminders in the Chapter 3 compendium.
+- Technique Target Effect reminders now cover common Chapter 3 state outcomes such as stunned, prone, drunk, passed out, paralyzed, frozen, limb injury, emotion removal, Mental Affliction prompts, and controlled actions.
+- Defense rows now show the full Defense name next to the roll abbreviation, and skill category panels can collapse to make the Main tab easier to scan.
+- Expertise entries no longer count against creation skill point budgets; the sheet still displays and warns on custom Expertise for review.
+- Main tab scroll position is preserved when changing actor fields, editing skill ranks/modifiers, adding skills, dropping skill items or folders, and saving Expertise.
+
 # v 0.1.5
 ## Chapter 2 itemization
 - Bug fixes
@@ -21,21 +66,10 @@ A Foundry VTT v13 game system for *The Wandering Heroes of Ogre Gate* by Bedrock
 - Characters can track multiple simultaneous poisons and diseases, switch the selected treatment target, and apply their accumulated listed penalties together.
 - Purple Spirit Venom, thorn venoms, Xi Kang's Wine, and Malignant Wind now apply their specific Qi, timed, or failed-treatment consequences.
 - Life Prolonging Pill tracks its ten-consecutive-day course, rolled lifespan gain, and later lifespan reductions.
-- Kung Fu Technique items can be used normally or Cathartically from the Martial tab using their Activation Skill.
-- Cathartic use now awards printed Imbalance amounts, rolls Qi Spirit Possession at `12 + Qi`, tracks daily Meditation control, and supports printed no-roll meditation recovery.
-- Removed the misleading Qi Cost field: techniques require the listed Qi Rank but do not spend Qi when used.
-- Fixed Kung Fu Technique items failing to appear on the Martial tab after creation or drag and drop.
-- Added Qi Duel round resolution against a targeted actor, including Qi/Neigong penalties, tied-round energy buildup, and Extra Wound application.
-- Prevented duplicate Kung Fu Technique imports on a single drop and added first-use Activation Skill selection for unconfigured techniques.
 - Prepared Strike weapon attacks now show the declared trigger/zone in chat and automatically clear the armed strike after the interrupt attack is rolled.
 - Maiming and Disarm damage cards now show rule checklists for the GM instead of a single compressed reminder line.
 - Charge and mounted helpers now validate straight-line movement, mounted charge follow-through, mounted bow penalties, mounted advantage reminders, and moving-mount Cathartic Imbalance.
-- Kung Fu Technique rolls now resolve book-style activation strings like `Light Melee against Parry`, and blocked technique clicks now show visible errors instead of failing silently.
-- Kung Fu Technique rolls now flush visible Skill item ranks before rolling, and successful techniques with parseable Damage dice roll a damage card with Apply Wounds.
-- Technique activation rolls no longer inherit the Combat Round action bonus, so a 3-rank activation skill rolls 3d10 unless the technique or a future explicit modifier says otherwise.
-- Technique Activation Skills are now stored and resolved with their skill group, so `Physical: Athletics`, `physical.athletics`, and older bare `athletics` values all resolve to the actor's owned Athletics Skill item.
 - Dropped Skill items now keep their own primary skill group instead of being rewritten to whichever group panel they were dropped over.
-- Kung Fu Technique rows now show their current damage dice on the Martial tab when the Damage field can be calculated from fixed dice, skill ranks, discipline ranks, or Qi rank.
 
 # v 0.1.4
 ## Skills compendium and sheet display

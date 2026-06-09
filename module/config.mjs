@@ -120,7 +120,8 @@ export const OGRE_GATE = {
   },
   afflictionTypes: {
     poison: "Poison",
-    disease: "Disease"
+    disease: "Disease",
+    mental: "Mental Affliction"
   },
   afflictionIntervals: {
     none: "None",
@@ -289,6 +290,8 @@ export const OGRE_GATE = {
     classics: "Know classical texts, commentaries, and memorized passages."
   },
   disciplines: {
+    none: "None",
+    multiple: "Multiple",
     waijia: "Waijia",
     qinggong: "Qinggong",
     neigong: "Neigong",
@@ -424,6 +427,32 @@ export const OGRE_GATE = {
     whiteHair: { label: "White Hair", points: 1, category: "standard" },
     demon: { label: "Demon Flaw", points: 0, category: "demon" }
   },
+  demonFlawTable: [
+    { min: 1, max: 10, label: "Demon Skin" },
+    { min: 11, max: 20, label: "Demon Hair" },
+    { min: 21, max: 25, label: "Demon Tongue" },
+    { min: 26, max: 30, label: "Rival Obsession" },
+    { min: 31, max: 35, label: "Spirited Beast" },
+    { min: 36, max: 40, label: "Love Obsession" },
+    { min: 41, max: 45, label: "Demon Eyes" },
+    { min: 46, max: 50, label: "Vile Heart" },
+    { min: 51, max: 55, label: "Supreme Vanity" },
+    { min: 56, max: 60, label: "Object Obsession" },
+    { min: 61, max: 65, label: "Lust for Pain" },
+    { min: 66, max: 70, label: "Pleasure Obsession" },
+    { min: 71, max: 75, label: "Lust for Divinity" },
+    { min: 76, max: 80, label: "Magic Obsession" },
+    { min: 81, max: 85, label: "Mindless Rage" },
+    { min: 86, max: 88, label: "Blood Lust" },
+    { min: 89, max: 90, label: "Empty Heart" },
+    { min: 91, max: 92, label: "Demon Hand" },
+    { min: 93, max: 94, label: "Demon Touch" },
+    { min: 95, max: 96, label: "Lust for Life" },
+    { min: 97, max: 97, label: "Memory Loss" },
+    { min: 98, max: 98, label: "Personality Reversal" },
+    { min: 99, max: 99, label: "Spirited Sibling" },
+    { min: 100, max: 100, label: "Calamity or Curse" }
+  ],
   combatTechniqueGroups: {
     unarmed: "Arm Strike, Leg Strike, Grappling, Throwing",
     generalMelee: "General Melee",

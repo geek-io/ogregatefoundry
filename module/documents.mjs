@@ -4,6 +4,7 @@ import { prepareCharacterCreation } from "./rules/character-creation.mjs";
 
 const MELEE_SKILLS = new Set(["armStrike", "legStrike", "grapple", "throw", "lightMelee", "mediumMelee", "heavyMelee"]);
 const RANGED_SKILLS = new Set(["smallRanged", "largeRanged"]);
+const MARTIAL_DISCIPLINE_KEYS = new Set(["waijia", "qinggong", "neigong", "dianxue"]);
 const HEAT_RELATED_DISEASES = new Set(["bloodfire", "burningplague", "heartfire", "heatanddampnessofthelung"]);
 const SLOWER_AFFLICTION_INTERVAL = {
   seconds: "minutes",
@@ -102,8 +103,7 @@ function skillLabel(groupKey, skillKey, skill) {
 
 function parseTechniqueDamagePool(text = "", actor) {
   const value = String(text ?? "");
-  const diceMatch = value.match(/(\d+)\s*d10/i);
-  let dice = diceMatch ? Number(diceMatch[1]) : 0;
+  let dice = 0;
   let note = "";
   const skillDamage = value.match(/\b(Arm Strike|Leg Strike|Grapple|Throw|Light Melee|Medium Melee|Heavy Melee|Small Ranged|Large Ranged|Athletics|Speed|Muscle|Endurance|Reason)\b\s*([+-]\s*\d+)?\s*d10/i);
   if (skillDamage) {
@@ -113,19 +113,30 @@ function parseTechniqueDamagePool(text = "", actor) {
     dice = effectiveRanks(skill) + modifier;
     note = `${skillName} ${modifier >= 0 ? "+" : ""}${modifier}d10`;
   }
-  const perRank = value.match(/per\s+Rank\s+of\s+(Waijia|Qinggong|Neigong|Dianxue)/i);
+  const perRank = value.match(/(?:(\d+)\s*d10\s*)?per\s+Rank\s+of\s+(Waijia|Qinggong|Neigong|Dianxue)/i);
   if (perRank) {
-    const disciplineKey = normalizeKey(perRank[1]);
-    dice = Number(actor.system.disciplines?.[disciplineKey]?.ranks ?? dice);
-    note = `per Rank of ${perRank[1]}`;
+    const multiplier = Number(perRank[1] ?? 1);
+    const disciplineKey = normalizeKey(perRank[2]);
+    const disciplineRanks = Number(actor.system.disciplines?.[disciplineKey]?.ranks ?? 0);
+    dice = multiplier * disciplineRanks;
+    note = `${multiplier}d10 per Rank of ${perRank[2]} Martial Discipline (rank ${disciplineRanks})`;
   }
-  if (/per\s+Rank\s+of\s+Qi|per\s+Qi\s+Rank|per\s+Rank\s+Qi/i.test(value)) {
-    dice = Number(actor.system.status.effectiveQi ?? actor.system.qi.rank ?? dice);
-    note = "per Rank of Qi";
+  const perQi = value.match(/(?:(\d+)\s*d10\s*)?(?:per\s+Rank\s+of\s+Qi|per\s+Qi\s+Rank|per\s+Rank\s+Qi)/i);
+  if (perQi) {
+    const multiplier = Number(perQi[1] ?? 1);
+    dice = multiplier * Number(actor.system.status.effectiveQi ?? actor.system.qi.rank ?? dice);
+    note = `${multiplier}d10 per Rank of Qi`;
   }
+  const diceMatch = value.match(/(\d+)\s*d10/i);
+  if (!note && diceMatch) {
+    dice = Number(diceMatch[1]);
+    note = "fixed damage dice";
+  }
+  const normal = /normal\s+damage/i.test(value);
   return {
     dice: Math.max(0, Math.trunc(dice)),
-    note
+    note,
+    normal
   };
 }
 
@@ -188,6 +199,342 @@ function newAfflictionFromItem(item) {
     remedy: data.remedy,
     notes: data.specialRules
   });
+}
+
+function isMentalAffliction(affliction = {}) {
+  if (!affliction?.name) return false;
+  if (["cured", "purged", "resisted", "nullified"].includes(normalizeKey(affliction.status))) return false;
+  const directType = normalizeKey(affliction.type);
+  if (["mental", "mentalaffliction"].includes(directType)) return true;
+  const explicitText = normalizeKey([
+    affliction.rulesKey,
+    affliction.name,
+    affliction.effect,
+    affliction.notes
+  ].filter(Boolean).join(" "));
+  return explicitText.includes("mentalaffliction");
+}
+
+function purgeAfflictionSnapshot(source = {}) {
+  const affliction = snapshotAffliction(source);
+  affliction.status = "purged";
+  affliction.contracted = false;
+  affliction.progression = 0;
+  affliction.lethalityLimit = 0;
+  affliction.lethalityElapsed = 0;
+  affliction.qiDrainApplied = 0;
+  affliction.appliedSubstances = [];
+  return affliction;
+}
+
+function requiresCatharticStance(item) {
+  return item.system.techniqueType === "stance"
+    && /must be used Cathartically|has no effect unless used Cathartically/i.test(item.system.description ?? "");
+}
+
+function normalStanceRequiresRoll(item) {
+  return item.system.techniqueType === "stance"
+    && /requires a skill roll to use non-Cathartically|requires a skill roll/i.test(item.system.description ?? "");
+}
+
+function isCounterTechnique(item) {
+  return item?.system?.techniqueType === "counter" || Boolean(item?.system?.counter);
+}
+
+function techniqueRequiresCatharticUse(item) {
+  const type = normalizeKey(item?.system?.techniqueType ?? "");
+  const group = normalizeKey(item?.flags?.ogregatefoundry?.group ?? "");
+  return ["profound", "immortal"].includes(type) || ["profound", "evil", "immortal"].includes(group);
+}
+
+function isEvilTechnique(item) {
+  return normalizeKey(item?.flags?.ogregatefoundry?.group ?? "") === "evil";
+}
+
+function techniqueCatharticImbalanceRating(actor, item) {
+  return techniqueRequiresCatharticUse(item)
+    ? 2
+    : Number(actor.system.status.imbalanceRating ?? 0);
+}
+
+function techniqueDisciplineRequirement(actor, item) {
+  const disciplineKey = item?.system?.discipline ?? "";
+  if (!MARTIAL_DISCIPLINE_KEYS.has(disciplineKey)) return null;
+  const ranks = Number(actor?.system?.disciplines?.[disciplineKey]?.ranks ?? 0);
+  const label = OGRE_GATE.disciplines[disciplineKey] ?? disciplineKey;
+  return {
+    key: disciplineKey,
+    label,
+    ranks,
+    missing: ranks <= 0
+  };
+}
+
+function isFormationTechnique(item) {
+  return Boolean(item?.system?.formation)
+    || /Type:\s*Stance\s*\(Formation\)/i.test(item?.system?.description ?? "");
+}
+
+function techniquePrerequisites(item) {
+  return String(item?.system?.prerequisiteTechniques ?? "")
+    .split(/[;\n]/)
+    .map((name) => name.trim())
+    .filter(Boolean);
+}
+
+function isCombinationTechnique(item) {
+  return Boolean(item?.system?.combination) || techniquePrerequisites(item).length > 0;
+}
+
+function techniqueRequirementNotes(item) {
+  return String(item?.system?.requirementNotes ?? "").trim();
+}
+
+function techniqueRequiredFlaws(item) {
+  return String(item?.system?.requiredFlaws ?? "")
+    .split(/[;\n]/)
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+}
+
+function techniqueRequiredSkillRanks(item) {
+  return String(item?.system?.requiredSkillRanks ?? "")
+    .split(/[;\n]/)
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .map((entry) => {
+      const [skillRef, rankRef] = entry.split(/[:=]/).map((part) => part.trim());
+      return {
+        skillRef,
+        ranks: Math.max(0, Math.trunc(Number(rankRef ?? 0)))
+      };
+    })
+    .filter((entry) => entry.skillRef && entry.ranks > 0);
+}
+
+function techniqueAccessNotes(item) {
+  return String(item?.system?.accessNotes ?? "").trim();
+}
+
+function techniqueCatharticEffect(item) {
+  return String(item?.system?.catharticEffect ?? "").trim();
+}
+
+function techniqueUsesOpenDamage(item, cathartic = false) {
+  return Boolean(item?.system?.openDamage) || (Boolean(cathartic) && Boolean(item?.system?.catharticOpenDamage));
+}
+
+function techniqueExtraWounds(item, cathartic = false) {
+  return Number(item?.system?.extraWounds ?? 0) + (cathartic ? Number(item?.system?.catharticExtraWounds ?? 0) : 0);
+}
+
+function techniqueAttackModifier(item, cathartic = false) {
+  return Number(item?.system?.attackModifier ?? 0) + (cathartic ? Number(item?.system?.catharticAttackModifier ?? 0) : 0);
+}
+
+function techniqueDamageModifier(item, cathartic = false) {
+  return Number(item?.system?.damageModifier ?? 0) + (cathartic ? Number(item?.system?.catharticDamageModifier ?? 0) : 0);
+}
+
+function techniqueDirectWoundsExpression(item, cathartic = false, totalSuccess = false) {
+  const system = item?.system ?? {};
+  if (cathartic && totalSuccess && system.catharticTotalSuccessDirectWounds) return system.catharticTotalSuccessDirectWounds;
+  if (cathartic && system.catharticDirectWounds) return system.catharticDirectWounds;
+  if (totalSuccess && system.totalSuccessDirectWounds) return system.totalSuccessDirectWounds;
+  return system.directWounds ?? "";
+}
+
+function techniqueDirectWoundsNote(item) {
+  return String(item?.system?.directWoundsNote ?? "").trim();
+}
+
+function techniqueTargetDrainsExpression(item, cathartic = false, totalSuccess = false) {
+  const system = item?.system ?? {};
+  if (cathartic && totalSuccess && system.catharticTotalSuccessTargetDrains) return system.catharticTotalSuccessTargetDrains;
+  if (cathartic && system.catharticTargetDrains) return system.catharticTargetDrains;
+  if (totalSuccess && system.totalSuccessTargetDrains) return system.totalSuccessTargetDrains;
+  return system.targetDrains ?? "";
+}
+
+function techniqueTargetDrainsNote(item) {
+  return String(item?.system?.targetDrainsNote ?? "").trim();
+}
+
+function techniqueTargetEffectsExpression(item, cathartic = false, totalSuccess = false) {
+  const system = item?.system ?? {};
+  if (cathartic && totalSuccess && system.catharticTotalSuccessTargetEffects) return system.catharticTotalSuccessTargetEffects;
+  if (cathartic && system.catharticTargetEffects) return system.catharticTargetEffects;
+  if (totalSuccess && system.totalSuccessTargetEffects) return system.totalSuccessTargetEffects;
+  return system.targetEffects ?? "";
+}
+
+function techniqueTargetEffectsNote(item) {
+  return String(item?.system?.targetEffectsNote ?? "").trim();
+}
+
+function techniqueSelfWounds(item, cathartic = false) {
+  const normal = Number(item?.system?.selfWounds ?? 0);
+  const catharticValue = Number(item?.system?.catharticSelfWounds ?? 0);
+  return Math.max(0, cathartic && catharticValue ? catharticValue : normal);
+}
+
+function techniqueConsequenceNote(item) {
+  return String(item?.system?.consequenceNote ?? "").trim();
+}
+
+function techniqueCatharticImbalanceMultiplier(item) {
+  return Math.max(1, Number(item?.system?.catharticImbalanceMultiplier ?? 1));
+}
+
+function resolveDirectWoundsExpression(actor, expression = "") {
+  const value = String(expression ?? "").trim();
+  if (!value) return { wounds: 0, label: "" };
+
+  const flatNumber = value.match(/^(\d+)$/)?.[1];
+  if (flatNumber) return { wounds: Number(flatNumber), label: value };
+
+  const perQi = value.match(/^(\d+)\s+per\s+(?:Rank\s+of\s+Qi|Qi\s+Rank)$/i)?.[1];
+  if (perQi) {
+    const qi = Number(actor.system.status.effectiveQi ?? actor.system.qi.rank ?? 0);
+    return { wounds: Number(perQi) * qi, label: `${value} (Qi ${qi})` };
+  }
+
+  const perDiscipline = value.match(/^(\d+)\s+per\s+Rank\s+of\s+(Waijia|Qinggong|Neigong|Dianxue)$/i);
+  if (perDiscipline) {
+    const disciplineKey = normalizeKey(perDiscipline[2]);
+    const ranks = Number(actor.system.disciplines?.[disciplineKey]?.ranks ?? 0);
+    return { wounds: Number(perDiscipline[1]) * ranks, label: `${value} (${perDiscipline[2]} ${ranks})` };
+  }
+
+  return { wounds: 0, label: value };
+}
+
+function resolveTechniqueDrainAmount(actor, expression = "") {
+  const value = String(expression ?? "").trim();
+  if (!value) return { amount: 0, label: "" };
+
+  const flatNumber = value.match(/^(\d+)$/)?.[1];
+  if (flatNumber) return { amount: Number(flatNumber), label: value };
+
+  const perQi = value.match(/^(\d+)\s+per\s+(?:Rank\s+of\s+Qi|Qi\s+Rank|level\s+of\s+Qi)$/i)?.[1];
+  if (perQi) {
+    const qi = Number(actor.system.status.effectiveQi ?? actor.system.qi.rank ?? 0);
+    return { amount: Number(perQi) * qi, label: `${value} (Qi ${qi})` };
+  }
+
+  const perDiscipline = value.match(/^(\d+)\s+per\s+Rank\s+of\s+(Waijia|Qinggong|Neigong|Dianxue)$/i);
+  if (perDiscipline) {
+    const disciplineKey = normalizeKey(perDiscipline[2]);
+    const ranks = Number(actor.system.disciplines?.[disciplineKey]?.ranks ?? 0);
+    return { amount: Number(perDiscipline[1]) * ranks, label: `${value} (${perDiscipline[2]} ${ranks})` };
+  }
+
+  return { amount: 0, label: value };
+}
+
+function techniqueDrainTargetLabel(type, key) {
+  if (type === "qi") return "Qi";
+  if (type === "defense") {
+    const normalized = normalizeKey(key);
+    const match = Object.entries(OGRE_GATE.defenses).find(([defenseKey, defense]) => (
+      normalizeKey(defenseKey) === normalized || normalizeKey(defense.label) === normalized
+    ));
+    return match?.[1]?.label ?? key;
+  }
+  const qualified = parseQualifiedSkillReference(key);
+  if (qualified) return `${OGRE_GATE.skillGroups[qualified.groupKey]?.label ?? qualified.groupKey}: ${OGRE_GATE.skillGroups[qualified.groupKey]?.skills?.[qualified.skillKey] ?? qualified.skillKey}`;
+  return key;
+}
+
+function parseTechniqueTargetDrains(actor, expression = "") {
+  return String(expression ?? "")
+    .split(/[;\n]/)
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .map((entry) => {
+      const [targetRef, amountRef = "1"] = entry.split("=").map((part) => part.trim());
+      const targetParts = targetRef.split(/[.:]/).map((part) => part.trim()).filter(Boolean);
+      let type = targetParts.shift() ?? "";
+      let key = targetParts.join(".");
+      if (!["qi", "defense", "skill"].includes(type)) {
+        key = targetRef;
+        type = "skill";
+      }
+      if (type === "qi") key = "qi";
+      const resolved = resolveTechniqueDrainAmount(actor, amountRef);
+      return {
+        type,
+        key,
+        amount: resolved.amount,
+        amountLabel: resolved.label || amountRef,
+        label: techniqueDrainTargetLabel(type, key)
+      };
+    })
+    .filter((entry) => entry.amount > 0 && entry.label);
+}
+
+function missingTechniquePrerequisites(actor, item) {
+  const prerequisites = techniquePrerequisites(item);
+  if (!prerequisites.length) return [];
+  const owned = new Set(actor.items
+    .filter((candidate) => ["technique", "combatTechnique"].includes(candidate.type))
+    .flatMap((candidate) => [
+      normalizeKey(candidate.name),
+      normalizeKey(candidate.name.replace(/\s*\(Secret\)\s*/gi, "")),
+      normalizeKey(candidate.flags?.ogregatefoundry?.rulesKey ?? "")
+    ])
+    .filter(Boolean));
+  return prerequisites.filter((name) => {
+    const normalized = normalizeKey(name);
+    const withoutSecret = normalizeKey(name.replace(/\s*\(Secret\)\s*/gi, ""));
+    return !owned.has(normalized) && !owned.has(withoutSecret);
+  });
+}
+
+function hasFlaw(actor, flawName) {
+  const normalized = normalizeKey(flawName);
+  return actor.items.some((candidate) => {
+    if (candidate.type !== "flaw") return false;
+    return [
+      candidate.name,
+      candidate.system?.flawKey,
+      OGRE_GATE.flaws?.[candidate.system?.flawKey]?.label
+    ].some((value) => normalizeKey(value) === normalized);
+  });
+}
+
+function missingTechniqueActorRequirements(actor, item) {
+  const missing = [];
+  for (const flaw of techniqueRequiredFlaws(item)) {
+    if (!hasFlaw(actor, flaw)) missing.push(`Flaw: ${flaw}`);
+  }
+
+  for (const requirement of techniqueRequiredSkillRanks(item)) {
+    const skill = actor.findSkillPath(requirement.skillRef);
+    const ranks = effectiveRanks(skill?.skill);
+    if (ranks < requirement.ranks) {
+      const label = skill?.item?.name ?? skillLabel(skill?.groupKey, skill?.skillKey, skill?.skill) ?? requirement.skillRef;
+      missing.push(`${label} ${requirement.ranks} rank${requirement.ranks === 1 ? "" : "s"}`);
+    }
+  }
+  return missing;
+}
+
+function formationParticipants(item) {
+  const listed = Number(item?.system?.formationParticipants ?? 0);
+  if (listed) return listed;
+  const text = `${item?.name ?? ""} ${item?.system?.description ?? ""}`;
+  if (/six people|six practitioners/i.test(text)) return 6;
+  if (/two practitioners|pair up|two or more participants|requires two/i.test(text)) return 2;
+  return 0;
+}
+
+function formationNotes(item) {
+  if (item?.system?.formationNotes) return item.system.formationNotes;
+  const participants = formationParticipants(item);
+  return participants
+    ? `Requires at least ${participants} participant${participants === 1 ? "" : "s"}. Formation can be broken by a Total Success attack against it.`
+    : "Formation can be broken by a Total Success attack against it.";
 }
 
 function getFirstTargetActor() {
@@ -405,12 +752,83 @@ export class OgreGateActor extends Actor {
   async rollTechnique(item, { cathartic = false, tn = 6, modifier = 0 } = {}) {
     item = typeof item === "string" ? this.items.get(item) : item;
     if (!item || item.type !== "technique") return null;
+    const techniqueKey = normalizeKey(item.flags?.ogregatefoundry?.rulesKey || item.name);
+    const isStance = item.system.techniqueType === "stance";
+    const isCounter = isCounterTechnique(item);
+    const missingPrerequisites = missingTechniquePrerequisites(this, item);
+    if (missingPrerequisites.length) {
+      ui.notifications.warn(`${item.name} requires: ${missingPrerequisites.join(", ")}.`);
+      return null;
+    }
+    const missingActorRequirements = missingTechniqueActorRequirements(this, item);
+    if (missingActorRequirements.length) {
+      ui.notifications.warn(`${item.name} requires: ${missingActorRequirements.join(", ")}.`);
+      return null;
+    }
+
+    const disciplineRequirement = techniqueDisciplineRequirement(this, item);
+    if (disciplineRequirement?.missing) {
+      ui.notifications.warn(`${this.name} needs at least 1 rank in ${disciplineRequirement.label} to use ${item.name}.`);
+      return null;
+    }
+
+    if (techniqueRequiresCatharticUse(item) && !cathartic) {
+      ui.notifications.warn(`${item.name} is a Profound, Evil, or Immortal Technique and must be used Cathartically.`);
+      return null;
+    }
 
     const requiredQi = Number(item.system.qiRank ?? 0);
     const availableQi = Number(this.system.status.effectiveQi ?? this.system.qi.rank ?? 0);
     if (availableQi < requiredQi) {
       ui.notifications.warn(`${this.name} needs current Qi ${requiredQi} to use ${item.name}.`);
       return null;
+    }
+
+    if (isStance && !cathartic && requiresCatharticStance(item)) {
+      ui.notifications.warn(`${item.name} must be used Cathartically.`);
+      return null;
+    }
+
+    if (isStance && !cathartic && !normalStanceRequiresRoll(item)) {
+      return this.activateStance(item, { cathartic: false });
+    }
+
+    const targetActor = getFirstTargetActor();
+    if (isCounter && !cathartic && targetActor) {
+      const ownQi = Number(this.system.status.effectiveQi ?? this.system.qi.rank ?? 0);
+      const targetQi = Number(targetActor.system.status.effectiveQi ?? targetActor.system.qi.rank ?? 0);
+      if (targetQi >= ownQi) {
+        ui.notifications.warn(`${item.name} must be used Cathartically against ${targetActor.name}, whose Qi equals or exceeds ${this.name}'s Qi.`);
+        return null;
+      }
+    }
+    if (techniqueKey === "purgeaffliction") {
+      if (!cathartic) {
+        ui.notifications.warn("Purge Affliction must be used Cathartically.");
+        return null;
+      }
+      if (!targetActor) {
+        ui.notifications.warn("Target the actor with a mental affliction before using Purge Affliction.");
+        return null;
+      }
+      if (!targetActor.hasMentalAffliction()) {
+        ui.notifications.warn(`${targetActor.name} has no tracked mental affliction for Purge Affliction to remove.`);
+        return null;
+      }
+    }
+    if (techniqueKey === "purgespirit") {
+      if (!cathartic) {
+        ui.notifications.warn("Purge Spirit must be used Cathartically.");
+        return null;
+      }
+      if (!targetActor) {
+        ui.notifications.warn("Target the possessed actor before using Purge Spirit.");
+        return null;
+      }
+      if (!targetActor.system.imbalance?.possessed) {
+        ui.notifications.warn(`${targetActor.name} is not currently possessed by a Qi Spirit.`);
+        return null;
+      }
     }
 
     const skill = this.findSkillPath(item.system.activationSkill);
@@ -423,6 +841,31 @@ export class OgreGateActor extends Actor {
     const techniqueDamage = parseTechniqueDamagePool(item.system.damage, this);
     const techniqueDamageDice = techniqueDamage.dice;
     const hasTechniqueDamage = techniqueDamageDice > 0;
+    const hasNormalDamage = Boolean(techniqueDamage.normal);
+    const openTechniqueDamage = techniqueUsesOpenDamage(item, cathartic);
+    const fixedExtraWounds = techniqueExtraWounds(item, cathartic);
+    const attackModifier = techniqueAttackModifier(item, cathartic);
+    const damageModifier = techniqueDamageModifier(item, cathartic);
+    const requirementNotes = techniqueRequirementNotes(item);
+    const requiredFlaws = techniqueRequiredFlaws(item);
+    const requiredSkillRanks = techniqueRequiredSkillRanks(item);
+    const accessNotes = techniqueAccessNotes(item);
+    const catharticEffect = cathartic ? techniqueCatharticEffect(item) : "";
+    const directWoundsPreview = techniqueDirectWoundsExpression(item, cathartic, false);
+    const totalSuccessDirectWoundsPreview = techniqueDirectWoundsExpression(item, cathartic, true);
+    const directWoundsNote = techniqueDirectWoundsNote(item);
+    const hasDirectWounds = Boolean(directWoundsPreview || totalSuccessDirectWoundsPreview);
+    const targetDrainsPreview = techniqueTargetDrainsExpression(item, cathartic, false);
+    const totalSuccessTargetDrainsPreview = techniqueTargetDrainsExpression(item, cathartic, true);
+    const targetDrainsNote = techniqueTargetDrainsNote(item);
+    const hasTargetDrains = Boolean(targetDrainsPreview || totalSuccessTargetDrainsPreview);
+    const targetEffectsPreview = techniqueTargetEffectsExpression(item, cathartic, false);
+    const totalSuccessTargetEffectsPreview = techniqueTargetEffectsExpression(item, cathartic, true);
+    const targetEffectsNote = techniqueTargetEffectsNote(item);
+    const hasTargetEffects = Boolean(targetEffectsPreview || totalSuccessTargetEffectsPreview);
+    const selfWounds = techniqueSelfWounds(item, cathartic);
+    const consequenceNote = techniqueConsequenceNote(item);
+    const catharticImbalanceMultiplier = cathartic ? techniqueCatharticImbalanceMultiplier(item) : 1;
     const activationRanks = effectiveRanks(skill.skill);
     const activationModifier = Number(skill.skill?.modifier ?? 0);
     const activationGroupLabel = OGRE_GATE.skillGroups[skill.groupKey]?.label ?? skill.groupKey;
@@ -430,12 +873,35 @@ export class OgreGateActor extends Actor {
     const options = {
       label: `${item.name} (${mode})`,
       tn,
-      modifier,
-      returnOutcome: cathartic || hasTechniqueDamage,
+      modifier: Number(modifier ?? 0) + attackModifier,
+      returnOutcome: cathartic || hasTechniqueDamage || hasNormalDamage || hasDirectWounds || hasTargetDrains || hasTargetEffects || isStance,
       extra: [
         `<div class="ogre-gate-chat-row"><strong>Activation Skill</strong><span>${escapeHtml(activationGroupLabel)}: ${escapeHtml(activationLabel)} (${activationRanks} rank${activationRanks === 1 ? "" : "s"}${activationModifier ? `, ${activationModifier > 0 ? "+" : ""}${activationModifier}d10 skill modifier` : ""})</span></div>`,
-        `<div class="ogre-gate-chat-row"><strong>Technique Use</strong><span>${mode}${cathartic ? "; resolve Imbalance from this result" : ""}</span></div>`,
-        hasTechniqueDamage ? `<div class="ogre-gate-chat-row"><strong>Technique Damage</strong><span>${techniqueDamageDice}d10${item.system.openDamage ? " Open" : ""}</span></div>` : ""
+        `<div class="ogre-gate-chat-row"><strong>Technique Use</strong><span>${isStance ? "Stance" : isCounter ? "Counter Reaction" : mode}${cathartic ? "; resolve Imbalance from this result" : ""}</span></div>`,
+        disciplineRequirement ? `<div class="ogre-gate-chat-row"><strong>Discipline</strong><span>${escapeHtml(disciplineRequirement.label)} ${disciplineRequirement.ranks} rank${disciplineRequirement.ranks === 1 ? "" : "s"}</span></div>` : "",
+        techniqueRequiresCatharticUse(item) ? `<div class="ogre-gate-chat-row"><strong>Cathartic Required</strong><span>Profound, Evil, and Immortal Techniques are performed Cathartically and use Imbalance Rating 2.</span></div>` : "",
+        isEvilTechnique(item) ? `<div class="ogre-gate-chat-row"><strong>Evil Technique</strong><span>Mastering this technique requires a Demon Flaw Table roll; any Demon Flaw gained is permanent.</span></div>` : "",
+        item.system.targetDefense && item.system.targetDefense !== "tn" ? `<div class="ogre-gate-chat-row"><strong>Rolled Against</strong><span>${escapeHtml(OGRE_GATE.defenses[item.system.targetDefense]?.label ?? item.system.targetDefense)}</span></div>` : "",
+        attackModifier ? `<div class="ogre-gate-chat-row"><strong>Technique Attack Modifier</strong><span>${attackModifier > 0 ? "+" : ""}${attackModifier}d10</span></div>` : "",
+        isCombinationTechnique(item) ? `<div class="ogre-gate-chat-row"><strong>Prerequisites</strong><span>${techniquePrerequisites(item).map(escapeHtml).join(", ") || "Combination Technique"}</span></div>` : "",
+        requiredFlaws.length ? `<div class="ogre-gate-chat-row"><strong>Required Flaws</strong><span>${requiredFlaws.map(escapeHtml).join(", ")}</span></div>` : "",
+        requiredSkillRanks.length ? `<div class="ogre-gate-chat-row"><strong>Required Skill Ranks</strong><span>${requiredSkillRanks.map((entry) => `${escapeHtml(entry.skillRef)} ${entry.ranks}`).join(", ")}</span></div>` : "",
+        (item.system.secret || accessNotes) ? `<div class="ogre-gate-chat-row"><strong>Access</strong><span>${item.system.secret ? "Secret Technique" : ""}${item.system.secret && accessNotes ? ": " : ""}${escapeHtml(accessNotes)}</span></div>` : "",
+        requirementNotes ? `<div class="ogre-gate-chat-row"><strong>Requirements</strong><span>${escapeHtml(requirementNotes)}</span></div>` : "",
+        catharticEffect ? `<div class="ogre-gate-chat-row"><strong>Cathartic Effect</strong><span>${escapeHtml(catharticEffect)}</span></div>` : "",
+        isCounter ? `<div class="ogre-gate-chat-row"><strong>Counter Rule</strong><span>Off-turn free action; one counter per incoming attack. ${targetActor ? `Attacker Qi ${Number(targetActor.system.status.effectiveQi ?? targetActor.system.qi.rank ?? 0)} checked against ${this.name} Qi ${availableQi}.` : "No attacker targeted; verify Qi and trigger condition manually."}</span></div>` : "",
+        isCounter && item.system.counter ? `<div class="ogre-gate-chat-row"><strong>Trigger</strong><span>${escapeHtml(item.system.counter)}</span></div>` : "",
+        hasTechniqueDamage ? `<div class="ogre-gate-chat-row"><strong>Technique Damage</strong><span>${techniqueDamageDice}d10${damageModifier ? ` ${damageModifier > 0 ? "+" : ""}${damageModifier}d10` : ""}${openTechniqueDamage ? " Open" : ""}${fixedExtraWounds ? ` + ${fixedExtraWounds} Wound${fixedExtraWounds === 1 ? "" : "s"}` : ""}</span></div>` : "",
+        hasNormalDamage ? `<div class="ogre-gate-chat-row"><strong>Normal Damage</strong><span>On success, roll the appropriate weapon or unarmed damage.${damageModifier ? ` ${damageModifier > 0 ? "+" : ""}${damageModifier}d10 damage modifier.` : ""}${fixedExtraWounds ? ` +${fixedExtraWounds} Extra Wound${fixedExtraWounds === 1 ? "" : "s"}.` : ""}</span></div>` : "",
+        hasDirectWounds ? `<div class="ogre-gate-chat-row"><strong>Direct Wounds</strong><span>${escapeHtml(directWoundsPreview || totalSuccessDirectWoundsPreview)}${totalSuccessDirectWoundsPreview && totalSuccessDirectWoundsPreview !== directWoundsPreview ? `; Total Success ${escapeHtml(totalSuccessDirectWoundsPreview)}` : ""}</span></div>` : "",
+        directWoundsNote ? `<div class="ogre-gate-chat-row"><strong>Direct Wounds Note</strong><span>${escapeHtml(directWoundsNote)}</span></div>` : "",
+        hasTargetDrains ? `<div class="ogre-gate-chat-row"><strong>Target Drain</strong><span>${escapeHtml(targetDrainsPreview || totalSuccessTargetDrainsPreview)}${totalSuccessTargetDrainsPreview && totalSuccessTargetDrainsPreview !== targetDrainsPreview ? `; Total Success ${escapeHtml(totalSuccessTargetDrainsPreview)}` : ""}</span></div>` : "",
+        targetDrainsNote ? `<div class="ogre-gate-chat-row"><strong>Target Drain Note</strong><span>${escapeHtml(targetDrainsNote)}</span></div>` : "",
+        hasTargetEffects ? `<div class="ogre-gate-chat-row"><strong>Target Effect</strong><span>${escapeHtml(targetEffectsPreview || totalSuccessTargetEffectsPreview)}${totalSuccessTargetEffectsPreview && totalSuccessTargetEffectsPreview !== targetEffectsPreview ? `; Total Success ${escapeHtml(totalSuccessTargetEffectsPreview)}` : ""}</span></div>` : "",
+        targetEffectsNote ? `<div class="ogre-gate-chat-row"><strong>Target Effect Note</strong><span>${escapeHtml(targetEffectsNote)}</span></div>` : "",
+        selfWounds ? `<div class="ogre-gate-chat-row"><strong>User Cost</strong><span>${selfWounds} Wound${selfWounds === 1 ? "" : "s"} to ${escapeHtml(this.name)}</span></div>` : "",
+        catharticImbalanceMultiplier > 1 ? `<div class="ogre-gate-chat-row"><strong>Imbalance Multiplier</strong><span>x${catharticImbalanceMultiplier} Cathartic Imbalance</span></div>` : "",
+        consequenceNote ? `<div class="ogre-gate-chat-row"><strong>Consequence</strong><span>${escapeHtml(consequenceNote)}</span></div>` : ""
       ].filter(Boolean).join("")
     };
     const result = skill.item
@@ -444,37 +910,279 @@ export class OgreGateActor extends Actor {
 
     const outcome = result?.outcome;
     if (cathartic && outcome) {
-      const rating = Number(this.system.status.imbalanceRating ?? 0);
+      const rating = techniqueCatharticImbalanceRating(this, item);
       const baseGained = outcome.totalSuccesses
         ? 0
         : outcome.success
           ? rating
           : rating + 2;
       const mountedImbalance = this.system.combat.movingMount ? 1 : 0;
-      await this.gainImbalance(baseGained + mountedImbalance, {
+      const multipliedGained = baseGained * catharticImbalanceMultiplier;
+      await this.gainImbalance(multipliedGained + mountedImbalance, {
         source: `${item.name} (Cathartic)`,
         reason: [
           outcome.totalSuccesses ? "Total Success" : outcome.success ? "Success" : "Failure",
+          catharticImbalanceMultiplier > 1 ? `Technique multiplier x${catharticImbalanceMultiplier}` : "",
           mountedImbalance ? "Moving mount +1" : ""
         ].filter(Boolean).join("; ")
       });
     }
 
     if (hasTechniqueDamage && outcome?.success) {
-      const targetActor = getFirstTargetActor();
       await this.rollDamage({
         label: `${item.name} Damage`,
         dice: techniqueDamageDice,
+        targetActor,
         hardiness: targetActor?.system?.defenses?.hardiness?.rating ?? 6,
-        open: Boolean(item.system.openDamage),
+        open: openTechniqueDamage,
+        modifier: damageModifier,
+        extraWounds: fixedExtraWounds,
         note: [
           `Technique damage from ${item.name}`,
           techniqueDamage.note,
+          damageModifier ? `${damageModifier > 0 ? "+" : ""}${damageModifier}d10 technique damage modifier` : "",
+          fixedExtraWounds ? `${fixedExtraWounds} fixed Extra Wound${fixedExtraWounds === 1 ? "" : "s"}` : "",
           targetActor ? `Target Hardiness: ${targetActor.name}` : "No target selected; TN 6 used"
         ].filter(Boolean).join(" | ")
       });
     }
 
+    if (hasNormalDamage && outcome?.success) {
+      await ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({ actor: this }),
+        content: `
+          <section class="ogre-gate-chat-card">
+            <h3>${escapeHtml(item.name)} Normal Damage</h3>
+            <div class="ogre-gate-chat-row"><strong>Next Step</strong><span>Roll the weapon or unarmed damage this technique uses.</span></div>
+            ${damageModifier ? `<div class="ogre-gate-chat-row"><strong>Damage Modifier</strong><span>${damageModifier > 0 ? "+" : ""}${damageModifier}d10</span></div>` : ""}
+            ${fixedExtraWounds ? `<div class="ogre-gate-chat-row"><strong>Extra Wounds</strong><span>+${fixedExtraWounds}</span></div>` : ""}
+            <div class="ogre-gate-chat-row"><strong>TN Reminder</strong><span>If the technique changes the target's Hardiness or damage TN, adjust the damage TN prompt manually.</span></div>
+            ${damageModifier || fixedExtraWounds ? `<button type="button" class="ogre-gate-chat-button" data-action="ogre-bank-technique-normal-damage" data-actor-uuid="${this.uuid ?? ""}" data-actor-id="${this.id ?? ""}" data-damage-modifier="${damageModifier}" data-extra-wounds="${fixedExtraWounds}" data-label="${escapeHtml(item.name)}">Load Technique Damage Modifiers</button>` : ""}
+          </section>
+        `
+      });
+    }
+
+    if (hasDirectWounds && outcome?.success) {
+      const expression = techniqueDirectWoundsExpression(item, cathartic, Boolean(outcome.totalSuccesses));
+      if (expression) {
+        const direct = resolveDirectWoundsExpression(this, expression);
+        await ChatMessage.create({
+          speaker: ChatMessage.getSpeaker({ actor: this }),
+          content: `
+            <section class="ogre-gate-chat-card">
+              <h3>${escapeHtml(item.name)} Direct Wounds</h3>
+              <div class="ogre-gate-chat-row"><strong>Expression</strong><span>${escapeHtml(direct.label || expression)}</span></div>
+              <div class="ogre-gate-chat-row"><strong>Wounds</strong><span>${direct.wounds || "Review note"}</span></div>
+              ${targetActor ? `<div class="ogre-gate-chat-row"><strong>Target</strong><span>${escapeHtml(targetActor.name)}</span></div>` : ""}
+              ${directWoundsNote ? `<div class="ogre-gate-chat-row"><strong>Note</strong><span>${escapeHtml(directWoundsNote)}</span></div>` : ""}
+              ${direct.wounds ? `<button type="button" class="ogre-gate-chat-button" data-action="ogre-apply-wounds" ${targetActor ? `data-actor-uuid="${targetActor.uuid ?? ""}" data-actor-id="${targetActor.id ?? ""}"` : ""} data-wounds="${direct.wounds}">Apply ${direct.wounds} Wound${direct.wounds === 1 ? "" : "s"}${targetActor ? ` to ${escapeHtml(targetActor.name)}` : ""}</button>` : ""}
+            </section>
+          `
+        });
+      }
+    }
+
+    if (hasTargetDrains && outcome?.success) {
+      const expression = techniqueTargetDrainsExpression(item, cathartic, Boolean(outcome.totalSuccesses));
+      const drains = parseTechniqueTargetDrains(this, expression);
+      await ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({ actor: this }),
+        content: `
+          <section class="ogre-gate-chat-card">
+            <h3>${escapeHtml(item.name)} Target Drain</h3>
+            <div class="ogre-gate-chat-row"><strong>Expression</strong><span>${escapeHtml(expression)}</span></div>
+            ${targetActor ? `<div class="ogre-gate-chat-row"><strong>Target</strong><span>${escapeHtml(targetActor.name)}</span></div>` : `<div class="ogre-gate-chat-row"><strong>Target</strong><span>No target selected when rolled.</span></div>`}
+            ${targetDrainsNote ? `<div class="ogre-gate-chat-row"><strong>Note</strong><span>${escapeHtml(targetDrainsNote)}</span></div>` : ""}
+            ${drains.map((drain) => `
+              <div class="ogre-gate-chat-row"><strong>${escapeHtml(drain.label)}</strong><span>-${drain.amount} (${escapeHtml(drain.amountLabel)})</span></div>
+              ${targetActor ? `<button type="button" class="ogre-gate-chat-button" data-action="ogre-apply-drain" data-actor-uuid="${targetActor.uuid ?? ""}" data-actor-id="${targetActor.id ?? ""}" data-drain-type="${escapeHtml(drain.type)}" data-drain-key="${escapeHtml(drain.key)}" data-drain-amount="${drain.amount}" data-drain-label="${escapeHtml(drain.label)}">Apply ${drain.amount} ${escapeHtml(drain.label)} Drain to ${escapeHtml(targetActor.name)}</button>` : ""}
+            `).join("")}
+            ${!drains.length ? `<div class="ogre-gate-chat-row"><strong>Review</strong><span>Resolve this drain from the technique text.</span></div>` : ""}
+          </section>
+        `
+      });
+    }
+
+    if (hasTargetEffects && outcome?.success) {
+      const effect = techniqueTargetEffectsExpression(item, cathartic, Boolean(outcome.totalSuccesses));
+      await ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({ actor: this }),
+        content: `
+          <section class="ogre-gate-chat-card">
+            <h3>${escapeHtml(item.name)} Target Effect</h3>
+            ${targetActor ? `<div class="ogre-gate-chat-row"><strong>Target</strong><span>${escapeHtml(targetActor.name)}</span></div>` : `<div class="ogre-gate-chat-row"><strong>Target</strong><span>No target selected when rolled.</span></div>`}
+            <div class="ogre-gate-chat-row"><strong>Effect</strong><span>${escapeHtml(effect)}</span></div>
+            ${targetEffectsNote ? `<div class="ogre-gate-chat-row"><strong>Note</strong><span>${escapeHtml(targetEffectsNote)}</span></div>` : ""}
+          </section>
+        `
+      });
+    }
+
+    if (selfWounds) {
+      await ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({ actor: this }),
+        content: `
+          <section class="ogre-gate-chat-card">
+            <h3>${escapeHtml(item.name)} User Cost</h3>
+            <div class="ogre-gate-chat-row"><strong>Actor</strong><span>${escapeHtml(this.name)}</span></div>
+            <div class="ogre-gate-chat-row"><strong>Wounds</strong><span>${selfWounds}</span></div>
+            ${consequenceNote ? `<div class="ogre-gate-chat-row"><strong>Note</strong><span>${escapeHtml(consequenceNote)}</span></div>` : ""}
+            <button type="button" class="ogre-gate-chat-button" data-action="ogre-apply-wounds" data-actor-uuid="${this.uuid ?? ""}" data-actor-id="${this.id ?? ""}" data-wounds="${selfWounds}">Apply ${selfWounds} Wound${selfWounds === 1 ? "" : "s"} to ${escapeHtml(this.name)}</button>
+          </section>
+        `
+      });
+    } else if (consequenceNote) {
+      await ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({ actor: this }),
+        content: `
+          <section class="ogre-gate-chat-card">
+            <h3>${escapeHtml(item.name)} Consequence Reminder</h3>
+            <div class="ogre-gate-chat-row"><strong>Note</strong><span>${escapeHtml(consequenceNote)}</span></div>
+          </section>
+        `
+      });
+    }
+
+    if (isStance && outcome?.success) {
+      await this.activateStance(item, { cathartic });
+    }
+
+    if (techniqueKey === "purgespirit" && outcome) {
+      if (outcome.success) {
+        await targetActor.purgeQiSpirit({
+          clearImbalance: Boolean(outcome.totalSuccesses),
+          source: item.name
+        });
+      } else {
+        await this.gainImbalance(3, {
+          source: `${item.name} Failure`,
+          reason: "Purge Spirit adds 3 additional Imbalance Points on failure"
+        });
+      }
+    }
+
+    if (techniqueKey === "purgeaffliction" && outcome) {
+      if (outcome.success) {
+        await targetActor.purgeMentalAfflictions(outcome.totalSuccesses ? 2 : 1, {
+          source: item.name
+        });
+      } else {
+        await this.gainImbalance(3, {
+          source: `${item.name} Failure`,
+          reason: "Purge Affliction adds 3 additional Imbalance Points on failure"
+        });
+      }
+    }
+
+    return result?.message ?? result;
+  }
+
+  async activateStance(item, { cathartic = false } = {}) {
+    item = typeof item === "string" ? this.items.get(item) : item;
+    if (!item || item.type !== "technique" || item.system.techniqueType !== "stance") return null;
+    const formation = isFormationTechnique(item);
+    const participants = formationParticipants(item);
+    const formationNote = formation ? formationNotes(item) : "";
+    const note = cathartic
+      ? "Cathartic stance active. Roll maintenance each round; no additional Move action is required."
+      : "Normal stance active. It remains until ended or replaced by another stance.";
+    await this.update({
+      "system.combat.activeStanceId": item.id,
+      "system.combat.activeStanceName": item.name,
+      "system.combat.activeStanceCathartic": Boolean(cathartic),
+      "system.combat.activeStanceRounds": cathartic ? 1 : 0,
+      "system.combat.activeStanceNotes": [note, formationNote].filter(Boolean).join(" ")
+    });
+    return ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      content: `
+        <section class="ogre-gate-chat-card">
+          <h3>${escapeHtml(this.name)} Assumes ${escapeHtml(item.name)}</h3>
+          <div class="ogre-gate-chat-row"><strong>Mode</strong><span>${cathartic ? "Cathartic" : "Normal"}</span></div>
+          <div class="ogre-gate-chat-row"><strong>Action</strong><span>Move Action</span></div>
+          <div class="ogre-gate-chat-row"><strong>Duration</strong><span>${cathartic ? "Maintained with a Skill roll each round." : "Until ended or replaced by another stance."}</span></div>
+          ${formation ? `<div class="ogre-gate-chat-row"><strong>Formation</strong><span>${participants ? `${participants}+ participant${participants === 1 ? "" : "s"}. ` : ""}${escapeHtml(formationNote)}</span></div>` : ""}
+        </section>
+      `
+    });
+  }
+
+  async endActiveStance() {
+    const name = this.system.combat.activeStanceName;
+    if (!name) return null;
+    await this.update({
+      "system.combat.activeStanceId": "",
+      "system.combat.activeStanceName": "",
+      "system.combat.activeStanceCathartic": false,
+      "system.combat.activeStanceRounds": 0,
+      "system.combat.activeStanceNotes": ""
+    });
+    return ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      content: `
+        <section class="ogre-gate-chat-card">
+          <h3>${escapeHtml(this.name)} Ends ${escapeHtml(name)}</h3>
+          <div class="ogre-gate-chat-row"><strong>Stance</strong><span>No stance active.</span></div>
+        </section>
+      `
+    });
+  }
+
+  async maintainCatharticStance({ tn = 6 } = {}) {
+    const stanceId = this.system.combat.activeStanceId;
+    const item = stanceId ? this.items.get(stanceId) : null;
+    if (!item || item.system.techniqueType !== "stance") {
+      ui.notifications.warn(`${this.name} has no active stance to maintain.`);
+      return null;
+    }
+    if (!this.system.combat.activeStanceCathartic) {
+      ui.notifications.warn(`${item.name} is active normally and does not require maintenance rolls.`);
+      return null;
+    }
+    const skill = this.findSkillPath(item.system.activationSkill);
+    if (!skill) {
+      ui.notifications.warn(`${item.name} needs an Activation Skill that ${this.name} possesses.`);
+      return null;
+    }
+
+    const activationGroupLabel = OGRE_GATE.skillGroups[skill.groupKey]?.label ?? skill.groupKey;
+    const activationLabel = skill.item?.name ?? skillLabel(skill.groupKey, skill.skillKey, skill.skill);
+    const result = skill.item
+      ? await this.rollSkillItem(skill.item, {
+        label: `${item.name} Maintenance`,
+        tn,
+        returnOutcome: true,
+        extra: `<div class="ogre-gate-chat-row"><strong>Stance</strong><span>Cathartic maintenance; no Move action required.</span></div>`
+      })
+      : await this.rollSkill(skill.groupKey, skill.skillKey, {
+        label: `${item.name} Maintenance`,
+        tn,
+        returnOutcome: true,
+        extra: `<div class="ogre-gate-chat-row"><strong>Activation Skill</strong><span>${escapeHtml(activationGroupLabel)}: ${escapeHtml(activationLabel)}</span></div>`
+      });
+
+    const outcome = result?.outcome;
+    if (!outcome) return result?.message ?? result;
+    const rating = Number(this.system.status.imbalanceRating ?? 0);
+    const baseGained = outcome.totalSuccesses
+      ? 0
+      : outcome.success
+        ? rating
+        : rating + 2;
+    const mountedImbalance = this.system.combat.movingMount ? 1 : 0;
+    await this.gainImbalance(baseGained + mountedImbalance, {
+      source: `${item.name} Maintenance`,
+      reason: [
+        outcome.totalSuccesses ? "Total Success" : outcome.success ? "Success" : "Failure",
+        mountedImbalance ? "Moving mount +1" : ""
+      ].filter(Boolean).join("; ")
+    });
+    if (outcome.success) {
+      await this.update({ "system.combat.activeStanceRounds": Number(this.system.combat.activeStanceRounds ?? 0) + 1 });
+    } else {
+      await this.endActiveStance();
+    }
     return result?.message ?? result;
   }
 
@@ -533,6 +1241,26 @@ export class OgreGateActor extends Actor {
           <div class="ogre-gate-chat-row"><strong>Imbalance</strong><span>${current} / ${maximum}</span></div>
           <div class="ogre-gate-chat-row"><strong>Qi Spirit Roll</strong><span>${result}: ${escapeHtml(spirit)}</span></div>
           <div class="ogre-gate-chat-row"><strong>Recovery</strong><span>Points cannot be recovered until the spirit is purged.</span></div>
+        </section>
+      `
+    });
+  }
+
+  async rollDemonFlaw(source = "Evil Technique Mastery") {
+    const roll = await new Roll("1d100").evaluate();
+    const result = Number(roll.total ?? 1);
+    const entry = OGRE_GATE.demonFlawTable.find((row) => result >= row.min && result <= row.max);
+    const flaw = entry?.label ?? "GM Choice";
+    return roll.toMessage({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      flavor: `${this.name} Demon Flaw`,
+      content: `
+        <section class="ogre-gate-chat-card">
+          <h3>${escapeHtml(this.name)} Rolls a Demon Flaw</h3>
+          <div class="ogre-gate-chat-row"><strong>Source</strong><span>${escapeHtml(source)}</span></div>
+          <div class="ogre-gate-chat-row"><strong>Roll</strong><span>${result}</span></div>
+          <div class="ogre-gate-chat-row"><strong>Result</strong><span>${escapeHtml(flaw)}</span></div>
+          <div class="ogre-gate-chat-row"><strong>Mastery</strong><span>Demon Flaws from mastering Evil Techniques are permanent. Re-roll repeated or conflicting results only at GM discretion.</span></div>
         </section>
       `
     });
@@ -615,22 +1343,66 @@ export class OgreGateActor extends Actor {
     return result.message;
   }
 
-  async purgeQiSpirit() {
+  async purgeQiSpirit({ clearImbalance = false, source = "purging Kung Fu Technique" } = {}) {
     if (!this.system.imbalance.possessed) return null;
     const spirit = this.system.imbalance.spirit || "Qi Spirit";
-    await this.update({
+    const updates = {
       "system.imbalance.possessed": false,
       "system.imbalance.spirit": "",
       "system.imbalance.possessionControl": "unchecked",
       "system.imbalance.possessionControlDays": 0
-    });
+    };
+    if (clearImbalance) updates["system.imbalance.value"] = 0;
+    await this.update(updates);
     return ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this }),
       content: `
         <section class="ogre-gate-chat-card">
           <h3>${escapeHtml(this.name)} Is Purged</h3>
-          <div class="ogre-gate-chat-row"><strong>Spirit</strong><span>${escapeHtml(spirit)} removed by a purging Kung Fu Technique.</span></div>
-          <div class="ogre-gate-chat-row"><strong>Imbalance</strong><span>Existing points remain until removed by meditation or another effect.</span></div>
+          <div class="ogre-gate-chat-row"><strong>Spirit</strong><span>${escapeHtml(spirit)} removed by ${escapeHtml(source)}.</span></div>
+          <div class="ogre-gate-chat-row"><strong>Imbalance</strong><span>${clearImbalance ? "All Imbalance Points removed by Total Success." : "Existing points remain until removed by meditation or another effect."}</span></div>
+        </section>
+      `
+    });
+  }
+
+  hasMentalAffliction() {
+    return this.getTrackedAfflictions().some(isMentalAffliction);
+  }
+
+  async purgeMentalAfflictions(limit = 1, { source = "Purge Affliction" } = {}) {
+    const maximum = Math.max(1, Math.trunc(Number(limit ?? 1)));
+    const current = snapshotAffliction(this.system.affliction);
+    const additional = Array.from(this.system.additionalAfflictions ?? []).map(snapshotAffliction);
+    const purged = [];
+
+    const updates = {};
+    if (isMentalAffliction(current) && purged.length < maximum) {
+      purged.push(current.name);
+      updates["system.affliction"] = purgeAfflictionSnapshot(current);
+    }
+
+    const nextAdditional = additional.map((affliction) => {
+      if (purged.length >= maximum || !isMentalAffliction(affliction)) return affliction;
+      purged.push(affliction.name);
+      return purgeAfflictionSnapshot(affliction);
+    });
+
+    if (!purged.length) {
+      ui.notifications.warn(`${this.name} has no tracked mental affliction to purge.`);
+      return null;
+    }
+
+    updates["system.additionalAfflictions"] = nextAdditional;
+    await this.update(updates);
+    return ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      content: `
+        <section class="ogre-gate-chat-card">
+          <h3>${escapeHtml(this.name)} Mental Affliction Purged</h3>
+          <div class="ogre-gate-chat-row"><strong>Technique</strong><span>${escapeHtml(source)}</span></div>
+          <div class="ogre-gate-chat-row"><strong>Purged</strong><span>${purged.map(escapeHtml).join(", ")}</span></div>
+          <div class="ogre-gate-chat-row"><strong>Limit</strong><span>${maximum === 1 ? "Success purges one Mental Affliction." : "Total Success purges up to two Mental Afflictions."}</span></div>
         </section>
       `
     });
@@ -747,11 +1519,19 @@ export class OgreGateActor extends Actor {
 
   async rollAttackWithWeapon(item, options = {}) {
     item = typeof item === "string" ? this.items.get(item) : item;
-    if (!item || item.type !== "weapon") return null;
+    if (!item || item.type !== "weapon") {
+      ui.notifications.warn("That weapon could not be found on this actor.");
+      return null;
+    }
 
     const skillKey = item.system.attackSkill || item.system.category || "mediumMelee";
-    const skill = this.getSkill("combat", skillKey);
-    if (!skill) return null;
+    const skillMatch = this.findSkillPath(`combat.${skillKey}`) ?? this.findSkillPath(skillKey);
+    const skill = skillMatch?.skill;
+    if (!skill) {
+      const skillLabel = OGRE_GATE.skillGroups.combat.skills[skillKey] ?? item.system.attackSkill ?? item.system.category ?? "Combat Skill";
+      ui.notifications.warn(`${this.name} needs the ${skillLabel} Skill item before attacking with ${item.name}.`);
+      return null;
+    }
 
     const defenseKey = item.system.targetDefense || OGRE_GATE.combatSkillDefense[skillKey] || "parry";
     const defenseLabel = OGRE_GATE.defenses[defenseKey]?.label ?? defenseKey;
@@ -809,13 +1589,18 @@ export class OgreGateActor extends Actor {
 
   async rollWeaponDamage(item, options = {}) {
     item = typeof item === "string" ? this.items.get(item) : item;
-    if (!item || item.type !== "weapon") return null;
+    if (!item || item.type !== "weapon") {
+      ui.notifications.warn("That weapon could not be found on this actor.");
+      return null;
+    }
 
     const damageSkillKey = item.system.damageSkill;
     let skillRanks = 0;
+    let missingDamageSkill = "";
     if (damageSkillKey) {
-      const skill = this.findSkill(damageSkillKey)?.skill;
-      skillRanks = effectiveRanks(skill);
+      const skillMatch = this.findSkillPath(`physical.${damageSkillKey}`) ?? this.findSkillPath(damageSkillKey);
+      skillRanks = effectiveRanks(skillMatch?.skill);
+      if (!skillMatch) missingDamageSkill = OGRE_GATE.skillGroups.physical.skills[damageSkillKey] ?? damageSkillKey;
     }
     const substanceDamageModifier = this.getActiveSubstanceSkillModifier("physical", damageSkillKey);
     const afflictionDamageModifier = this.getAfflictionSkillModifier("physical");
@@ -826,19 +1611,25 @@ export class OgreGateActor extends Actor {
     const controlledReduction = controlledStrike ? -1 : 0;
     const raceDamageModifier = this.getRaceDamageModifier(item.system.attackSkill || item.system.category);
     const pendingDamageBonus = Math.max(0, Math.trunc(Number(options.damageBonus ?? this.system.combat.pendingDamageBonus ?? 0)));
+    const pendingDamageModifier = Math.trunc(Number(options.modifier ?? this.system.combat.pendingDamageModifier ?? 0));
+    const pendingExtraWounds = Math.max(0, Math.trunc(Number(options.extraWounds ?? this.system.combat.pendingExtraWounds ?? 0)));
     const targetActor = getFirstTargetActor();
     const armorReduction = targetActor?.getArmorDamageReduction?.(item) ?? 0;
 
     const message = await this.rollDamage({
       label: `${item.name} Damage`,
       dice: Number(item.system.damageDice ?? 0) + skillRanks,
+      targetActor,
       hardiness: options.hardiness ?? 6,
       open: item.system.openDamage || options.open || attackMode.openDamage,
-      modifier: Number(options.modifier ?? 0) + Number(attackMode.damage ?? 0) + raceDamageModifier + substanceDamageModifier + afflictionDamageModifier + pendingDamageBonus - armorReduction,
-      extraWounds: Number(options.extraWounds ?? 0) + modeExtraWounds + controlledReduction,
+      modifier: pendingDamageModifier + Number(attackMode.damage ?? 0) + raceDamageModifier + substanceDamageModifier + afflictionDamageModifier + pendingDamageBonus - armorReduction,
+      extraWounds: pendingExtraWounds + modeExtraWounds + controlledReduction,
       note: [
         attackMode.label,
+        missingDamageSkill ? `${missingDamageSkill} Skill missing: using weapon dice only` : "",
         pendingDamageBonus ? `Attack bonus +${pendingDamageBonus}d10` : "",
+        pendingDamageModifier ? `Pending damage modifier ${pendingDamageModifier > 0 ? "+" : ""}${pendingDamageModifier}d10` : "",
+        pendingExtraWounds ? `Pending ${pendingExtraWounds} Extra Wound${pendingExtraWounds === 1 ? "" : "s"}` : "",
         armorReduction ? `${targetActor.name} armor -${armorReduction}d10` : "",
         raceDamageModifier ? `Race +${raceDamageModifier}d10 damage` : "",
         substanceDamageModifier ? `Substance ${substanceDamageModifier > 0 ? "+" : ""}${substanceDamageModifier}d10 damage` : "",
@@ -850,8 +1641,12 @@ export class OgreGateActor extends Actor {
       outcomeHint: attackMode.outcome ?? ""
     });
 
-    if (pendingDamageBonus && options.consumeDamageBonus !== false) {
-      await this.update({ "system.combat.pendingDamageBonus": 0 });
+    if ((pendingDamageBonus || pendingDamageModifier || pendingExtraWounds) && options.consumeDamageBonus !== false) {
+      await this.update({
+        "system.combat.pendingDamageBonus": 0,
+        "system.combat.pendingDamageModifier": 0,
+        "system.combat.pendingExtraWounds": 0
+      });
     }
 
     return message;
@@ -880,9 +1675,10 @@ export class OgreGateActor extends Actor {
     });
   }
 
-  async rollDamage({ dice, hardiness, open = false, label = "Damage", modifier = 0, extraWounds = 0, note = "", outcomeHint = "" } = {}) {
+  async rollDamage({ dice, hardiness, targetActor = null, open = false, label = "Damage", modifier = 0, extraWounds = 0, note = "", outcomeHint = "" } = {}) {
     return OgreGateRoll.damage({
       actor: this,
+      targetActor,
       label,
       dice,
       hardiness,

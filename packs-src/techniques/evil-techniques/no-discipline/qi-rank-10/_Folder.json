@@ -1,0 +1,23 @@
+{
+  "_id": "1161d1c3880f7761",
+  "name": "Qi Rank 10",
+  "type": "Item",
+  "sorting": "a",
+  "sort": 0,
+  "color": null,
+  "folder": "d15f79ed252d5839",
+  "description": "",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": "Folder.1161d1c3880f7761",
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "ogregatefoundry",
+    "systemVersion": "0.1.6",
+    "createdTime": 0,
+    "modifiedTime": 0,
+    "lastModifiedBy": null
+  },
+  "_key": "!folders!1161d1c3880f7761"
+}

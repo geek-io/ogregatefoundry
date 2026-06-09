@@ -1,0 +1,23 @@
+{
+  "_id": "74a9aa6104382bf0",
+  "name": "Evil Techniques",
+  "type": "Item",
+  "sorting": "a",
+  "sort": 0,
+  "color": null,
+  "folder": null,
+  "description": "",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": "Folder.74a9aa6104382bf0",
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "ogregatefoundry",
+    "systemVersion": "0.1.6",
+    "createdTime": 0,
+    "modifiedTime": 0,
+    "lastModifiedBy": null
+  },
+  "_key": "!folders!74a9aa6104382bf0"
+}

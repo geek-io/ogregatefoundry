@@ -1,0 +1,23 @@
+{
+  "_id": "ee64e7f6493fea00",
+  "name": "Neigong",
+  "type": "Item",
+  "sorting": "a",
+  "sort": 0,
+  "color": null,
+  "folder": "5cbc3e9e59e6d3c2",
+  "description": "",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": "Folder.ee64e7f6493fea00",
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "ogregatefoundry",
+    "systemVersion": "0.1.6",
+    "createdTime": 0,
+    "modifiedTime": 0,
+    "lastModifiedBy": null
+  },
+  "_key": "!folders!ee64e7f6493fea00"
+}

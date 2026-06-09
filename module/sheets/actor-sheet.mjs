@@ -31,8 +31,9 @@ const ACTOR_HELP = {
   imbalance: "Imbalance Rating equals your highest Martial Discipline rank. Cathartic Kung Fu use adds points; at 12 + Qi you risk Qi Spirit Possession.",
   meditateImbalance: "Meditation removes 1 Imbalance per Qi level per hour without a roll. With zero Meditation ranks, it removes 1 point per two hours.",
   possession: "At maximum Imbalance, roll for a Qi Spirit. While possessed, you cannot recover Imbalance until purged and must roll Meditation each day against TN 7 + Imbalance Rating.",
-  useTechnique: "Roll the technique's Activation Skill normally. You must possess its listed Qi rank.",
-  catharticTechnique: "Use the technique Cathartically. Success gains Imbalance equal to Rating, failure gains Rating + 2, and Total Success gains none.",
+  demonFlaw: "Roll 1d100 on the Demon Flaw Table when mastering an Evil Technique. Demon Flaws gained this way are permanent.",
+  useTechnique: "Roll the technique's Activation Skill normally. Counters are off-turn reactions; target the attacker to enforce the Qi rule.",
+  catharticTechnique: "Use the technique Cathartically. Success gains Imbalance equal to Rating, failure gains Rating + 2, and Total Success gains none. Counters against equal-or-higher Qi attackers require Cathartic use unless the entry says otherwise.",
   qiDuel: "Target an opposing actor and resolve one Qi Duel round. A Qi disparity greater than 1 prevents a duel; tied rounds add 2 Extra Wounds to the eventual result.",
   karma: "Hidden GM-only stat from -10 to +10.",
   situationalDice: "Adds or subtracts dice from skill and attack rolls after action, race, and illumination modifiers.",
@@ -109,6 +110,142 @@ function normalizeKey(value = "") {
   return String(value).trim().toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
+function stanceNeedsActivationRoll(item, cathartic = false) {
+  return Boolean(cathartic) || /requires a skill roll to use non-Cathartically|requires a skill roll/i.test(item?.system?.description ?? "");
+}
+
+function techniqueRequiresCatharticUse(item) {
+  const type = normalizeKey(item?.system?.techniqueType ?? "");
+  const group = normalizeKey(item?.flags?.ogregatefoundry?.group ?? "");
+  return ["profound", "immortal"].includes(type) || ["profound", "evil", "immortal"].includes(group);
+}
+
+function isEvilTechnique(itemOrData) {
+  return normalizeKey(itemOrData?.flags?.[OGRE_GATE.id]?.group ?? itemOrData?.flags?.ogregatefoundry?.group ?? "") === "evil";
+}
+
+function techniqueDisciplineRequirement(actor, item) {
+  const disciplineKey = item?.system?.discipline ?? "";
+  if (!["waijia", "qinggong", "neigong", "dianxue"].includes(disciplineKey)) return null;
+  const ranks = Number(actor?.system?.disciplines?.[disciplineKey]?.ranks ?? 0);
+  const label = OGRE_GATE.disciplines[disciplineKey] ?? disciplineKey;
+  return {
+    key: disciplineKey,
+    label,
+    ranks,
+    missing: ranks <= 0
+  };
+}
+
+function isFormationTechnique(item) {
+  return Boolean(item?.system?.formation)
+    || /Type:\s*Stance\s*\(Formation\)/i.test(item?.system?.description ?? "");
+}
+
+function formationParticipants(item) {
+  const listed = Number(item?.system?.formationParticipants ?? 0);
+  if (listed) return listed;
+  const text = `${item?.name ?? ""} ${item?.system?.description ?? ""}`;
+  if (/six people|six practitioners/i.test(text)) return 6;
+  if (/two practitioners|pair up|two or more participants|requires two/i.test(text)) return 2;
+  return 0;
+}
+
+function formationTooltip(item) {
+  if (!isFormationTechnique(item)) return "";
+  const participants = formationParticipants(item);
+  return item?.system?.formationNotes
+    || (participants ? `Requires at least ${participants} participants. Formation can be broken by a Total Success attack against it.` : "Formation can be broken by a Total Success attack against it.");
+}
+
+function techniquePrerequisites(item) {
+  return String(item?.system?.prerequisiteTechniques ?? "")
+    .split(/[;\n]/)
+    .map((name) => name.trim())
+    .filter(Boolean);
+}
+
+function isCombinationTechnique(item) {
+  return Boolean(item?.system?.combination) || techniquePrerequisites(item).length > 0;
+}
+
+function techniqueRequirementNotes(item) {
+  return String(item?.system?.requirementNotes ?? "").trim();
+}
+
+function techniqueRequiredFlaws(item) {
+  return String(item?.system?.requiredFlaws ?? "")
+    .split(/[;\n]/)
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+}
+
+function techniqueRequiredSkillRanks(item) {
+  return String(item?.system?.requiredSkillRanks ?? "")
+    .split(/[;\n]/)
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .map((entry) => {
+      const [skillRef, rankRef] = entry.split(/[:=]/).map((part) => part.trim());
+      return {
+        skillRef,
+        ranks: Math.max(0, Math.trunc(Number(rankRef ?? 0)))
+      };
+    })
+    .filter((entry) => entry.skillRef && entry.ranks > 0);
+}
+
+function techniqueAccessNotes(item) {
+  return String(item?.system?.accessNotes ?? "").trim();
+}
+
+function missingTechniquePrerequisites(actor, item) {
+  const prerequisites = techniquePrerequisites(item);
+  if (!prerequisites.length) return [];
+  const owned = new Set(actor.items
+    .filter((candidate) => ["technique", "combatTechnique"].includes(candidate.type))
+    .flatMap((candidate) => [
+      normalizeKey(candidate.name),
+      normalizeKey(candidate.name.replace(/\s*\(Secret\)\s*/gi, "")),
+      normalizeKey(candidate.flags?.ogregatefoundry?.rulesKey ?? "")
+    ])
+    .filter(Boolean));
+  return prerequisites.filter((name) => {
+    const normalized = normalizeKey(name);
+    const withoutSecret = normalizeKey(name.replace(/\s*\(Secret\)\s*/gi, ""));
+    return !owned.has(normalized) && !owned.has(withoutSecret);
+  });
+}
+
+function actorHasFlaw(actor, flawName) {
+  const normalized = normalizeKey(flawName);
+  return actor.items.some((candidate) => {
+    if (candidate.type !== "flaw") return false;
+    return [
+      candidate.name,
+      candidate.system?.flawKey,
+      OGRE_GATE.flaws?.[candidate.system?.flawKey]?.label
+    ].some((value) => normalizeKey(value) === normalized);
+  });
+}
+
+function missingTechniqueActorRequirements(actor, item) {
+  const missing = [];
+  for (const flaw of techniqueRequiredFlaws(item)) {
+    if (!actorHasFlaw(actor, flaw)) missing.push(`Flaw: ${flaw}`);
+  }
+  for (const requirement of techniqueRequiredSkillRanks(item)) {
+    const skill = actor.findSkillPath(requirement.skillRef);
+    const ranks = effectiveRanks(skill?.skill);
+    if (ranks < requirement.ranks) missing.push(`${requirement.skillRef} ${requirement.ranks}`);
+  }
+  return missing;
+}
+
+function getFirstTargetActor() {
+  return Array.from(game.user?.targets ?? []).find((token) => token?.actor)?.actor ?? null;
+}
+
 function getSkillIdentity(itemData) {
   const system = itemData?.system ?? {};
   return `${system.group ?? ""}:${normalizeKey(system.skillKey || itemData?.name || "")}`;
@@ -164,11 +301,15 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     const context = await super._prepareContext(options);
     const actor = this.actor;
     const creation = prepareCharacterCreation(actor);
+    this._collapsedSkillGroups ??= new Set();
     return {
       ...context,
       actor,
       system: actor.system,
       config: OGRE_GATE,
+      martialDisciplines: Object.entries(OGRE_GATE.disciplines)
+        .filter(([key]) => !["none", "multiple"].includes(key))
+        .map(([key, label]) => ({ key, label })),
       help: ACTOR_HELP,
       isGM: game.user.isGM,
       familyRows: this.#prepareFamilyRows(actor),
@@ -185,6 +326,7 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       attackModes: this.#prepareAttackModes(),
       selectedAttackMode: this.#prepareSelectedAttackMode(actor),
       preparedStrikeStatus: actor.system.preparedStrike.ready ? "Armed" : "Not Armed",
+      activeStance: this.#prepareActiveStance(actor),
       coverOptions: this.#prepareCoverOptions(),
       illuminationOptions: this.#prepareIlluminationOptions(),
       afflictionTypes: this.#prepareAfflictionTypes(),
@@ -237,6 +379,12 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     this.element.querySelectorAll("[data-action='roll-technique']").forEach((button) => {
       button.addEventListener("click", (event) => this.#onRollTechnique(event), listenerOptions);
     });
+    this.element.querySelectorAll("[data-action='maintain-stance']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onMaintainStance(event), listenerOptions);
+    });
+    this.element.querySelectorAll("[data-action='end-stance']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onEndStance(event), listenerOptions);
+    });
     this.element.querySelectorAll("[data-action='meditate-imbalance']").forEach((button) => {
       button.addEventListener("click", (event) => this.#onMeditateImbalance(event), listenerOptions);
     });
@@ -248,6 +396,9 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     });
     this.element.querySelectorAll("[data-action='purge-possession']").forEach((button) => {
       button.addEventListener("click", (event) => this.#onPurgePossession(event), listenerOptions);
+    });
+    this.element.querySelectorAll("[data-action='roll-demon-flaw']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onRollDemonFlaw(event), listenerOptions);
     });
     this.element.querySelectorAll("[data-action='resolve-qi-duel']").forEach((button) => {
       button.addEventListener("click", (event) => this.#onResolveQiDuel(event), listenerOptions);
@@ -327,6 +478,9 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     this.element.querySelectorAll("[data-action='recover-drain']").forEach((button) => {
       button.addEventListener("click", (event) => this.#onRecoverDrain(event), listenerOptions);
     });
+    this.element.querySelectorAll("[data-action='toggle-skill-group']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onToggleSkillGroup(event), listenerOptions);
+    });
     this.element.querySelectorAll("[data-action='apply-creation-defaults']").forEach((button) => {
       button.addEventListener("click", (event) => this.#onApplyCreationDefaults(event), listenerOptions);
     });
@@ -354,6 +508,7 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       tab.addEventListener("click", (event) => this.#onChangeTab(event), listenerOptions);
     });
     this.#activateTab(this._activeTab ?? "front", "primary");
+    this.#restoreSheetScroll();
   }
 
   #prepareDefenses(actor) {
@@ -380,6 +535,7 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     return Object.entries(OGRE_GATE.skillGroups).filter(([groupKey]) => groupKey !== "defenses").map(([groupKey, group]) => ({
       key: groupKey,
       label: group.label,
+      collapsed: this._collapsedSkillGroups?.has(groupKey) ?? false,
       budget: budgetRows[groupKey],
       skills: Array.from(new Map(actor.items
         .filter((item) => item.type === "skills" && item.system.group === groupKey)
@@ -419,16 +575,115 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       key,
       label,
       items: techniques.filter((item) => (item.system.techniqueType || "normal") === key)
-        .map((item) => ({
-          item,
-          damage: this.#prepareTechniqueDamage(item, actor)
-        }))
+        .map((item) => {
+          const prerequisites = techniquePrerequisites(item);
+          const missingPrerequisites = missingTechniquePrerequisites(actor, item);
+          const requiredFlaws = techniqueRequiredFlaws(item);
+          const requiredSkillRanks = techniqueRequiredSkillRanks(item);
+          const missingActorRequirements = missingTechniqueActorRequirements(actor, item);
+          const disciplineRequirement = techniqueDisciplineRequirement(actor, item);
+          return {
+            item,
+            damage: this.#prepareTechniqueDamage(item, actor),
+            catharticOnly: techniqueRequiresCatharticUse(item),
+            demonFlaw: isEvilTechnique(item),
+            disciplineRequirement,
+            missingDiscipline: disciplineRequirement?.missing,
+            disciplineTooltip: disciplineRequirement
+              ? `${disciplineRequirement.label} ${disciplineRequirement.ranks} rank${disciplineRequirement.ranks === 1 ? "" : "s"}; at least 1 rank is required to use this technique.`
+              : "",
+            formation: isFormationTechnique(item),
+            formationParticipants: formationParticipants(item),
+            formationTooltip: formationTooltip(item),
+            combination: isCombinationTechnique(item),
+            prerequisiteTooltip: prerequisites.length ? `Requires: ${prerequisites.join(", ")}` : "",
+            missingPrerequisites,
+            missingPrerequisiteTooltip: missingPrerequisites.length ? `Missing: ${missingPrerequisites.join(", ")}` : "",
+            requiredFlaws,
+            requiredSkillRanks,
+            actorRequirementTooltip: [
+              requiredFlaws.length ? `Required Flaws: ${requiredFlaws.join(", ")}` : "",
+              requiredSkillRanks.length ? `Required Skill Ranks: ${requiredSkillRanks.map((entry) => `${entry.skillRef} ${entry.ranks}`).join(", ")}` : ""
+            ].filter(Boolean).join(" | "),
+            missingActorRequirements,
+            missingActorRequirementTooltip: missingActorRequirements.length ? `Missing: ${missingActorRequirements.join(", ")}` : "",
+            requirementNotes: techniqueRequirementNotes(item),
+            secret: Boolean(item.system.secret ?? item.flags?.ogregatefoundry?.secret),
+            accessNotes: techniqueAccessNotes(item)
+          };
+        })
     }));
+  }
+
+  #prepareActiveStance(actor) {
+    const name = actor.system.combat.activeStanceName;
+    if (!name) return null;
+    const item = actor.system.combat.activeStanceId ? actor.items.get(actor.system.combat.activeStanceId) : null;
+    return {
+      id: actor.system.combat.activeStanceId,
+      name,
+      cathartic: Boolean(actor.system.combat.activeStanceCathartic),
+      rounds: Number(actor.system.combat.activeStanceRounds ?? 0),
+      notes: actor.system.combat.activeStanceNotes,
+      formation: isFormationTechnique(item),
+      formationParticipants: formationParticipants(item),
+      formationTooltip: formationTooltip(item),
+      itemMissing: Boolean(actor.system.combat.activeStanceId && !item),
+      tooltip: item ? stripHtml(item.system.description) : actor.system.combat.activeStanceNotes
+    };
   }
 
   #prepareTechniqueDamage(item, actor) {
     const raw = String(item.system.damage ?? "").trim();
+    const directWounds = String(item.system.directWounds ?? "").trim();
+    const totalSuccessDirectWounds = String(item.system.totalSuccessDirectWounds ?? "").trim();
+    const catharticDirectWounds = String(item.system.catharticDirectWounds ?? "").trim();
+    const catharticTotalSuccessDirectWounds = String(item.system.catharticTotalSuccessDirectWounds ?? "").trim();
+    const directWoundsNote = String(item.system.directWoundsNote ?? "").trim();
+    const targetDrains = String(item.system.targetDrains ?? "").trim();
+    const totalSuccessTargetDrains = String(item.system.totalSuccessTargetDrains ?? "").trim();
+    const catharticTargetDrains = String(item.system.catharticTargetDrains ?? "").trim();
+    const catharticTotalSuccessTargetDrains = String(item.system.catharticTotalSuccessTargetDrains ?? "").trim();
+    const targetDrainsNote = String(item.system.targetDrainsNote ?? "").trim();
+    const targetEffects = String(item.system.targetEffects ?? "").trim();
+    const totalSuccessTargetEffects = String(item.system.totalSuccessTargetEffects ?? "").trim();
+    const catharticTargetEffects = String(item.system.catharticTargetEffects ?? "").trim();
+    const catharticTotalSuccessTargetEffects = String(item.system.catharticTotalSuccessTargetEffects ?? "").trim();
+    const targetEffectsNote = String(item.system.targetEffectsNote ?? "").trim();
+    const selfWounds = Number(item.system.selfWounds ?? 0);
+    const catharticSelfWounds = Number(item.system.catharticSelfWounds ?? 0);
+    const catharticImbalanceMultiplier = Number(item.system.catharticImbalanceMultiplier ?? 1);
+    const consequenceNote = String(item.system.consequenceNote ?? "").trim();
+    const directWoundsLabel = [
+      directWounds ? `Direct ${directWounds} W` : "",
+      totalSuccessDirectWounds ? `TS ${totalSuccessDirectWounds} W` : "",
+      catharticDirectWounds ? `Cathartic ${catharticDirectWounds} W` : "",
+      catharticTotalSuccessDirectWounds ? `Cathartic TS ${catharticTotalSuccessDirectWounds} W` : ""
+    ].filter(Boolean).join(" | ");
+    const consequenceLabel = [
+      selfWounds ? `User ${selfWounds} W` : "",
+      catharticSelfWounds ? `Cathartic User ${catharticSelfWounds} W` : "",
+      catharticImbalanceMultiplier > 1 ? `Cathartic Imbalance x${catharticImbalanceMultiplier}` : ""
+    ].filter(Boolean).join(" | ");
+    const targetDrainsLabel = [
+      targetDrains ? `Drain ${targetDrains}` : "",
+      totalSuccessTargetDrains ? `TS Drain ${totalSuccessTargetDrains}` : "",
+      catharticTargetDrains ? `Cathartic Drain ${catharticTargetDrains}` : "",
+      catharticTotalSuccessTargetDrains ? `Cathartic TS Drain ${catharticTotalSuccessTargetDrains}` : ""
+    ].filter(Boolean).join(" | ");
+    const targetEffectsLabel = [
+      targetEffects ? `Effect: ${targetEffects}` : "",
+      totalSuccessTargetEffects ? `TS Effect: ${totalSuccessTargetEffects}` : "",
+      catharticTargetEffects ? `Cathartic Effect: ${catharticTargetEffects}` : "",
+      catharticTotalSuccessTargetEffects ? `Cathartic TS Effect: ${catharticTotalSuccessTargetEffects}` : ""
+    ].filter(Boolean).join(" | ");
     if (!raw) {
+      if (directWoundsLabel || targetDrainsLabel || targetEffectsLabel || consequenceLabel) {
+        return {
+          label: [directWoundsLabel, targetDrainsLabel, targetEffectsLabel, consequenceLabel].filter(Boolean).join(" | "),
+          tooltip: [directWoundsLabel, directWoundsNote, targetDrainsLabel, targetDrainsNote, targetEffectsLabel, targetEffectsNote, consequenceLabel, consequenceNote].filter(Boolean).join(" | ")
+        };
+      }
       return {
         label: "No Damage",
         tooltip: `${item.name} does not list a damage roll.`
@@ -443,9 +698,74 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       };
     }
 
+    if (parsed.normal) {
+      const damageModifier = Number(item.system.damageModifier ?? 0);
+      const catharticDamageModifier = Number(item.system.catharticDamageModifier ?? 0);
+      const extraWounds = Number(item.system.extraWounds ?? 0);
+      const catharticExtraWounds = Number(item.system.catharticExtraWounds ?? 0);
+      const modifiers = [
+        damageModifier ? ` ${damageModifier > 0 ? "+" : ""}${damageModifier}d10` : "",
+        catharticDamageModifier ? ` (${catharticDamageModifier > 0 ? "+" : ""}${catharticDamageModifier} Cathartic d10)` : "",
+        extraWounds ? ` + ${extraWounds} W` : "",
+        catharticExtraWounds ? ` (+${catharticExtraWounds} Cathartic W)` : ""
+      ].filter(Boolean).join("");
+      return {
+        label: `Damage: Normal${modifiers}${directWoundsLabel ? ` | ${directWoundsLabel}` : ""}${targetDrainsLabel ? ` | ${targetDrainsLabel}` : ""}${targetEffectsLabel ? ` | ${targetEffectsLabel}` : ""}${consequenceLabel ? ` | ${consequenceLabel}` : ""}`,
+        tooltip: [
+          raw,
+          parsed.note,
+          damageModifier ? `Applies ${damageModifier > 0 ? "+" : ""}${damageModifier}d10 to the normal damage roll.` : "",
+          catharticDamageModifier ? `Applies ${catharticDamageModifier > 0 ? "+" : ""}${catharticDamageModifier}d10 more damage when used Cathartically.` : "",
+          extraWounds ? `Adds ${extraWounds} fixed Extra Wound${extraWounds === 1 ? "" : "s"}.` : "",
+          catharticExtraWounds ? `Adds ${catharticExtraWounds} more fixed Extra Wound${catharticExtraWounds === 1 ? "" : "s"} when used Cathartically.` : "",
+          directWoundsLabel,
+          directWoundsNote,
+          targetDrainsLabel,
+          targetDrainsNote,
+          targetEffectsLabel,
+          targetEffectsNote,
+          consequenceLabel,
+          consequenceNote
+        ].filter(Boolean).join(" | ")
+      };
+    }
+
+    const normalOpen = Boolean(item.system.openDamage);
+    const catharticOpen = Boolean(item.system.catharticOpenDamage);
+    const damageModifier = Number(item.system.damageModifier ?? 0);
+    const catharticDamageModifier = Number(item.system.catharticDamageModifier ?? 0);
+    const openLabel = normalOpen
+      ? " Open"
+      : catharticOpen
+        ? " (Cathartic Open)"
+        : "";
+    const extraWounds = Number(item.system.extraWounds ?? 0);
+    const catharticExtraWounds = Number(item.system.catharticExtraWounds ?? 0);
+    const woundsLabel = [
+      damageModifier ? ` ${damageModifier > 0 ? "+" : ""}${damageModifier}d10` : "",
+      catharticDamageModifier ? ` (${catharticDamageModifier > 0 ? "+" : ""}${catharticDamageModifier} Cathartic d10)` : "",
+      extraWounds ? ` + ${extraWounds} W` : "",
+      catharticExtraWounds ? ` (+${catharticExtraWounds} Cathartic W)` : ""
+    ].filter(Boolean).join("");
     return {
-      label: `Damage: ${parsed.dice}d10${item.system.openDamage ? " Open" : ""}`,
-      tooltip: [raw, parsed.note].filter(Boolean).join(" | ")
+      label: `Damage: ${parsed.dice}d10${openLabel}${woundsLabel}${directWoundsLabel ? ` | ${directWoundsLabel}` : ""}${targetDrainsLabel ? ` | ${targetDrainsLabel}` : ""}${targetEffectsLabel ? ` | ${targetEffectsLabel}` : ""}${consequenceLabel ? ` | ${consequenceLabel}` : ""}`,
+      tooltip: [
+        raw,
+        parsed.note,
+        catharticOpen && !normalOpen ? "Damage becomes Open when used Cathartically." : "",
+        damageModifier ? `Applies ${damageModifier > 0 ? "+" : ""}${damageModifier}d10 to technique damage.` : "",
+        catharticDamageModifier ? `Applies ${catharticDamageModifier > 0 ? "+" : ""}${catharticDamageModifier}d10 more damage when used Cathartically.` : "",
+        extraWounds ? `Adds ${extraWounds} fixed Extra Wound${extraWounds === 1 ? "" : "s"}.` : "",
+        catharticExtraWounds ? `Adds ${catharticExtraWounds} more fixed Extra Wound${catharticExtraWounds === 1 ? "" : "s"} when used Cathartically.` : "",
+        directWoundsLabel,
+        directWoundsNote,
+        targetDrainsLabel,
+        targetDrainsNote,
+        targetEffectsLabel,
+        targetEffectsNote,
+        consequenceLabel,
+        consequenceNote
+      ].filter(Boolean).join(" | ")
     };
   }
 
@@ -464,6 +784,26 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       };
     }
 
+    const perRank = value.match(/(?:(\d+)\s*d10\s*)?per\s+Rank\s+of\s+(Waijia|Qinggong|Neigong|Dianxue)/i);
+    if (perRank) {
+      const multiplier = Number(perRank[1] ?? 1);
+      const disciplineKey = normalizeKey(perRank[2]);
+      const disciplineRanks = Number(actor.system.disciplines?.[disciplineKey]?.ranks ?? 0);
+      return {
+        dice: multiplier * disciplineRanks,
+        note: `${multiplier}d10 per Rank of ${perRank[2]} Martial Discipline (rank ${disciplineRanks}).`
+      };
+    }
+
+    const perQi = value.match(/(?:(\d+)\s*d10\s*)?(?:per\s+Rank\s+of\s+Qi|per\s+Qi\s+Rank|per\s+Rank\s+Qi)/i);
+    if (perQi) {
+      const multiplier = Number(perQi[1] ?? 1);
+      return {
+        dice: multiplier * Number(actor.system.status.effectiveQi ?? actor.system.qi.rank ?? 0),
+        note: `${multiplier}d10 per Rank of Qi.`
+      };
+    }
+
     const diceMatch = value.match(/(\d+)\s*d10/i);
     if (diceMatch) {
       return {
@@ -472,19 +812,11 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       };
     }
 
-    const perRank = value.match(/per\s+Rank\s+of\s+(Waijia|Qinggong|Neigong|Dianxue)/i);
-    if (perRank) {
-      const disciplineKey = normalizeKey(perRank[1]);
+    if (/normal\s+damage/i.test(value)) {
       return {
-        dice: Number(actor.system.disciplines?.[disciplineKey]?.ranks ?? 0),
-        note: `Per Rank of ${perRank[1]}.`
-      };
-    }
-
-    if (/per\s+Rank\s+of\s+Qi|per\s+Qi\s+Rank|per\s+Rank\s+Qi/i.test(value)) {
-      return {
-        dice: Number(actor.system.status.effectiveQi ?? actor.system.qi.rank ?? 0),
-        note: "Per Rank of Qi."
+        dice: 0,
+        normal: true,
+        note: "Use the normal weapon or unarmed damage for this technique."
       };
     }
 
@@ -678,6 +1010,7 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
 
   #onFieldChange(event) {
     const input = event.currentTarget;
+    this.#captureSheetScroll();
     return this.actor.update({ [input.name]: getInputValue(input) });
   }
 
@@ -685,6 +1018,7 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     const input = event.currentTarget;
     const item = this.actor.items.get(input.dataset.itemId);
     if (!item) return null;
+    this.#captureSheetScroll();
     return item.update({ [input.dataset.itemField]: getInputValue(input) });
   }
 
@@ -775,29 +1109,43 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
 
   async #onRollWeaponAttack(event) {
     event.preventDefault();
-    await this.#submitActorFields();
-    const item = this.actor.items.get(event.currentTarget.dataset.itemId);
-    const tn = await this.#promptTargetNumber(item?.name ?? "Weapon Attack", 6);
-    if (!tn) return null;
-    return this.actor.rollAttackWithWeapon(event.currentTarget.dataset.itemId, {
-      tn
-    });
+    const button = event.currentTarget;
+    const itemId = button?.dataset?.itemId;
+    try {
+      await this.#submitActorFields();
+      const item = this.actor.items.get(itemId);
+      const tn = await this.#promptTargetNumber(item?.name ?? "Weapon Attack", 6);
+      if (!tn) return null;
+      return this.actor.rollAttackWithWeapon(itemId, { tn });
+    } catch (error) {
+      console.error("Ogre Gate | Weapon attack failed", error);
+      ui.notifications.error("Weapon attack failed. See the console for details.");
+      return null;
+    }
   }
 
   async #onRollWeaponDamage(event) {
     event.preventDefault();
-    await this.#submitActorFields();
-    const item = this.actor.items.get(event.currentTarget.dataset.itemId);
-    const hardiness = await this.#promptTargetNumber(`${item?.name ?? "Weapon"} Damage TN`, this.actor.system.defenses.hardiness.rating);
-    if (!hardiness) return null;
-    return this.actor.rollWeaponDamage(event.currentTarget.dataset.itemId, {
-      hardiness,
-      open: Boolean(this.element.querySelector("[name='damage-open']")?.checked),
-      modifier: Number(this.element.querySelector("[name='damage-modifier']")?.value ?? 0),
-      damageBonus: Number(this.actor.system.combat.pendingDamageBonus ?? 0),
-      consumeDamageBonus: true,
-      extraWounds: Number(this.element.querySelector("[name='extra-wounds']")?.value ?? 0)
-    });
+    const button = event.currentTarget;
+    const itemId = button?.dataset?.itemId;
+    try {
+      await this.#submitActorFields();
+      const item = this.actor.items.get(itemId);
+      const hardiness = await this.#promptTargetNumber(`${item?.name ?? "Weapon"} Damage TN`, this.actor.system.defenses.hardiness.rating);
+      if (!hardiness) return null;
+      return this.actor.rollWeaponDamage(itemId, {
+        hardiness,
+        open: Boolean(this.element.querySelector("[name='damage-open']")?.checked),
+        damageBonus: Number(this.actor.system.combat.pendingDamageBonus ?? 0),
+        consumeDamageBonus: true,
+        modifier: Number(this.actor.system.combat.pendingDamageModifier ?? 0),
+        extraWounds: Number(this.actor.system.combat.pendingExtraWounds ?? 0)
+      });
+    } catch (error) {
+      console.error("Ogre Gate | Weapon damage failed", error);
+      ui.notifications.error("Weapon damage failed. See the console for details.");
+      return null;
+    }
   }
 
   async #onRollTechnique(event) {
@@ -813,11 +1161,12 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
         ui.notifications.warn("That Kung Fu Technique could not be found on this actor. Reopen the sheet and try again.");
         return null;
       }
-      if (!this.actor.findSkillPath(item.system.activationSkill)) {
+      const needsRoll = item.system.techniqueType !== "stance" || stanceNeedsActivationRoll(item, cathartic);
+      if (needsRoll && !this.actor.findSkillPath(item.system.activationSkill)) {
         const configured = await this.#promptTechniqueActivationSkill(item);
         if (!configured) return null;
       }
-      const tn = await this.#promptTargetNumber(item.name, 6);
+      const tn = needsRoll ? await this.#promptTargetNumber(item.name, this.#techniqueDefaultTargetNumber(item)) : 6;
       if (!tn) return null;
       return this.actor.rollTechnique(item, {
         cathartic,
@@ -829,6 +1178,21 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       ui.notifications.error("Kung Fu Technique roll failed. See the console for details.");
       return null;
     }
+  }
+
+  async #onMaintainStance(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    const name = this.actor.system.combat.activeStanceName || "Cathartic Stance";
+    const tn = await this.#promptTargetNumber(`${name} Maintenance`, 6);
+    if (!tn) return null;
+    return this.actor.maintainCatharticStance({ tn });
+  }
+
+  async #onEndStance(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    return this.actor.endActiveStance();
   }
 
   async #promptTechniqueActivationSkill(item) {
@@ -872,6 +1236,16 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
         close: () => resolve(false)
       }).render(true);
     });
+  }
+
+  #techniqueDefaultTargetNumber(item) {
+    const targetDefense = item?.system?.targetDefense ?? "tn";
+    if (targetDefense && !["tn", "none"].includes(targetDefense)) {
+      const targetActor = getFirstTargetActor();
+      const rating = Number(targetActor?.system?.defenses?.[targetDefense]?.rating ?? 0);
+      if (rating) return rating;
+    }
+    return Number(item?.system?.targetNumber ?? 6) || 6;
   }
 
   #techniqueActivationOptions() {
@@ -959,6 +1333,12 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     });
     if (!confirmed) return null;
     return this.actor.purgeQiSpirit();
+  }
+
+  async #onRollDemonFlaw(event) {
+    event.preventDefault();
+    await this.#submitActorFields();
+    return this.actor.rollDemonFlaw();
   }
 
   async #onResolveQiDuel(event) {
@@ -1187,6 +1567,17 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     return updates;
   }
 
+  #onToggleSkillGroup(event) {
+    event.preventDefault();
+    const groupKey = event.currentTarget.dataset.group;
+    if (!groupKey) return;
+    this.#captureSheetScroll();
+    this._collapsedSkillGroups ??= new Set();
+    if (this._collapsedSkillGroups.has(groupKey)) this._collapsedSkillGroups.delete(groupKey);
+    else this._collapsedSkillGroups.add(groupKey);
+    this.render({ force: false });
+  }
+
   async #onApplyCreationDefaults(event) {
     event.preventDefault();
     await this.#submitActorFields();
@@ -1204,6 +1595,7 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
 
   async #onEditExpertise(event) {
     event.preventDefault();
+    this.#captureSheetScroll();
     const button = event.currentTarget;
     const item = this.actor.items.get(button.dataset.itemId);
     if (!item) return null;
@@ -1227,6 +1619,7 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
           save: {
             label: "Save",
             callback: async (html) => {
+              this.#captureSheetScroll();
               const root = html instanceof HTMLElement ? html : html?.[0];
               const entries = String(root?.querySelector("[name='expertiseList']")?.value ?? "")
                 .split(/\r?\n/)
@@ -1250,6 +1643,7 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
           clear: {
             label: "Clear",
             callback: async () => {
+              this.#captureSheetScroll();
               await item.update({
                 "system.expertise": "",
                 "system.expertiseNote": "",
@@ -1272,6 +1666,7 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
   async #onCreateItem(event) {
     event.preventDefault();
     event.stopPropagation();
+    this.#captureSheetScroll();
     const type = event.currentTarget.dataset.type;
     if (!type) return;
 
@@ -1315,6 +1710,7 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
 
   async #onDeleteItem(event) {
     event.preventDefault();
+    this.#captureSheetScroll();
     const item = this.actor.items.get(event.currentTarget.dataset.itemId);
     if (!item) return;
     const confirmed = await Dialog.confirm({
@@ -1361,6 +1757,7 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
   async #onDropItem(event) {
     event.preventDefault();
     event.stopImmediatePropagation();
+    this.#captureSheetScroll();
     const raw = event.dataTransfer?.getData("text/plain");
     if (!raw) return;
 
@@ -1440,6 +1837,18 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     try {
       await this.actor.createEmbeddedDocuments("Item", [itemData]);
       ui.notifications.info(`Added ${item.name} to ${this.actor.name}.`);
+      if (itemData.type === "technique" && isEvilTechnique(itemData)) {
+        ui.notifications.warn(`${item.name} is an Evil Technique. Roll on the Demon Flaw Table when it is mastered.`);
+        await ChatMessage.create({
+          speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+          content: `
+            <section class="ogre-gate-chat-card">
+              <h3>${escapeHtml(this.actor.name)} Masters ${escapeHtml(item.name)}</h3>
+              <div class="ogre-gate-chat-row"><strong>Evil Technique</strong><span>Use the Martial tab's Roll Demon Flaw button. Demon Flaws gained from mastering Evil Techniques are permanent.</span></div>
+            </section>
+          `
+        });
+      }
     } finally {
       if (pendingKey) this._ogreGatePendingDrops.delete(pendingKey);
     }
@@ -1508,6 +1917,28 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     });
     this.element.querySelectorAll(`.sheet-body .tab[data-group='${group}']`).forEach((panel) => {
       panel.classList.toggle("active", panel.dataset.tab === tab);
+    });
+  }
+
+  #captureSheetScroll() {
+    const body = this.element?.querySelector(".sheet-body");
+    if (!body) return;
+    this._savedSheetScroll = {
+      top: body.scrollTop,
+      left: body.scrollLeft,
+      time: Date.now()
+    };
+  }
+
+  #restoreSheetScroll() {
+    const saved = this._savedSheetScroll;
+    if (!saved) return;
+    if (Date.now() - saved.time > 5000) return;
+    window.requestAnimationFrame(() => {
+      const body = this.element?.querySelector(".sheet-body");
+      if (!body) return;
+      body.scrollTop = Math.min(saved.top, body.scrollHeight);
+      body.scrollLeft = Math.min(saved.left, body.scrollWidth);
     });
   }
 

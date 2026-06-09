@@ -2,10 +2,10 @@
   "id": "ogregatefoundry",
   "title": "The Wandering Heroes of Ogre Gate",
   "description": "A Foundry VTT v13 game system for The Wandering Heroes of Ogre Gate.",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "url": "https://github.com/geek-io/ogregatefoundry",
   "manifest": "https://github.com/geek-io/ogregatefoundry/releases/latest/download/system.json",
-  "download": "https://github.com/geek-io/ogregatefoundry/releases/download/0.1.5/system.zip",
+  "download": "https://github.com/geek-io/ogregatefoundry/releases/download/0.1.6/system.zip",
   "readme": "https://github.com/geek-io/ogregatefoundry/blob/master/README.md",
   "bugs": "https://github.com/geek-io/ogregatefoundry/issues",
   "license": "GPL-3.0-or-later",
@@ -29,6 +29,13 @@
       "name": "skills",
       "label": "Ogre Gate Skills",
       "path": "packs/skills",
+      "type": "Item",
+      "system": "ogregatefoundry"
+    },
+    {
+      "name": "techniques",
+      "label": "Kung Fu Techniques",
+      "path": "packs/techniques",
       "type": "Item",
       "system": "ogregatefoundry"
     },

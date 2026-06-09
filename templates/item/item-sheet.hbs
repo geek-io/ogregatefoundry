@@ -5,7 +5,9 @@
       <label>Name <input type="text" name="name" value="{{item.name}}" /></label>
       <label>Type <input type="text" value="{{item.type}}" disabled /></label>
       <label>Source <input type="text" name="system.source" value="{{system.source}}" /></label>
-      <label>Cost <input type="text" name="system.cost" value="{{system.cost}}" /></label>
+      {{#unless (eq item.type "technique")}}
+        <label>Cost <input type="text" name="system.cost" value="{{system.cost}}" /></label>
+      {{/unless}}
     </section>
   </header>
 
@@ -83,7 +85,7 @@
   {{/if}}
 
   {{#if (eq item.type "technique")}}
-    <section class="panel">
+    <section class="panel weapon-fields">
       <h2>Kung Fu Technique</h2>
       <label data-tooltip="{{help.techniqueDiscipline}}">Discipline
         <select name="system.discipline">
@@ -99,6 +101,15 @@
           {{/each}}
         </select>
       </label>
+      <label data-tooltip="{{help.qiRank}}">Qi Rank <input type="number" name="system.qiRank" value="{{system.qiRank}}" min="0" /></label>
+      <label data-tooltip="{{help.techniqueTargetDefense}}">Rolled Against
+        <select name="system.targetDefense">
+          {{#each techniqueTargets as |target|}}
+            <option value="{{target.key}}" {{#if target.selected}}selected{{/if}}>{{target.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label data-tooltip="{{help.techniqueTargetNumber}}">Default TN <input type="number" name="system.targetNumber" value="{{system.targetNumber}}" min="0" max="20" /></label>
       <label data-tooltip="{{help.activationSkill}}">Activation Skill
         <select name="system.activationSkill">
           {{#each allSkills as |skill|}}
@@ -106,10 +117,53 @@
           {{/each}}
         </select>
       </label>
-      <label data-tooltip="{{help.qiRank}}">Qi Rank <input type="number" name="system.qiRank" value="{{system.qiRank}}" min="0" /></label>
+      <label data-tooltip="{{help.techniqueAttackModifier}}">Attack Modifier <input type="number" name="system.attackModifier" value="{{system.attackModifier}}" min="-10" max="10" /></label>
       <label>Damage <input type="text" name="system.damage" value="{{system.damage}}" /></label>
+      <label data-tooltip="{{help.techniqueDamageModifier}}">Damage Modifier <input type="number" name="system.damageModifier" value="{{system.damageModifier}}" min="-10" max="10" /></label>
+      <label data-tooltip="{{help.directWounds}}">Direct Wounds <input type="text" name="system.directWounds" value="{{system.directWounds}}" /></label>
+      <label data-tooltip="{{help.directWounds}}">Total Success Direct Wounds <input type="text" name="system.totalSuccessDirectWounds" value="{{system.totalSuccessDirectWounds}}" /></label>
+      <label data-tooltip="{{help.targetDrains}}">Target Drain <input type="text" name="system.targetDrains" value="{{system.targetDrains}}" /></label>
+      <label data-tooltip="{{help.targetDrains}}">Total Success Target Drain <input type="text" name="system.totalSuccessTargetDrains" value="{{system.totalSuccessTargetDrains}}" /></label>
+      <label data-tooltip="{{help.targetEffects}}">Target Effect <input type="text" name="system.targetEffects" value="{{system.targetEffects}}" /></label>
+      <label data-tooltip="{{help.targetEffects}}">Total Success Target Effect <input type="text" name="system.totalSuccessTargetEffects" value="{{system.totalSuccessTargetEffects}}" /></label>
+      <label data-tooltip="{{help.techniqueConsequence}}">User Wounds <input type="number" name="system.selfWounds" value="{{system.selfWounds}}" min="0" max="99" /></label>
       <label data-tooltip="{{help.openDamage}}">Open Damage <input type="checkbox" name="system.openDamage" {{checked system.openDamage}} /></label>
-      <label>Counter <input type="text" name="system.counter" value="{{system.counter}}" /></label>
+      <label data-tooltip="{{help.techniqueExtraWounds}}">Extra Wounds <input type="number" name="system.extraWounds" value="{{system.extraWounds}}" min="0" max="99" /></label>
+    </section>
+
+    <section class="panel weapon-fields">
+      <h2>Cathartic</h2>
+      <label data-tooltip="{{help.catharticAttackModifier}}">Attack Modifier <input type="number" name="system.catharticAttackModifier" value="{{system.catharticAttackModifier}}" min="-10" max="10" /></label>
+      <label data-tooltip="{{help.catharticDamageModifier}}">Damage Modifier <input type="number" name="system.catharticDamageModifier" value="{{system.catharticDamageModifier}}" min="-10" max="10" /></label>
+      <label data-tooltip="{{help.directWounds}}">Direct Wounds <input type="text" name="system.catharticDirectWounds" value="{{system.catharticDirectWounds}}" /></label>
+      <label data-tooltip="{{help.directWounds}}">Total Success Direct Wounds <input type="text" name="system.catharticTotalSuccessDirectWounds" value="{{system.catharticTotalSuccessDirectWounds}}" /></label>
+      <label data-tooltip="{{help.targetDrains}}">Target Drain <input type="text" name="system.catharticTargetDrains" value="{{system.catharticTargetDrains}}" /></label>
+      <label data-tooltip="{{help.targetDrains}}">Total Success Target Drain <input type="text" name="system.catharticTotalSuccessTargetDrains" value="{{system.catharticTotalSuccessTargetDrains}}" /></label>
+      <label data-tooltip="{{help.targetEffects}}">Target Effect <input type="text" name="system.catharticTargetEffects" value="{{system.catharticTargetEffects}}" /></label>
+      <label data-tooltip="{{help.targetEffects}}">Total Success Target Effect <input type="text" name="system.catharticTotalSuccessTargetEffects" value="{{system.catharticTotalSuccessTargetEffects}}" /></label>
+      <label data-tooltip="{{help.techniqueConsequence}}">User Wounds <input type="number" name="system.catharticSelfWounds" value="{{system.catharticSelfWounds}}" min="0" max="99" /></label>
+      <label data-tooltip="{{help.techniqueConsequence}}">Imbalance Multiplier <input type="number" name="system.catharticImbalanceMultiplier" value="{{system.catharticImbalanceMultiplier}}" min="1" max="10" /></label>
+      <label data-tooltip="{{help.catharticOpenDamage}}">Open Damage <input type="checkbox" name="system.catharticOpenDamage" {{checked system.catharticOpenDamage}} /></label>
+      <label data-tooltip="{{help.catharticExtraWounds}}">Cathartic Extra Wounds <input type="number" name="system.catharticExtraWounds" value="{{system.catharticExtraWounds}}" min="0" max="99" /></label>
+      <label class="wide-field" data-tooltip="{{help.catharticEffect}}">Cathartic Effect <textarea name="system.catharticEffect">{{system.catharticEffect}}</textarea></label>
+    </section>
+
+    <section class="panel weapon-fields">
+      <h2>Technique Notes</h2>
+      <label data-tooltip="{{help.techniqueSecret}}">Secret <input type="checkbox" name="system.secret" {{checked system.secret}} /></label>
+      <label data-tooltip="{{help.accessNotes}}">Access Notes <input type="text" name="system.accessNotes" value="{{system.accessNotes}}" /></label>
+      <label data-tooltip="{{help.techniqueCombination}}">Combination <input type="checkbox" name="system.combination" {{checked system.combination}} /></label>
+      <label data-tooltip="{{help.prerequisiteTechniques}}">Prerequisite Techniques <input type="text" name="system.prerequisiteTechniques" value="{{system.prerequisiteTechniques}}" /></label>
+      <label data-tooltip="{{help.requiredFlaws}}">Required Flaws <input type="text" name="system.requiredFlaws" value="{{system.requiredFlaws}}" /></label>
+      <label data-tooltip="{{help.requiredSkillRanks}}">Required Skill Ranks <input type="text" name="system.requiredSkillRanks" value="{{system.requiredSkillRanks}}" /></label>
+      <label data-tooltip="{{help.requirementNotes}}">Requirement Notes <input type="text" name="system.requirementNotes" value="{{system.requirementNotes}}" /></label>
+      <label data-tooltip="{{help.directWounds}}">Direct Wounds Note <input type="text" name="system.directWoundsNote" value="{{system.directWoundsNote}}" /></label>
+      <label data-tooltip="{{help.targetDrains}}">Target Drain Note <input type="text" name="system.targetDrainsNote" value="{{system.targetDrainsNote}}" /></label>
+      <label data-tooltip="{{help.targetEffects}}">Target Effect Note <input type="text" name="system.targetEffectsNote" value="{{system.targetEffectsNote}}" /></label>
+      <label data-tooltip="{{help.techniqueConsequence}}">Consequence Note <input type="text" name="system.consequenceNote" value="{{system.consequenceNote}}" /></label>
+      {{#if system.formationNotes}}
+        <label data-tooltip="{{help.formationDetails}}">Formation Details <input type="text" name="system.formationNotes" value="{{system.formationNotes}}" /></label>
+      {{/if}}
     </section>
   {{/if}}
 

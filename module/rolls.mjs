@@ -8,6 +8,14 @@ function formatDice(results) {
   return results.map((result) => `<span class="ogre-gate-die${result === 10 ? " total-success" : ""}">${result}</span>`).join("");
 }
 
+function escapeHtml(value = "") {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 async function createRollMessage({ actor, label, roll, results, selected, tn, success, totalSuccesses, poolLabel, rollMode, extra = "" }) {
   const content = `
     <section class="ogre-gate-chat-card">
@@ -167,7 +175,7 @@ export class OgreGateRoll {
     });
   }
 
-  static async damage({ actor, label = "Damage", dice, hardiness = 6, open = false, modifier = 0, extraWounds = 0, note = "", outcomeHint = "", deepPenalties = false, rollMode } = {}) {
+  static async damage({ actor, targetActor = null, label = "Damage", dice, hardiness = 6, open = false, modifier = 0, extraWounds = 0, note = "", outcomeHint = "", deepPenalties = false, rollMode } = {}) {
     const pool = this.resolvePool(dice ?? 1, modifier, { deepPenalties });
     const roll = await new Roll(pool.formula).evaluate();
     const results = getDiceResults(roll);
@@ -175,12 +183,15 @@ export class OgreGateRoll {
     const baseWounds = open ? outcome.successes + outcome.totalSuccesses : (outcome.success ? 1 + outcome.totalSuccesses : 0);
     const wounds = Math.max(0, baseWounds + Number(extraWounds ?? 0));
     const specialOutcome = buildSpecialDamageOutcome(outcomeHint, outcome);
+    const applyActorData = targetActor ? `data-actor-uuid="${targetActor.uuid ?? ""}" data-actor-id="${targetActor.id ?? ""}"` : "";
+    const applyLabel = targetActor ? `Apply ${wounds} Wound${wounds === 1 ? "" : "s"} to ${escapeHtml(targetActor.name)}` : "Apply Wounds";
     const extra = `
       <div class="ogre-gate-chat-row"><strong>Wounds</strong><span>${wounds}</span></div>
+      ${targetActor ? `<div class="ogre-gate-chat-row"><strong>Target</strong><span>${escapeHtml(targetActor.name)}</span></div>` : ""}
       ${extraWounds ? `<div class="ogre-gate-chat-row"><strong>Wound Modifier</strong><span>${extraWounds}</span></div>` : ""}
       ${note ? `<div class="ogre-gate-chat-row"><strong>Note</strong><span>${note}</span></div>` : ""}
       ${specialOutcome}
-      ${wounds ? `<button type="button" class="ogre-gate-chat-button" data-action="ogre-apply-wounds" data-wounds="${wounds}">Apply Wounds</button>` : ""}
+      ${wounds ? `<button type="button" class="ogre-gate-chat-button" data-action="ogre-apply-wounds" ${applyActorData} data-wounds="${wounds}">${applyLabel}</button>` : ""}
     `;
 
     return createRollMessage({
