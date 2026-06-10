@@ -105,6 +105,7 @@ function identitySchema() {
 
 function creationSchema() {
   return new SchemaField({
+    enabled: new BooleanField({ required: true, initial: true }),
     race: textField("human"),
     subgroup: textField(""),
     optionalRaceApproved: new BooleanField({ required: true, initial: false }),

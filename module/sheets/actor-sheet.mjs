@@ -45,6 +45,7 @@ const ACTOR_HELP = {
   controlledStrike: "Marks the attack as controlled; weapon damage applies the controlled strike wound reduction.",
   systemRules: "These are world-level system settings configured by the GM in Foundry settings.",
   optionalRaceApproved: "Marks the selected non-human race as approved for creation checks.",
+  creationMode: "Shows character creation budgets, checks, and the Creation tab. Turn this off for finished characters, NPCs, and imported statblocks.",
   scholarOption: "Uses the scholar-style Knowledge budget during creation checks.",
   kithiriSocialPenalty: "Applies the Kithiri -1d10 penalty to Command, Deception, and Persuade against non-Kithiri targets.",
   ironHeroes: "Uses the Iron Heroes Health formula: Qi x 3 + 3.",
@@ -197,6 +198,12 @@ function getExpertiseEntries(entry) {
     });
   }
   return entries;
+}
+
+function activeExpertiseNames(item) {
+  return Array.from(item?.getFlag?.(OGRE_GATE.id, "activeExpertise") ?? [])
+    .map((name) => String(name ?? "").trim())
+    .filter(Boolean);
 }
 
 function stripHtml(value = "") {
@@ -414,12 +421,13 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       familyRows: this.#prepareFamilyRows(actor),
       moneyRows: this.#prepareMoneyRows(actor),
       creation,
-      defenseBudget: creation.groupRows.find((row) => row.key === "defenses"),
+      creationMode: Boolean(actor.system.creation.enabled),
+      defenseBudget: actor.system.creation.enabled ? creation.groupRows.find((row) => row.key === "defenses") : null,
       systemRules: {
         deepPenalties: game.settings.get(OGRE_GATE.id, "deepPenalties"),
         deadlyTens: game.settings.get(OGRE_GATE.id, "deadlyTens")
       },
-      skillGroups: this.#prepareSkillGroups(actor, creation),
+      skillGroups: this.#prepareSkillGroups(actor, actor.system.creation.enabled ? creation : null),
       defenses: this.#prepareDefenses(actor),
       combatActions: this.#prepareCombatActions(),
       attackModes: this.#prepareAttackModes(),
@@ -614,6 +622,9 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     this.element.querySelectorAll("[data-action='edit-expertise']").forEach((button) => {
       button.addEventListener("click", (event) => this.#onEditExpertise(event), listenerOptions);
     });
+    this.element.querySelectorAll("[data-expertise-toggle]").forEach((input) => {
+      input.addEventListener("change", (event) => this.#onToggleSkillExpertise(event), listenerOptions);
+    });
     this.element.querySelectorAll(".item-line[data-item-id], .combat-perk-row[data-item-id]").forEach((row) => {
       row.addEventListener("contextmenu", (event) => this.#onItemContextMenu(event), listenerOptions);
     });
@@ -656,9 +667,11 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
         .filter((item) => item.type === "skills" && item.system.group === groupKey)
         .map((item) => [getSkillIdentity(item.toObject()), item])).values()).map((item) => {
         const skill = item.system;
+        const activeExpertise = new Set(activeExpertiseNames(item));
         const expertiseEntries = getExpertiseEntries(skill).map((expertise) => ({
           ...expertise,
-          toggleKey: item.id
+          toggleKey: item.id,
+          active: activeExpertise.has(expertise.name)
         }));
         const description = stripHtml(skill.description);
         return {
@@ -1986,10 +1999,12 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
                 })
                 .filter((entry) => entry.name);
               const first = entries[0] ?? { name: "", note: "" };
+              const retainedActive = activeExpertiseNames(item).filter((name) => entries.some((entry) => entry.name === name));
               await item.update({
                 "system.expertise": first.name,
                 "system.expertiseNote": first.note,
-                "system.expertiseList": entries
+                "system.expertiseList": entries,
+                [`flags.${OGRE_GATE.id}.activeExpertise`]: retainedActive
               });
               resolve(true);
             }
@@ -2001,7 +2016,8 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
               await item.update({
                 "system.expertise": "",
                 "system.expertiseNote": "",
-                "system.expertiseList": []
+                "system.expertiseList": [],
+                [`flags.${OGRE_GATE.id}.activeExpertise`]: []
               });
               resolve(true);
             }
@@ -2015,6 +2031,17 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
         close: () => resolve(false)
       }).render(true);
     });
+  }
+
+  async #onToggleSkillExpertise(event) {
+    const input = event.currentTarget;
+    const item = this.actor.items.get(input.dataset.expertiseToggle);
+    const expertiseName = String(input.dataset.expertiseName ?? "").trim();
+    if (!item || !expertiseName) return null;
+    const active = new Set(activeExpertiseNames(item));
+    if (input.checked) active.add(expertiseName);
+    else active.delete(expertiseName);
+    return item.update({ [`flags.${OGRE_GATE.id}.activeExpertise`]: Array.from(active) });
   }
 
   async #onCreateItem(event) {
@@ -2266,6 +2293,10 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
   }
 
   #activateTab(tab, group) {
+    if (!this.element.querySelector(`.sheet-tabs [data-group='${group}'][data-tab='${tab}']`)) {
+      tab = "front";
+      this._activeTab = tab;
+    }
     this.element.querySelectorAll(`.sheet-tabs [data-group='${group}']`).forEach((link) => {
       link.classList.toggle("active", link.dataset.tab === tab);
     });

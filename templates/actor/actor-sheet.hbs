@@ -16,6 +16,7 @@
         <option value="sertorius" {{#if (eq system.identity.martialTier "sertorius")}}selected{{/if}}>Sertorius</option>
         <option value="mixed" {{#if (eq system.identity.martialTier "mixed")}}selected{{/if}}>Mixed</option>
       </select>
+      <label class="creation-mode-toggle" data-tooltip="{{help.creationMode}}">Creation Mode <input type="checkbox" name="system.creation.enabled" {{checked system.creation.enabled}} /></label>
     </section>
     <section class="header-vitals" aria-label="Character resources">
       <div class="vital-group">
@@ -52,7 +53,7 @@
 
   <nav class="sheet-tabs" data-group="primary">
     <a data-action="tab" data-group="primary" data-tab="front">Main</a>
-    <a data-action="tab" data-group="primary" data-tab="creation">Creation</a>
+    {{#if creationMode}}<a data-action="tab" data-group="primary" data-tab="creation">Creation</a>{{/if}}
     <a data-action="tab" data-group="primary" data-tab="rules">Rules</a>
     <a data-action="tab" data-group="primary" data-tab="martial">Martial</a>
     <a data-action="tab" data-group="primary" data-tab="gear">Gear</a>
@@ -100,12 +101,14 @@
               <input type="text" name="system.defenses.{{defense.key}}.expertiseNote" value="{{defense.data.expertiseNote}}" placeholder="Condition or note" />
             </div>
           {{/each}}
+          {{#if creationMode}}
           {{#if defenseBudget}}
             <div class="section-budget {{#if defenseBudget.over}}warn{{/if}}">
               <span>Creation Budget</span>
               <strong>{{defenseBudget.spent}} / {{defenseBudget.budget}}</strong>
               <span>Remaining {{defenseBudget.remaining}}</span>
             </div>
+          {{/if}}
           {{/if}}
         </section>
 
@@ -139,7 +142,7 @@
                       <div class="skill-expertise-list">
                         {{#each skill.expertiseEntries as |expertise|}}
                           <label data-tooltip="{{expertise.note}}">
-                            <input type="checkbox" data-expertise-toggle="{{expertise.toggleKey}}" data-expertise-name="{{expertise.name}}" />
+                            <input type="checkbox" data-expertise-toggle="{{expertise.toggleKey}}" data-expertise-name="{{expertise.name}}" {{checked expertise.active}} />
                             <span>{{expertise.name}}</span>
                           </label>
                         {{/each}}
@@ -153,12 +156,14 @@
                   <button type="button" data-action="delete-item" data-item-id="{{skill.item.id}}" data-tooltip="{{../help.deleteItem}}">Delete</button>
                 </div>
               {{/each}}
+              {{#if ../creationMode}}
               {{#if group.budget}}
                 <div class="section-budget {{#if group.budget.over}}warn{{/if}}">
                   <span>Creation Budget</span>
                   <strong>{{group.budget.spent}} / {{group.budget.budget}}</strong>
                   <span>Remaining {{group.budget.remaining}}</span>
                 </div>
+              {{/if}}
               {{/if}}
             </div>
           </section>
@@ -179,11 +184,13 @@
               </div>
             {{/each}}
           </div>
+          {{#if creationMode}}
           <div class="section-budget">
             <span>Creation Flaws</span>
             <strong>{{creation.creationFlawCount}} / {{config.flawLimit.standard}}</strong>
             <span>Points {{creation.flawPoints}}</span>
           </div>
+          {{/if}}
         </section>
       </div>
     </div>
@@ -500,6 +507,7 @@
       </div>
     </div>
 
+    {{#if creationMode}}
     <div class="tab creation" data-group="primary" data-tab="creation">
       <div class="creation-grid">
         <section class="panel">
@@ -606,6 +614,7 @@
         </section>
       </div>
     </div>
+    {{/if}}
 
     <div class="tab martial" data-group="primary" data-tab="martial">
       <div class="martial-grid">
@@ -713,11 +722,13 @@
               </div>
             </div>
           {{/each}}
+          {{#if creationMode}}
           <div class="section-budget">
             <span>Starting Kung Fu Techniques</span>
             <strong>{{creation.kungFuCount}} / {{config.creation.startingKungFuTechniques}}</strong>
             <span>Remaining {{creation.kungFuRemaining}}</span>
           </div>
+          {{/if}}
         </section>
         <section class="panel combat-perk-table">
           <h2>Combat Perks</h2>
@@ -746,11 +757,13 @@
               </div>
             {{/each}}
           </div>
+          {{#if creationMode}}
           <div class="section-budget">
             <span>Starting Combat Perks</span>
             <strong>{{creation.combatTechniqueCount}} / {{config.creation.startingCombatTechniques}}</strong>
             <span>Remaining {{creation.combatTechniqueRemaining}}</span>
           </div>
+          {{/if}}
         </section>
       </div>
     </div>

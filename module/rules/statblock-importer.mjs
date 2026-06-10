@@ -280,6 +280,44 @@ function parseSkillText(value = "") {
   }).filter(Boolean);
 }
 
+function parseExpertiseText(value = "") {
+  return splitList(value).map((entry) => {
+    const [rawSkill, ...expertiseParts] = entry.split("-");
+    const skill = String(rawSkill ?? "").trim();
+    const expertise = expertiseParts.join("-").trim();
+    return {
+      skill,
+      name: expertise || skill
+    };
+  }).filter((entry) => entry.name);
+}
+
+function addExpertiseToSkill(skill, expertise) {
+  skill.expertise ??= [];
+  if (!skill.expertise.some((entry) => normalizeKey(typeof entry === "string" ? entry : entry.name) === normalizeKey(expertise.name))) {
+    skill.expertise.push(expertise);
+  }
+}
+
+function applyImportedExpertise(data) {
+  for (const expertise of data.expertise ?? []) {
+    const skillKey = normalizeKey(expertise.skill);
+    let skill = data.skills.find((entry) => normalizeKey(displaySkillName(entry.name)).startsWith(skillKey));
+    if (!skill && skillKey) {
+      skill = data.skills.find((entry) => normalizeKey(entry.name).includes(skillKey));
+    }
+    if (!skill) {
+      const weapon = data.weapons.find((entry) => normalizeKey(entry.name) === normalizeKey(expertise.name));
+      const catalog = weapon ? WEAPON_CATALOG.find((entry) => normalizeKey(entry.name) === normalizeKey(WEAPON_ALIASES[normalizeKey(weapon.name)] ?? weapon.name)) : null;
+      if (catalog?.attackSkill) {
+        skill = data.skills.find((entry) => normalizeKey(resolveSkill(entry.name).skillKey) === normalizeKey(catalog.attackSkill));
+      }
+    }
+    if (skill) addExpertiseToSkill(skill, { name: expertise.name, note: "Imported Expertise" });
+  }
+  return data;
+}
+
 function parseDisciplineText(value = "") {
   const disciplines = {};
   for (const entry of splitList(value)) {
@@ -326,6 +364,7 @@ function parseTextStatblock(text = "") {
     equipment: [],
     combatTechniques: [],
     techniques: [],
+    expertise: [],
     notes: [],
     raw: String(text ?? "").trim()
   };
@@ -352,12 +391,15 @@ function parseTextStatblock(text = "") {
       const disciplineBlock = keyMatch[1].match(/\((.+)\)/)?.[1] ?? "";
       data.disciplines = { ...data.disciplines, ...parseDisciplineText(disciplineBlock) };
       data.techniques.push(...splitList(value));
-    } else if (["expertise", "reputation", "flaws", "powers"].includes(key)) {
+    } else if (key === "expertise") {
+      data.expertise.push(...parseExpertiseText(value));
+      data.notes.push(`${keyMatch[1].trim()}: ${value}`);
+    } else if (["reputation", "flaws", "powers"].includes(key)) {
       data.notes.push(`${keyMatch[1].trim()}: ${value}`);
     }
   }
 
-  return data;
+  return applyImportedExpertise(data);
 }
 
 function normalizedArray(value) {
@@ -455,6 +497,8 @@ function parseJsonStatblock(input) {
     equipment: [],
     combatTechniques: parseCombatTechniqueArray(rawCombatTechniques),
     techniques: parseTechniqueNames(data),
+    expertise: [],
+    notes: [],
     raw: JSON.stringify(data, null, 2)
   };
 }
@@ -675,7 +719,8 @@ function inferDisciplineRanks(itemData = []) {
 
 function actorUpdates(parsed) {
   const updates = {
-    "system.qi.rank": Math.max(0, Number(parsed.qi ?? 1))
+    "system.qi.rank": Math.max(0, Number(parsed.qi ?? 1)),
+    "system.creation.enabled": false
   };
   if (parsed.maxWounds) updates["system.resources.wounds.value"] = Number(parsed.maxWounds);
   if (Number.isFinite(Number(parsed.currentImbalance))) updates["system.imbalance.value"] = Math.max(0, Number(parsed.currentImbalance));

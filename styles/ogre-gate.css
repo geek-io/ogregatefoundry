@@ -151,6 +151,11 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
   letter-spacing: 0;
 }
 
+.ogre-gate .creation-mode-toggle {
+  justify-content: center;
+  font-weight: 700;
+}
+
 .ogre-gate .sheet-tabs {
   display: flex;
   flex-wrap: wrap;

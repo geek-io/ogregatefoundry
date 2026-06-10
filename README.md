@@ -6,11 +6,17 @@ A Foundry VTT v13 game system for *The Wandering Heroes of Ogre Gate* by Bedrock
 ***This projrect uses copyright material owned by Bedrock Games, under their Bedrock Games Community Use Policy. This is not an official product of Bedrock Games.***
 
 
+# v 0.1.9
+## Bug fixes and character workflow polish
+- Skill Expertise checkbox selections now persist through sheet re-renders and Expertise edits instead of clearing other active Expertise selections.
+- The importer now reads common book-style `Expertise:` lines such as `Detect-Sight` and attaches them to matching imported Skill items when it can.
+- Imported statblocks start with Character Creation Mode disabled, and actor sheets now include a Creation Mode toggle to show or hide creation checks, budgets, and the Creation tab.
+
 # v 0.1.8
 ## Statblock Importer phase 1
 - Bug fixes
 - Added a importer based around the formats that https://bedrockcompanion.github.io/ uses for their exported characters.
-	- The importer supports JSON and Plaintext.
+	- The importer supports JSON and Plaintext, and book fromatted characters.
 	- JSON imports now support the direct Bedrock Companion save shape with `Defenses`, `Skills`, `Equipment`, `CombatTechniques`, and `TechniqueNames`.
 	- Plaintext imports now tolerate book-style statblocks copied from Chapter 9 NPCs or Chapter 10 threats, including wrapped fields, `Qi Rank`, `Wounds`, `Key Kung Fu Techniques`, and book weapon notes.
 	- Imports defenses, key skills, Qi, max wounds, weapons, combat techniques, discipline ranks, and Kung Fu techniques.
