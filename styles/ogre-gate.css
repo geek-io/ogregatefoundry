@@ -609,6 +609,24 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
   background: color-mix(in srgb, var(--og-field) 78%, transparent);
 }
 
+.ogre-gate-import-dialog {
+  display: grid;
+  gap: 8px;
+}
+
+.ogre-gate-import-dialog label {
+  display: grid;
+  gap: 4px;
+  font-weight: 700;
+}
+
+.ogre-gate-import-dialog textarea {
+  min-height: 320px;
+  resize: vertical;
+  white-space: pre;
+  font-family: monospace;
+}
+
 .ogre-gate .equipment-summary {
   display: grid;
   grid-template-columns: repeat(2, minmax(160px, 1fr));

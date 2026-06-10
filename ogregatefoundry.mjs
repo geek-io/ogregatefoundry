@@ -2,6 +2,12 @@ import { OGRE_GATE } from "./module/config.mjs";
 import { registerChatListeners } from "./module/chat.mjs";
 import { OgreGateActor, OgreGateItem } from "./module/documents.mjs";
 import {
+  importOgreGateStatblock,
+  injectOgreGateStatblockImporter,
+  parseOgreGateStatblock,
+  showOgreGateStatblockImporter
+} from "./module/rules/statblock-importer.mjs";
+import {
   OgreGateCharacterData,
   OgreGateNpcData,
   OgreGateMonsterData,
@@ -27,7 +33,10 @@ Hooks.once("init", () => {
   registerChatListeners();
 
   game.ogreGate = {
-    config: OGRE_GATE
+    config: OGRE_GATE,
+    importStatblock: showOgreGateStatblockImporter,
+    importStatblockText: importOgreGateStatblock,
+    parseStatblock: parseOgreGateStatblock
   };
 
   game.settings.register(OGRE_GATE.id, "darkSheets", {
@@ -112,3 +121,5 @@ Hooks.once("init", () => {
 Hooks.once("ready", () => {
   applySheetTheme(game.settings.get(OGRE_GATE.id, "darkSheets"));
 });
+
+Hooks.on("renderActorDirectory", injectOgreGateStatblockImporter);
