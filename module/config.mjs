@@ -327,6 +327,7 @@ export const OGRE_GATE = {
     skills: "Skills",
     technique: "Kung Fu Technique",
     combatTechnique: "Combat Perk",
+    power: "Power",
     ritual: "Ritual",
     flaw: "Flaw",
     affliction: "Poison or Disease",

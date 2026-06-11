@@ -215,6 +215,89 @@ function mergeBookLines(lines = []) {
   return merged;
 }
 
+function parsePowerText(value = "") {
+  const text = String(value ?? "").trim();
+  if (!text) return [];
+  const match = text.match(/^([^:]{1,80}):\s*(.+)$/);
+  if (match && normalizeKey(match[1]) !== "powers") {
+    return [{
+      name: match[1].trim(),
+      description: match[2].trim()
+    }];
+  }
+  return splitList(text).map((entry) => {
+    const entryMatch = entry.match(/^([^:]{1,80}):\s*(.+)$/);
+    return entryMatch
+      ? { name: entryMatch[1].trim(), description: entryMatch[2].trim() }
+      : { name: "Power", description: entry.trim() };
+  }).filter((entry) => entry.description);
+}
+
+function parsePowerSection(lines = []) {
+  const powers = [];
+  let inPowers = false;
+  let current = null;
+
+  const commit = () => {
+    if (current?.name || current?.description) {
+      current.description = current.description.replace(/\s+/g, " ").trim();
+      powers.push(current);
+    }
+    current = null;
+  };
+
+  for (const line of lines) {
+    if (/^Powers\b:?\s*/i.test(line)) {
+      inPowers = true;
+      commit();
+      const inline = line.replace(/^Powers\b:?\s*/i, "").trim();
+      if (inline) {
+        const parsedInline = parsePowerText(inline);
+        powers.push(...parsedInline);
+      }
+      continue;
+    }
+    if (!inPowers) continue;
+    if (BOOK_FIELD_PATTERN.test(line) && !/^Powers\b/i.test(line)) {
+      commit();
+      break;
+    }
+
+    const match = line.match(/^([^:]{1,80}):\s*(.+)$/);
+    if (match) {
+      commit();
+      current = {
+        name: match[1].trim(),
+        description: match[2].trim()
+      };
+    } else if (current) {
+      current.description = `${current.description} ${line}`.trim();
+    }
+  }
+
+  commit();
+  return powers;
+}
+
+function normalizePowerArray(value = []) {
+  return normalizedArray(value).map((entry) => {
+    if (typeof entry === "string") return parsePowerText(entry);
+    const name = objectValue(entry, ["name", "Name", "title", "Title"], "Power");
+    const description = objectValue(entry, ["description", "Description", "text", "Text", "effect", "Effect"], "");
+    return [{ name, description }];
+  }).flat().filter((entry) => entry.description || entry.name);
+}
+
+function powersHtml(powers = []) {
+  if (!powers.length) return "";
+  return powers.map((power) => `
+    <section class="ogre-gate-power-entry">
+      <h3>${escapeHtml(power.name || "Power")}</h3>
+      <p>${escapeHtml(power.description ?? "")}</p>
+    </section>
+  `).join("");
+}
+
 function inferBookName(lines = []) {
   const defenseIndex = lines.findIndex((line) => /^Defenses\b/i.test(line));
   if (defenseIndex > 0) {
@@ -364,6 +447,7 @@ function parseTextStatblock(text = "") {
     equipment: [],
     combatTechniques: [],
     techniques: [],
+    powers: parsePowerSection(rawLines),
     expertise: [],
     notes: [],
     raw: String(text ?? "").trim()
@@ -391,10 +475,12 @@ function parseTextStatblock(text = "") {
       const disciplineBlock = keyMatch[1].match(/\((.+)\)/)?.[1] ?? "";
       data.disciplines = { ...data.disciplines, ...parseDisciplineText(disciplineBlock) };
       data.techniques.push(...splitList(value));
+    } else if (key === "powers") {
+      data.powers.push(...parsePowerText(value));
     } else if (key === "expertise") {
       data.expertise.push(...parseExpertiseText(value));
       data.notes.push(`${keyMatch[1].trim()}: ${value}`);
-    } else if (["reputation", "flaws", "powers"].includes(key)) {
+    } else if (["reputation", "flaws"].includes(key)) {
       data.notes.push(`${keyMatch[1].trim()}: ${value}`);
     }
   }
@@ -469,6 +555,7 @@ function parseJsonStatblock(input) {
   const rawSkills = normalizedArray(objectValue(data, ["skills", "keySkills", "KeySkills", "Key Skills"]));
   const rawWeapons = normalizedArray(objectValue(data, ["weapons", "weapon", "Weapons", "Weapon", "equipment", "Equipment"]));
   const rawCombatTechniques = normalizedArray(objectValue(data, ["combatTechniques", "combatTechnique", "combatPerks", "combatPerk", "Combat Technique"]));
+  const rawPowers = objectValue(data, ["powers", "Powers", "specialAbilities", "SpecialAbilities", "specialAbilities", "Special Abilities"], []);
   const defenses = objectValue(data, ["defenses", "Defenses"], {});
   const disciplines = objectValue(data, ["disciplines", "Disciplines"], {});
 
@@ -497,10 +584,126 @@ function parseJsonStatblock(input) {
     equipment: [],
     combatTechniques: parseCombatTechniqueArray(rawCombatTechniques),
     techniques: parseTechniqueNames(data),
+    powers: normalizePowerArray(rawPowers),
     expertise: [],
     notes: [],
     raw: JSON.stringify(data, null, 2)
   };
+}
+
+function techniqueTypeKey(value = "") {
+  const key = normalizeKey(value);
+  if (key.includes("counter")) return "counter";
+  if (key.includes("stance")) return "stance";
+  if (key.includes("special")) return "special";
+  if (key.includes("profound")) return "profound";
+  if (key.includes("immortal")) return "immortal";
+  return "normal";
+}
+
+function disciplineKey(value = "") {
+  const key = DISCIPLINE_KEYS[normalizeKey(value)];
+  return key && key !== "none" ? key : "";
+}
+
+function activationSkillKey(value = "") {
+  const skillText = String(value ?? "")
+    .replace(/\s+against\s+.+$/i, "")
+    .trim();
+  if (!skillText || /^none$/i.test(skillText)) return "";
+  const resolved = resolveSkill(skillText);
+  return `${resolved.group}.${resolved.skillKey}`;
+}
+
+function targetDefenseFromSkillLine(value = "") {
+  const text = String(value ?? "").toLowerCase();
+  if (/\bagainst\s+(?:the\s+)?attack\s+roll\b/.test(text)) return "attackRoll";
+  const defense = Object.keys(DEFENSE_KEYS).find((key) => text.includes(`against ${key}`));
+  return defense ? DEFENSE_KEYS[defense] : "tn";
+}
+
+function splitCompanionTechniqueBlocks(text = "") {
+  const lines = textLines(text);
+  const blocks = [];
+  let current = [];
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    const startsTechnique = current.length
+      && !/^[A-Za-z ]{2,24}:\s*/.test(line)
+      && /^Discipline\s*:/i.test(lines[index + 1] ?? "");
+    if (startsTechnique) {
+      blocks.push(current);
+      current = [line];
+    } else {
+      current.push(line);
+    }
+  }
+  if (current.length) blocks.push(current);
+  return blocks;
+}
+
+function companionTechniqueItemData(lines = []) {
+  const name = String(lines[0] ?? "").trim();
+  if (!name) return null;
+  const fields = {};
+  const descriptionLines = [];
+  let requirement = "";
+  let cathartic = "";
+  let activeSection = "description";
+
+  for (const line of lines.slice(1)) {
+    const fieldMatch = line.match(/^(Discipline|Skill|Type|Qi)\s*:\s*(.+)$/i);
+    if (fieldMatch) {
+      fields[normalizeKey(fieldMatch[1])] = fieldMatch[2].trim();
+      activeSection = "description";
+      continue;
+    }
+    const requirementMatch = line.match(/^Requirement\s*:\s*(.+)$/i);
+    if (requirementMatch) {
+      requirement = requirementMatch[1].trim();
+      activeSection = "requirement";
+      continue;
+    }
+    const catharticMatch = line.match(/^Cathartic\s*:\s*(.+)$/i);
+    if (catharticMatch) {
+      cathartic = catharticMatch[1].trim();
+      activeSection = "cathartic";
+      continue;
+    }
+
+    if (activeSection === "requirement") requirement = `${requirement} ${line}`.trim();
+    else if (activeSection === "cathartic") cathartic = `${cathartic} ${line}`.trim();
+    else descriptionLines.push(line);
+  }
+
+  const skillLine = fields.skill ?? "";
+  const secret = /\(\s*secret\s*\)/i.test(name);
+  const cleanName = name.replace(/\s*\(\s*Secret\s*\)\s*/i, "").trim();
+  return {
+    name: cleanName || name,
+    type: "technique",
+    system: {
+      description: descriptionLines.join("\n").trim(),
+      source: "Imported from Companion App",
+      discipline: disciplineKey(fields.discipline) || "none",
+      techniqueType: techniqueTypeKey(fields.type),
+      activationSkill: activationSkillKey(skillLine),
+      targetDefense: targetDefenseFromSkillLine(skillLine),
+      targetNumber: 6,
+      qiRank: Number(fields.qi?.match(/\d+/)?.[0] ?? 0),
+      secret,
+      requirementNotes: requirement,
+      catharticEffect: cathartic,
+      accessNotes: secret ? "Secret Technique" : ""
+    }
+  };
+}
+
+function parseCompanionTechniqueText(text = "") {
+  if (!/^\s*Discipline\s*:/mi.test(text) || !/^\s*(Skill|Type|Qi)\s*:/mi.test(text)) return [];
+  return splitCompanionTechniqueBlocks(text)
+    .map(companionTechniqueItemData)
+    .filter((item) => item?.name && item.system);
 }
 
 export function parseOgreGateStatblock(input = "") {
@@ -508,6 +711,65 @@ export function parseOgreGateStatblock(input = "") {
   if (!trimmed) throw new Error("No statblock text was provided.");
   if (trimmed.startsWith("{") || trimmed.startsWith("[")) return parseJsonStatblock(trimmed);
   return parseTextStatblock(trimmed);
+}
+
+export function parseOgreGateTechniqueImport(input = "") {
+  const trimmed = String(input ?? "").trim();
+  if (!trimmed) throw new Error("No technique text was provided.");
+
+  if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+    const parsed = JSON.parse(trimmed);
+    const entries = Array.isArray(parsed) ? parsed : [parsed];
+    const names = [];
+    const itemData = [];
+    for (const entry of entries) {
+      if (entry?.type === "technique" || normalizeKey(entry?.Type) === "technique") {
+        const data = entry.type === "technique"
+          ? foundry.utils.deepClone(entry)
+          : {
+              name: objectValue(entry, ["name", "Name"], "Imported Technique"),
+              type: "technique",
+              system: objectValue(entry, ["system", "System"], {})
+            };
+        delete data._id;
+        itemData.push(data);
+        continue;
+      }
+      names.push(...parseTechniqueNames(entry));
+      const directName = objectValue(entry, ["name", "Name"], "");
+      if (directName && !names.some((name) => techniqueMatchKey(name) === techniqueMatchKey(directName))) names.push(directName);
+    }
+    return {
+      names: Array.from(new Set(names.map((name) => String(name).trim()).filter(Boolean))),
+      itemData
+    };
+  }
+
+  const companionItems = parseCompanionTechniqueText(trimmed);
+  if (companionItems.length) {
+    return {
+      names: [],
+      itemData: companionItems
+    };
+  }
+
+  const parsedStatblock = parseTextStatblock(trimmed);
+  const statblockNames = parsedStatblock.techniques ?? [];
+  if (statblockNames.length) {
+    return {
+      names: Array.from(new Set(statblockNames.map((name) => String(name).trim()).filter(Boolean))),
+      itemData: []
+    };
+  }
+
+  const names = textLines(trimmed)
+    .flatMap((line) => splitList(line.replace(/^(?:Kung Fu Techniques|Key Kung Fu Techniques|Techniques)\s*(?:\([^)]*\))?\s*:\s*/i, "")))
+    .map((name) => name.replace(/^[-*]\s*/, "").trim())
+    .filter(Boolean);
+  return {
+    names: Array.from(new Set(names)),
+    itemData: []
+  };
 }
 
 function skillItemData(entry) {
@@ -670,6 +932,26 @@ function combatTechniqueItemData(name = "") {
   };
 }
 
+function powerItemData(power = {}) {
+  const name = String(power.name ?? "Power").trim() || "Power";
+  const description = String(power.description ?? "").trim();
+  return {
+    name,
+    type: "power",
+    system: {
+      description,
+      source: "Imported statblock",
+      category: "special",
+      trigger: "",
+      rollSkill: "",
+      targetDefense: "tn",
+      targetNumber: 0,
+      effect: description,
+      mechanicalNotes: ""
+    }
+  };
+}
+
 async function techniqueItemData(name = "") {
   const pack = game.packs.get(`${OGRE_GATE.id}.techniques`);
   if (pack) {
@@ -705,6 +987,12 @@ async function techniqueItemData(name = "") {
       targetNumber: 6
     }
   };
+}
+
+async function techniqueImportFolder() {
+  const existing = game.folders.find((folder) => folder.type === "Item" && folder.name === "Imported Techniques");
+  if (existing) return existing;
+  return Folder.create({ name: "Imported Techniques", type: "Item", sorting: "a" });
 }
 
 function inferDisciplineRanks(itemData = []) {
@@ -764,7 +1052,8 @@ export async function importOgreGateStatblock(input, { actorType = "npc", render
     ...skillItems,
     ...parsed.weapons.map((weapon) => gearItemData(weapon, skillRanks)),
     ...parsed.equipment.map(equipmentItemData),
-    ...parsed.combatTechniques.map(combatTechniqueItemData)
+    ...parsed.combatTechniques.map(combatTechniqueItemData),
+    ...(parsed.powers ?? []).map(powerItemData)
   ];
   for (const technique of parsed.techniques) itemData.push(await techniqueItemData(technique));
   const inferredDisciplines = inferDisciplineRanks(itemData);
@@ -781,12 +1070,59 @@ export async function importOgreGateStatblock(input, { actorType = "npc", render
   return actor;
 }
 
-export function showOgreGateStatblockImporter() {
+export async function importOgreGateTechniques(input, { renderSheets = false } = {}) {
+  const parsed = parseOgreGateTechniqueImport(input);
+  const folder = await techniqueImportFolder();
+  const existing = new Set(game.items.filter((item) => item.type === "technique").map((item) => techniqueMatchKey(item.name)));
+  const itemData = [];
+  for (const data of parsed.itemData ?? []) {
+    const name = String(data.name ?? "").trim();
+    if (!name || existing.has(techniqueMatchKey(name))) continue;
+    existing.add(techniqueMatchKey(name));
+    itemData.push({
+      ...data,
+      folder: folder.id,
+      type: "technique",
+      system: {
+        ...(data.system ?? {}),
+        source: data.system?.source || "Imported technique"
+      }
+    });
+  }
+  for (const name of parsed.names ?? []) {
+    if (existing.has(techniqueMatchKey(name))) continue;
+    const data = await techniqueItemData(name);
+    data.folder = folder.id;
+    data.system = {
+      ...(data.system ?? {}),
+      source: data.system?.source || "Imported technique"
+    };
+    existing.add(techniqueMatchKey(data.name));
+    itemData.push(data);
+  }
+  if (!itemData.length) {
+    ui.notifications.info("No new techniques were found to import.");
+    return [];
+  }
+  const items = await Item.createDocuments(itemData, { renderSheet: false });
+  ui.notifications.info(`Imported ${items.length} technique item(s).`);
+  if (renderSheets) items.forEach((item) => item.sheet?.render(true));
+  return items;
+}
+
+export function showOgreGateStatblockImporter({ defaultImportType = "character" } = {}) {
+  const importingTechniques = defaultImportType === "techniques";
   return new Dialog({
-    title: "Import Ogre Gate Statblock",
+    title: "Import Ogre Gate",
     content: `
       <form class="ogre-gate-import-dialog">
-        <p>Paste a Bedrock-style plaintext statblock or equivalent JSON.</p>
+        <p>Paste a Bedrock-style plaintext statblock, equivalent JSON, or a list of technique names.</p>
+        <label>Import Type
+          <select name="importType">
+            <option value="character" ${importingTechniques ? "" : "selected"}>Character / NPC</option>
+            <option value="techniques" ${importingTechniques ? "selected" : ""}>Techniques</option>
+          </select>
+        </label>
         <label>Actor Type
           <select name="actorType">
             <option value="npc">NPC</option>
@@ -794,7 +1130,7 @@ export function showOgreGateStatblockImporter() {
             <option value="character">Character</option>
           </select>
         </label>
-        <textarea name="statblock" placeholder="Ruang Yuancheng&#10;Defenses: Hardiness 4, Parry 4..."></textarea>
+        <textarea name="statblock" placeholder="Ruang Yuancheng&#10;Defenses: Hardiness 4, Parry 4...&#10;&#10;Or:&#10;Biting Blade&#10;Spinning Back Kick"></textarea>
       </form>
     `,
     buttons: {
@@ -804,11 +1140,13 @@ export function showOgreGateStatblockImporter() {
           const root = html[0] ?? html;
           const statblock = root.querySelector("[name='statblock']")?.value ?? "";
           const actorType = root.querySelector("[name='actorType']")?.value ?? "npc";
+          const importType = root.querySelector("[name='importType']")?.value ?? "character";
           try {
-            await importOgreGateStatblock(statblock, { actorType });
+            if (importType === "techniques") await importOgreGateTechniques(statblock);
+            else await importOgreGateStatblock(statblock, { actorType });
           } catch (error) {
-            console.error("Ogre Gate | Statblock import failed", error);
-            ui.notifications.error(`Ogre Gate statblock import failed: ${error.message}`);
+            console.error("Ogre Gate | Import failed", error);
+            ui.notifications.error(`Ogre Gate import failed: ${error.message}`);
           }
         }
       },
@@ -835,6 +1173,25 @@ export function injectOgreGateStatblockImporter(app, html) {
   button.addEventListener("click", (event) => {
     event.preventDefault();
     showOgreGateStatblockImporter();
+  });
+  header.append(button);
+}
+
+export function injectOgreGateTechniqueImporter(app, html) {
+  const root = html instanceof HTMLElement ? html : html?.[0];
+  if (!root || root.querySelector("[data-action='ogre-gate-import-techniques']")) return;
+  const header = root.querySelector(".directory-header .header-actions")
+    ?? root.querySelector(".directory-header")
+    ?? root.querySelector("header")
+    ?? root;
+  const button = document.createElement("button");
+  button.type = "button";
+  button.dataset.action = "ogre-gate-import-techniques";
+  button.innerText = "Import Techniques";
+  button.title = "Import Kung Fu Technique items from a pasted list, statblock, or JSON.";
+  button.addEventListener("click", (event) => {
+    event.preventDefault();
+    showOgreGateStatblockImporter({ defaultImportType: "techniques" });
   });
   header.append(button);
 }

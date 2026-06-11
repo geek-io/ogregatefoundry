@@ -3,7 +3,10 @@ import { registerChatListeners } from "./module/chat.mjs";
 import { OgreGateActor, OgreGateItem } from "./module/documents.mjs";
 import {
   importOgreGateStatblock,
+  importOgreGateTechniques,
   injectOgreGateStatblockImporter,
+  injectOgreGateTechniqueImporter,
+  parseOgreGateTechniqueImport,
   parseOgreGateStatblock,
   showOgreGateStatblockImporter
 } from "./module/rules/statblock-importer.mjs";
@@ -14,6 +17,7 @@ import {
   OgreGateArmorData,
   OgreGateEquipmentData,
   OgreGateFlawData,
+  OgreGatePowerData,
   OgreGateCombatTechniqueData,
   OgreGateAfflictionData,
   OgreGateSubstanceData,
@@ -22,7 +26,7 @@ import {
   OgreGateTechniqueData,
   OgreGateWeaponData
 } from "./module/data-models.mjs";
-import { OgreGateActorSheet } from "./module/sheets/actor-sheet.mjs";
+import { OgreGateActorSheet, OgreGateNpcSheet } from "./module/sheets/actor-sheet.mjs";
 import { OgreGateItemSheet } from "./module/sheets/item-sheet.mjs";
 
 function applySheetTheme(enabled = true) {
@@ -36,7 +40,9 @@ Hooks.once("init", () => {
     config: OGRE_GATE,
     importStatblock: showOgreGateStatblockImporter,
     importStatblockText: importOgreGateStatblock,
-    parseStatblock: parseOgreGateStatblock
+    importTechniques: importOgreGateTechniques,
+    parseStatblock: parseOgreGateStatblock,
+    parseTechniques: parseOgreGateTechniqueImport
   };
 
   game.settings.register(OGRE_GATE.id, "darkSheets", {
@@ -84,6 +90,7 @@ Hooks.once("init", () => {
     skills: OgreGateSkillData,
     technique: OgreGateTechniqueData,
     combatTechnique: OgreGateCombatTechniqueData,
+    power: OgreGatePowerData,
     ritual: OgreGateRitualData,
     flaw: OgreGateFlawData,
     affliction: OgreGateAfflictionData,
@@ -108,12 +115,17 @@ Hooks.once("init", () => {
   const { DocumentSheetConfig } = foundry.applications.apps;
 
   DocumentSheetConfig.registerSheet(Actor, OGRE_GATE.id, OgreGateActorSheet, {
-    types: ["character", "npc", "monster"],
+    types: ["character"],
+    makeDefault: true
+  });
+
+  DocumentSheetConfig.registerSheet(Actor, OGRE_GATE.id, OgreGateNpcSheet, {
+    types: ["npc", "monster"],
     makeDefault: true
   });
 
   DocumentSheetConfig.registerSheet(Item, OGRE_GATE.id, OgreGateItemSheet, {
-    types: ["weapon", "armor", "equipment", "skills", "technique", "combatTechnique", "ritual", "flaw", "affliction", "substance"],
+    types: ["weapon", "armor", "equipment", "skills", "technique", "combatTechnique", "power", "ritual", "flaw", "affliction", "substance"],
     makeDefault: true
   });
 });
@@ -123,3 +135,4 @@ Hooks.once("ready", () => {
 });
 
 Hooks.on("renderActorDirectory", injectOgreGateStatblockImporter);
+Hooks.on("renderItemDirectory", injectOgreGateTechniqueImporter);

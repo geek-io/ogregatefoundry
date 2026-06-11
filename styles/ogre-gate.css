@@ -249,7 +249,7 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
 }
 
 .ogre-gate .skills .rank-row {
-  grid-template-columns: 32px minmax(130px, 260px) 42px 42px minmax(180px, 1fr) auto auto;
+  grid-template-columns: 32px minmax(130px, 260px) 42px 42px minmax(180px, 1fr) 74px auto auto;
 }
 
 .ogre-gate .defense-header,
@@ -270,7 +270,7 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
 }
 
 .ogre-gate .skill-header {
-  grid-template-columns: 32px minmax(130px, 260px) 42px 42px minmax(180px, 1fr) auto auto;
+  grid-template-columns: 32px minmax(130px, 260px) 42px 42px minmax(180px, 1fr) 74px auto auto;
 }
 
 .ogre-gate .defense-label {
@@ -424,6 +424,22 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
   grid-column: 1 / -1;
 }
 
+.ogre-gate .skill-order-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+}
+
+.ogre-gate .skill-order-buttons button {
+  min-width: 0;
+  padding: 2px 3px;
+  border: 1px solid var(--og-border);
+  background: var(--og-button);
+  color: var(--og-button-text);
+  font-size: 9px;
+  font-weight: 800;
+}
+
 .ogre-gate .section-budget {
   display: grid;
   grid-template-columns: minmax(120px, 1fr) auto auto;
@@ -557,7 +573,8 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
 }
 
 .ogre-gate .item-line.technique-line {
-  grid-template-columns: minmax(120px, 1fr) 52px minmax(96px, auto) auto;
+  grid-template-columns: minmax(170px, 1.2fr) 54px minmax(170px, 1fr) minmax(132px, auto);
+  align-items: start;
 }
 
 .ogre-gate .technique-damage {
@@ -565,8 +582,8 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
   color: var(--og-accent);
   font-size: 11px;
   font-weight: 800;
-  text-align: right;
-  white-space: nowrap;
+  text-align: left;
+  overflow-wrap: anywhere;
 }
 
 .ogre-gate .technique-tag {
@@ -853,6 +870,128 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
   background: color-mix(in srgb, var(--og-panel) 72%, transparent);
 }
 
+.ogre-gate.npc-sheet .npc-header {
+  grid-template-columns: 82px minmax(0, 1fr);
+}
+
+.ogre-gate.npc-sheet .npc-header .profile-img {
+  width: 82px;
+  height: 82px;
+}
+
+.ogre-gate.npc-sheet .npc-vitals {
+  grid-column: 1 / -1;
+}
+
+.ogre-gate .npc-main-skills {
+  min-height: 360px;
+}
+
+.ogre-gate .npc-powers {
+  margin-top: 10px;
+}
+
+.ogre-gate .npc-power-list {
+  display: grid;
+  gap: 8px;
+}
+
+.ogre-gate .ogre-gate-power-entry {
+  padding: 6px 8px;
+  border: 1px solid var(--og-line);
+  background: color-mix(in srgb, var(--og-panel) 70%, transparent);
+}
+
+.ogre-gate .ogre-gate-power-entry h3 {
+  margin: 0 0 4px;
+  color: var(--og-accent);
+  font-size: 13px;
+  line-height: 1.15;
+  text-transform: none;
+}
+
+.ogre-gate .ogre-gate-power-entry p {
+  margin: 0;
+  line-height: 1.35;
+}
+
+.ogre-gate .npc-power-item {
+  grid-template-columns: minmax(220px, 1fr) 96px auto auto;
+  align-items: start;
+}
+
+.ogre-gate .npc-power-item h3 {
+  margin: 0 0 4px;
+  color: var(--og-accent);
+  font-size: 13px;
+  line-height: 1.15;
+  text-transform: none;
+}
+
+.ogre-gate .npc-power-item p {
+  margin: 0 0 4px;
+  line-height: 1.35;
+}
+
+.ogre-gate .npc-defense-strip {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(90px, 1fr));
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.ogre-gate .npc-defense-strip .roll-icon-button {
+  width: 100%;
+  height: 28px;
+  font-size: 10px;
+}
+
+.ogre-gate .npc-skill-drop-zone {
+  min-height: 260px;
+  padding: 6px;
+  border: 1px dashed var(--og-border);
+  background: color-mix(in srgb, var(--og-field) 78%, transparent);
+}
+
+.ogre-gate .npc-skill-group {
+  margin-bottom: 10px;
+}
+
+.ogre-gate .npc-skill-group h3 {
+  margin-top: 8px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--og-line);
+}
+
+.ogre-gate .npc-skill-header,
+.ogre-gate .npc-skill-row {
+  display: grid;
+  grid-template-columns: 38px minmax(140px, 1fr) 42px 42px 54px minmax(120px, .8fr) auto auto;
+  gap: 5px;
+  align-items: center;
+}
+
+.ogre-gate .npc-skill-header {
+  color: var(--og-muted);
+  font-size: 10px;
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.ogre-gate .npc-skill-row {
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--og-line);
+  background: color-mix(in srgb, var(--og-panel) 72%, transparent);
+}
+
+.ogre-gate .npc-skill-row > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .ogre-gate-dialog label {
   display: flex;
   flex-direction: column;
@@ -865,9 +1004,21 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
 }
 
 .ogre-gate .technique-columns {
+  display: block;
+}
+
+.ogre-gate .technique-columns > .item-actions {
   display: grid;
-  grid-template-columns: repeat(4, minmax(140px, 1fr));
-  gap: 8px;
+}
+
+.ogre-gate .technique-group-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  gap: 10px;
+}
+
+.ogre-gate .technique-group {
+  min-width: 0;
 }
 
 .ogre-gate .notes-grid textarea,
@@ -1096,8 +1247,8 @@ body.ogre-gate-dark-sheets .ogre-gate-chat-button {
     grid-column: 1 / -1;
   }
 
-  .ogre-gate .technique-columns {
-    grid-template-columns: repeat(2, minmax(140px, 1fr));
+  .ogre-gate .technique-group-grid {
+    grid-template-columns: 1fr;
   }
 
   .ogre-gate .tn-grid {
@@ -1106,6 +1257,14 @@ body.ogre-gate-dark-sheets .ogre-gate-chat-button {
 
   .ogre-gate .item-line {
     grid-template-columns: 1fr 70px;
+  }
+
+  .ogre-gate .item-line.technique-line {
+    grid-template-columns: minmax(160px, 1.1fr) 54px minmax(150px, 1fr) minmax(132px, auto);
+  }
+
+  .ogre-gate .npc-skill-row {
+    grid-template-columns: 38px minmax(140px, 1fr) 42px 42px 54px minmax(120px, .8fr) auto auto;
   }
 }
 
@@ -1178,7 +1337,8 @@ body.ogre-gate-dark-sheets .ogre-gate-chat-button {
     display: none;
   }
 
-  .ogre-gate .skills .rank-row .skill-expertise-cell {
+  .ogre-gate .skills .rank-row .skill-expertise-cell,
+  .ogre-gate .skills .rank-row .skill-order-buttons {
     grid-column: 1 / -1;
   }
 

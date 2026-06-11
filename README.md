@@ -5,6 +5,16 @@ A Foundry VTT v13 game system for *The Wandering Heroes of Ogre Gate* by Bedrock
 
 ***This projrect uses copyright material owned by Bedrock Games, under their Bedrock Games Community Use Policy. This is not an official product of Bedrock Games.***
 
+# v 0.2.0
+## Live table and NPC workflow
+- Added a compact NPC/monster sheet with a main Skills panel grouped by skill category and alphabetized within each group.
+- Added Item Directory technique importing; the importer can now create Technique items from pasted lists, statblock technique sections, Bedrock-style JSON technique name arrays, or technique item JSON.
+- Technique importing now supports Companion App multi-line technique exports with Discipline, Skill, Type, Qi, Requirement, and Cathartic fields.
+- Monster and NPC statblock imports now preserve `Powers` sections as embedded Power items visible on the compact NPC/monster sheet.
+- Added a Power item type for monster/NPC abilities with trigger, optional roll/target fields, effect text, and mechanical notes.
+- Power item descriptions are displayed and saved as plain text so imported monster rules do not expose raw HTML tags.
+- Skill rows on the character sheet can now be moved up or down within their skill group.
+- Cleaned the Martial tab technique layout so long technique names, damage/effect notes, and action buttons no longer overlap in narrower sheet windows.
 
 # v 0.1.9
 ## Bug fixes and character workflow polish

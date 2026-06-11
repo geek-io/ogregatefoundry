@@ -128,6 +128,7 @@
                 <span>Rank</span>
                 <span>Mod</span>
                 <span>Expertise</span>
+                <span>Order</span>
                 <span></span>
                 <span></span>
               </div>
@@ -151,6 +152,10 @@
                     {{else}}
                       <button type="button" data-action="edit-expertise" data-item-id="{{skill.item.id}}" data-label="{{skill.displayLabel}}" data-tooltip="Add {{skill.displayLabel}} Expertise">+ Expertise</button>
                     {{/if}}
+                  </div>
+                  <div class="skill-order-buttons">
+                    <button type="button" data-action="move-skill" data-direction="up" data-item-id="{{skill.item.id}}" data-tooltip="Move {{skill.item.name}} up">Up</button>
+                    <button type="button" data-action="move-skill" data-direction="down" data-item-id="{{skill.item.id}}" data-tooltip="Move {{skill.item.name}} down">Down</button>
                   </div>
                   <button type="button" data-action="open-item" data-item-id="{{skill.item.id}}" data-tooltip="{{../help.editItem}}">Edit</button>
                   <button type="button" data-action="delete-item" data-item-id="{{skill.item.id}}" data-tooltip="{{../help.deleteItem}}">Delete</button>
@@ -689,8 +694,9 @@
             <button type="button" data-action="create-item" data-type="technique" data-tooltip="{{help.newTechnique}}">New Kung Fu Technique</button>
             <span>Drop technique items anywhere on this sheet.</span>
           </div>
+          <div class="technique-group-grid">
           {{#each techniqueGroups as |group|}}
-            <div>
+            <div class="technique-group">
               <h3>{{label}}</h3>
               <div class="item-list">
               {{#each items as |technique|}}
@@ -722,6 +728,7 @@
               </div>
             </div>
           {{/each}}
+          </div>
           {{#if creationMode}}
           <div class="section-budget">
             <span>Starting Kung Fu Techniques</span>

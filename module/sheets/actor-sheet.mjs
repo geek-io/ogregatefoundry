@@ -357,6 +357,17 @@ function getSkillIdentity(itemData) {
   return `${system.group ?? ""}:${normalizeKey(system.skillKey || itemData?.name || "")}`;
 }
 
+function skillSortValue(item) {
+  const value = Number(item?.system?.sort ?? 0);
+  return Number.isFinite(value) ? value : 0;
+}
+
+function sortSkillItems(a, b) {
+  const sort = skillSortValue(a) - skillSortValue(b);
+  if (sort) return sort;
+  return a.name.localeCompare(b.name);
+}
+
 function resolveDroppedSkillGroup(itemData, fallbackGroup = "") {
   const currentGroup = itemData?.system?.group ?? "";
   if (currentGroup && currentGroup !== "defenses" && OGRE_GATE.skillGroups[currentGroup]) return currentGroup;
@@ -434,6 +445,20 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       selectedAttackMode: this.#prepareSelectedAttackMode(actor),
       preparedStrikeStatus: actor.system.preparedStrike.ready ? "Armed" : "Not Armed",
       activeStance: this.#prepareActiveStance(actor),
+      powers: actor.items
+        .filter((item) => item.type === "power")
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((item) => ({
+          item,
+          id: item.id,
+          name: item.name,
+          system: {
+            ...item.system,
+            description: stripHtml(item.system.description),
+            effect: stripHtml(item.system.effect),
+            mechanicalNotes: stripHtml(item.system.mechanicalNotes)
+          }
+        })),
       coverOptions: this.#prepareCoverOptions(),
       illuminationOptions: this.#prepareIlluminationOptions(),
       afflictionTypes: this.#prepareAfflictionTypes(),
@@ -601,6 +626,9 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     this.element.querySelectorAll("[data-action='toggle-skill-group']").forEach((button) => {
       button.addEventListener("click", (event) => this.#onToggleSkillGroup(event), listenerOptions);
     });
+    this.element.querySelectorAll("[data-action='move-skill']").forEach((button) => {
+      button.addEventListener("click", (event) => this.#onMoveSkill(event), listenerOptions);
+    });
     this.element.querySelectorAll("[data-action='apply-creation-defaults']").forEach((button) => {
       button.addEventListener("click", (event) => this.#onApplyCreationDefaults(event), listenerOptions);
     });
@@ -665,6 +693,7 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       budget: budgetRows[groupKey],
       skills: Array.from(new Map(actor.items
         .filter((item) => item.type === "skills" && item.system.group === groupKey)
+        .sort(sortSkillItems)
         .map((item) => [getSkillIdentity(item.toObject()), item])).values()).map((item) => {
         const skill = item.system;
         const activeExpertise = new Set(activeExpertiseNames(item));
@@ -2061,6 +2090,12 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       type
     };
     if (groupKey) itemData.system = { group: groupKey };
+    if (type === "skills") {
+      itemData.system = {
+        ...(itemData.system ?? {}),
+        sort: this.#nextSkillSort(groupKey)
+      };
+    }
     const [item] = await this.actor.createEmbeddedDocuments("Item", [itemData]);
     item?.sheet?.render(true);
   }
@@ -2103,6 +2138,26 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     });
     if (!confirmed) return;
     return item.delete();
+  }
+
+  async #onMoveSkill(event) {
+    event.preventDefault();
+    const button = event.currentTarget;
+    const item = this.actor.items.get(button.dataset.itemId);
+    if (!item || item.type !== "skills") return null;
+    this.#captureSheetScroll();
+    const direction = button.dataset.direction === "down" ? 1 : -1;
+    const groupKey = item.system.group;
+    const skills = this.actor.items
+      .filter((candidate) => candidate.type === "skills" && candidate.system.group === groupKey)
+      .sort(sortSkillItems);
+    const index = skills.findIndex((candidate) => candidate.id === item.id);
+    const other = skills[index + direction];
+    if (!other) return null;
+    return Promise.all([
+      item.update({ "system.sort": skillSortValue(other) }),
+      other.update({ "system.sort": skillSortValue(item) })
+    ]);
   }
 
   async #onItemContextMenu(event) {
@@ -2189,6 +2244,7 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
         ...itemData.system,
         group: resolveDroppedSkillGroup(itemData, skillGroup)
       };
+      itemData.system.sort = this.#nextSkillSort(itemData.system.group);
     }
     const techniqueSource = itemData.type === "technique" ? String(item.uuid ?? "") : "";
     if (techniqueSource) {
@@ -2266,6 +2322,7 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
         ...data.system,
         group: resolveDroppedSkillGroup(data, skillGroup)
       };
+      data.system.sort = this.#nextSkillSort(data.system.group, itemData);
       const identity = getSkillIdentity(data);
       if (seen.has(identity)) continue;
       seen.add(identity);
@@ -2278,6 +2335,17 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     }
     await this.actor.createEmbeddedDocuments("Item", itemData);
     ui.notifications.info(`Added ${itemData.length} Skill item(s) from ${folder.name} to ${this.actor.name}.`);
+  }
+
+  #nextSkillSort(groupKey = "", pending = []) {
+    const existing = this.actor.items
+      .filter((item) => item.type === "skills" && (!groupKey || item.system.group === groupKey))
+      .map(skillSortValue);
+    const pendingSorts = pending
+      .filter((item) => item?.type === "skills" && (!groupKey || item.system?.group === groupKey))
+      .map((item) => Number(item.system?.sort ?? 0))
+      .filter((value) => Number.isFinite(value));
+    return Math.max(0, ...existing, ...pendingSorts) + 1000;
   }
 
   async #collectFolderItems(folder) {
@@ -2333,5 +2401,64 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     const group = event.currentTarget.dataset.group;
     this._activeTab = tab;
     this.#activateTab(tab, group);
+  }
+}
+
+export class OgreGateNpcSheet extends OgreGateActorSheet {
+  static DEFAULT_OPTIONS = {
+    ...super.DEFAULT_OPTIONS,
+    classes: ["ogre-gate", "actor-sheet", "npc-sheet"],
+    position: {
+      width: 820,
+      height: 760
+    }
+  };
+
+  static PARTS = {
+    form: {
+      template: "systems/ogregatefoundry/templates/actor/npc-sheet.hbs"
+    }
+  };
+
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    return {
+      ...context,
+      npcSkillGroups: this.#prepareNpcSkillGroups(context.actor)
+    };
+  }
+
+  #prepareNpcSkillGroups(actor) {
+    return Object.entries(OGRE_GATE.skillGroups)
+      .filter(([groupKey]) => groupKey !== "defenses")
+      .map(([groupKey, group]) => ({
+        key: groupKey,
+        label: group.label,
+        skills: actor.items
+          .filter((item) => item.type === "skills" && item.system.group === groupKey)
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map((item) => {
+            const data = item.system;
+            const ranks = effectiveRanks(data);
+            const modifier = Number(data.modifier ?? 0);
+            const expertiseEntries = getExpertiseEntries(data);
+            return {
+              item,
+              shortLabel: this.#shortNpcSkillLabel(item.name),
+              tooltip: stripHtml(data.description) || `${item.name}: No skill description entered yet.`,
+              ranks,
+              modifier,
+              pool: Math.max(0, ranks + modifier),
+              expertise: expertiseEntries.map((entry) => entry.name).join(", ")
+            };
+          })
+      }))
+      .filter((group) => group.skills.length);
+  }
+
+  #shortNpcSkillLabel(label) {
+    const words = String(label ?? "").split(/[ /-]+/).filter(Boolean);
+    if (words.length > 1) return words.map((word) => word[0]).join("").slice(0, 3).toUpperCase();
+    return String(label ?? "").slice(0, 3).toUpperCase();
   }
 }

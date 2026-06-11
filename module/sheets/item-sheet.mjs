@@ -13,6 +13,12 @@ function normalizeKey(value = "") {
   return String(value).trim().toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
+function stripHtml(value = "") {
+  const div = document.createElement("div");
+  div.innerHTML = String(value ?? "");
+  return div.textContent?.trim() ?? "";
+}
+
 const ITEM_HELP = {
   weaponCategory: "Weapon category determines the default combat skill family for attacks.",
   attackSkill: "Skill used when this weapon rolls an attack.",
@@ -70,6 +76,12 @@ const ITEM_HELP = {
   combatPerkGroup: "Combat Perk group this perk belongs to.",
   combatPerkSkill: "Specific skill or combat skill this perk modifies.",
   combatPerkBonus: "Rules text or dice bonus granted by this Combat Perk.",
+  powerCategory: "Broad category for this NPC or monster power, such as attack, aura, reaction, passive, movement, or special.",
+  powerTrigger: "When this power matters at the table.",
+  powerRollSkill: "Optional skill used when the power requires a roll.",
+  powerTarget: "Optional target number or defense used by this power.",
+  powerEffect: "Short mechanical summary shown on the NPC sheet.",
+  powerMechanicalNotes: "Additional implementation notes for future automation or GM adjudication.",
   flawKey: "Choose a rules-listed flaw. The sheet will fill the name, category, point value, and limit exemption.",
   flawCategory: "Creation category for this flaw, such as standard or demon.",
   flawPoints: "Skill points gained from this flaw during character creation.",
@@ -140,6 +152,7 @@ function techniqueTargetOptions(selected = "") {
   return [
     { key: "tn", label: "Fixed TN", selected: selected === "tn" || !selected },
     { key: "none", label: "Manual / Special", selected: selected === "none" },
+    { key: "attackRoll", label: "Attack Roll", selected: selected === "attackRoll" },
     ...Object.entries(OGRE_GATE.defenses).map(([key, defense]) => ({
       key,
       label: defense.label,
@@ -175,10 +188,18 @@ export class OgreGateItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
+    const system = this.item.type === "power"
+      ? {
+          ...this.item.system,
+          description: stripHtml(this.item.system.description),
+          effect: stripHtml(this.item.system.effect),
+          mechanicalNotes: stripHtml(this.item.system.mechanicalNotes)
+        }
+      : this.item.system;
     return {
       ...context,
       item: this.item,
-      system: this.item.system,
+      system,
       config: OGRE_GATE,
       help: ITEM_HELP,
       skillGroups: Object.entries(OGRE_GATE.skillGroups).filter(([key]) => key !== "defenses").map(([key, group]) => ({
@@ -186,7 +207,7 @@ export class OgreGateItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
         label: group.label
       })),
       combatSkills: combatSkillOptions(),
-      allSkills: skillOptions({ includeBlank: true, selected: this.item.system.activationSkill }),
+      allSkills: skillOptions({ includeBlank: true, selected: this.item.system.activationSkill ?? this.item.system.rollSkill }),
       weaponDamageSkills: skillOptions({ includeBlank: true, selected: this.item.system.damageSkill }),
       defenses: defenseOptions(),
       techniqueTargets: techniqueTargetOptions(this.item.system.targetDefense),
@@ -234,7 +255,11 @@ export class OgreGateItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 
   #onFieldChange(event) {
     const field = event.currentTarget;
-    const updates = { [field.name]: getInputValue(field) };
+    let value = getInputValue(field);
+    if (this.item.type === "power" && typeof value === "string" && field.name.startsWith("system.")) {
+      value = stripHtml(value);
+    }
+    const updates = { [field.name]: value };
 
     if (this.item.type === "flaw" && field.name === "system.flawKey") {
       const rule = OGRE_GATE.flawRules[field.value];

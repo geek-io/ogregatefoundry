@@ -537,12 +537,28 @@ export class OgreGateCombatTechniqueData extends OgreGateBaseItemData {
   }
 }
 
+export class OgreGatePowerData extends OgreGateBaseItemData {
+  static defineSchema() {
+    return {
+      ...super.defineSchema(),
+      category: textField("special"),
+      trigger: textField(""),
+      rollSkill: textField(""),
+      targetDefense: textField("tn"),
+      targetNumber: numberField(0, { min: 0, max: 20 }),
+      effect: textField(""),
+      mechanicalNotes: textField("")
+    };
+  }
+}
+
 export class OgreGateSkillData extends OgreGateBaseItemData {
   static defineSchema() {
     return {
       ...super.defineSchema(),
       group: textField("combat"),
       skillKey: textField(""),
+      sort: numberField(0, { min: 0 }),
       ranks: numberField(0, { min: 0, max: 10 }),
       modifier: numberField(0, { min: -10, max: 10 }),
       drain: numberField(0, { min: 0, max: 20 }),

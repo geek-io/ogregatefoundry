@@ -194,6 +194,32 @@
     </section>
   {{/if}}
 
+  {{#if (eq item.type "power")}}
+    <section class="panel weapon-fields">
+      <h2>Power</h2>
+      <label data-tooltip="{{help.powerCategory}}">Category <input type="text" name="system.category" value="{{system.category}}" placeholder="attack, aura, reaction, passive..." /></label>
+      <label data-tooltip="{{help.powerTrigger}}">Trigger <input type="text" name="system.trigger" value="{{system.trigger}}" /></label>
+      <label data-tooltip="{{help.powerRollSkill}}">Roll Skill
+        <select name="system.rollSkill">
+          {{#each allSkills as |skill|}}
+            <option value="{{skill.key}}" {{#if skill.selected}}selected{{/if}}>{{skill.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label data-tooltip="{{help.powerTarget}}">Target
+        <select name="system.targetDefense">
+          {{#each techniqueTargets as |target|}}
+            <option value="{{target.key}}" {{#if (eq ../system.targetDefense target.key)}}selected{{/if}}>{{target.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label data-tooltip="{{help.powerTarget}}">Default TN <input type="number" name="system.targetNumber" value="{{system.targetNumber}}" min="0" max="20" /></label>
+      <label data-tooltip="{{help.powerEffect}}" class="wide-field">Effect <input type="text" name="system.effect" value="{{system.effect}}" /></label>
+      <label data-tooltip="{{help.powerMechanicalNotes}}" class="wide-field">Mechanical Notes <textarea name="system.mechanicalNotes">{{system.mechanicalNotes}}</textarea></label>
+      <label class="wide-field">Description <textarea name="system.description">{{system.description}}</textarea></label>
+    </section>
+  {{/if}}
+
   {{#if (eq item.type "armor")}}
     <section class="panel">
       <h2>Armor</h2>
@@ -337,8 +363,10 @@
     </section>
   {{/if}}
 
-  <section class="panel description">
-    <h2>Description</h2>
-    <textarea name="system.description">{{system.description}}</textarea>
-  </section>
+  {{#unless (eq item.type "power")}}
+    <section class="panel description">
+      <h2>Description</h2>
+      <textarea name="system.description">{{system.description}}</textarea>
+    </section>
+  {{/unless}}
 </form>

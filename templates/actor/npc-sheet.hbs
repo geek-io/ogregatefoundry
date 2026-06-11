@@ -1,0 +1,224 @@
+<form class="ogre-gate-form actor npc" autocomplete="off">
+  <header class="sheet-header npc-header">
+    <img class="profile-img" src="{{actor.img}}" data-edit="img" data-action="showPortraitArtwork" title="{{actor.name}}" />
+    <section class="identity-grid">
+      <label>Name <input type="text" name="name" value="{{actor.name}}" /></label>
+      <label>Martial Name <input type="text" name="system.identity.martialName" value="{{system.identity.martialName}}" /></label>
+      <label>Sect <input type="text" name="system.identity.sect" value="{{system.identity.sect}}" /></label>
+      <label>Sifu <input type="text" name="system.identity.sifu" value="{{system.identity.sifu}}" /></label>
+      <label>Reputation <input type="text" name="system.identity.reputation" value="{{system.identity.reputation}}" /></label>
+      <label>Tier
+        <select name="system.identity.martialTier">
+          <option value="martialHero" {{#if (eq system.identity.martialTier "martialHero")}}selected{{/if}}>Martial Hero</option>
+          <option value="sertorius" {{#if (eq system.identity.martialTier "sertorius")}}selected{{/if}}>Sertorius</option>
+          <option value="mixed" {{#if (eq system.identity.martialTier "mixed")}}selected{{/if}}>Mixed</option>
+        </select>
+      </label>
+    </section>
+    <section class="header-vitals npc-vitals" aria-label="NPC resources">
+      <div class="vital-group">
+        <h2 data-tooltip="{{help.health}}">Health</h2>
+        <div class="resource-row">
+          <label>Current <input type="number" name="system.resources.wounds.value" value="{{system.resources.wounds.value}}" min="0" /></label>
+          <label>Max <input type="number" name="system.resources.wounds.max" value="{{system.resources.wounds.max}}" disabled /></label>
+        </div>
+        <div class="status-pill {{system.status.woundState}}">{{system.status.woundState}}</div>
+      </div>
+      <div class="vital-group">
+        <h2>Qi</h2>
+        <label data-tooltip="{{help.qiRank}}">Rank <input type="number" name="system.qi.rank" value="{{system.qi.rank}}" min="0" max="12" /></label>
+        <div class="metric-row" data-tooltip="{{help.drain}}"><span>Effective Qi</span><strong>{{system.status.effectiveQi}}</strong></div>
+      </div>
+      <div class="vital-group">
+        <h2>Imbalance</h2>
+        <div class="metric-row" data-tooltip="{{help.imbalance}}"><span>Rating</span><strong>{{system.status.imbalanceRating}}</strong></div>
+        <div class="resource-row">
+          <label>Current <input type="number" name="system.imbalance.value" value="{{system.imbalance.value}}" min="0" /></label>
+          <label>Max <input type="number" name="system.imbalance.max" value="{{system.imbalance.max}}" /></label>
+        </div>
+      </div>
+    </section>
+  </header>
+
+  <nav class="sheet-tabs" data-group="primary">
+    <a data-action="tab" data-group="primary" data-tab="front">Main</a>
+    <a data-action="tab" data-group="primary" data-tab="martial">Martial</a>
+    <a data-action="tab" data-group="primary" data-tab="gear">Gear</a>
+    <a data-action="tab" data-group="primary" data-tab="notes">Notes</a>
+  </nav>
+
+  <section class="sheet-body">
+    <div class="tab front active" data-group="primary" data-tab="front">
+      <section class="panel npc-main-skills">
+        <h2>Skills</h2>
+        <div class="npc-defense-strip">
+          {{#each defenses as |defense|}}
+            <button class="roll-icon-button" type="button" data-action="roll-defense" data-defense="{{defense.key}}" data-tooltip="{{defense.tooltip}}">{{defense.label}} {{defense.rating}}</button>
+          {{/each}}
+        </div>
+        <div class="npc-skill-drop-zone">
+          {{#each npcSkillGroups as |group|}}
+            <section class="npc-skill-group" data-skill-group="{{group.key}}">
+              <h3>{{group.label}}</h3>
+              <div class="npc-skill-header">
+                <span>Roll</span>
+                <span>Skill</span>
+                <span>Rank</span>
+                <span>Mod</span>
+                <span>Pool</span>
+                <span>Expertise</span>
+                <span></span>
+                <span></span>
+              </div>
+              {{#each group.skills as |skill|}}
+                <div class="npc-skill-row item-line" data-item-id="{{skill.item.id}}" data-tooltip="Right-click to edit or delete {{skill.item.name}}.">
+                  <button class="roll-icon-button" type="button" data-action="roll-skill" data-item-id="{{skill.item.id}}" data-label="{{skill.item.name}}" data-tooltip="{{skill.tooltip}}">{{skill.shortLabel}}</button>
+                  <input class="skill-label" type="text" data-item-id="{{skill.item.id}}" data-item-field="name" value="{{skill.item.name}}" />
+                  <input type="number" data-item-id="{{skill.item.id}}" data-item-field="system.ranks" value="{{skill.item.system.ranks}}" min="0" max="10" />
+                  <input type="number" data-item-id="{{skill.item.id}}" data-item-field="system.modifier" value="{{skill.item.system.modifier}}" min="-10" max="10" />
+                  <strong>{{skill.pool}}d10</strong>
+                  <span>{{#if skill.expertise}}{{skill.expertise}}{{else}}None{{/if}}</span>
+                  <button type="button" data-action="open-item" data-item-id="{{skill.item.id}}" data-tooltip="{{../../help.editItem}}">Edit</button>
+                  <button type="button" data-action="delete-item" data-item-id="{{skill.item.id}}" data-tooltip="{{../../help.deleteItem}}">Delete</button>
+                </div>
+              {{/each}}
+            </section>
+          {{else}}
+            <p class="form-note">Drop Skill items here or use the importer to populate this NPC.</p>
+          {{/each}}
+        </div>
+      </section>
+      {{#if powers.length}}
+        <section class="panel npc-powers">
+          <h2>Powers</h2>
+          <div class="item-actions compact">
+            <button type="button" data-action="create-item" data-type="power">New Power</button>
+          </div>
+          <div class="npc-power-list">
+            {{#each powers as |power|}}
+              <div class="npc-power-item item-line" data-item-id="{{power.id}}" data-tooltip="Right-click to edit or delete {{power.name}}.">
+                <div>
+                  <h3>{{power.name}}</h3>
+                  {{#if power.system.effect}}<p><strong>Effect:</strong> {{power.system.effect}}</p>{{/if}}
+                  {{#if power.system.description}}<p>{{power.system.description}}</p>{{/if}}
+                  {{#if power.system.mechanicalNotes}}<p><strong>Notes:</strong> {{power.system.mechanicalNotes}}</p>{{/if}}
+                </div>
+                <span>{{power.system.category}}</span>
+                <button type="button" data-action="open-item" data-item-id="{{power.id}}" data-tooltip="{{../help.editItem}}">Edit</button>
+                <button type="button" data-action="delete-item" data-item-id="{{power.id}}" data-tooltip="{{../help.deleteItem}}">Delete</button>
+              </div>
+            {{/each}}
+          </div>
+        </section>
+      {{else}}
+        <section class="panel npc-powers">
+          <h2>Powers</h2>
+          <div class="item-actions compact">
+            <button type="button" data-action="create-item" data-type="power">New Power</button>
+          </div>
+          {{#if system.notes.special}}
+            <div class="npc-power-list legacy-powers">
+              {{{system.notes.special}}}
+              <p class="form-note">Legacy text-only powers. Reimport or create Power items to make these editable as items.</p>
+            </div>
+          {{else}}
+            <p class="form-note">No Power items yet.</p>
+          {{/if}}
+        </section>
+      {{/if}}
+    </div>
+
+    <div class="tab martial" data-group="primary" data-tab="martial">
+      <div class="martial-grid">
+        <section class="panel">
+          <h2>Martial Disciplines</h2>
+          {{#each martialDisciplines as |discipline|}}
+            <div class="discipline-row">
+              <span>{{discipline.label}}</span>
+              <input type="number" name="system.disciplines.{{discipline.key}}.ranks" value="{{lookup (lookup ../system.disciplines discipline.key) 'ranks'}}" min="0" max="12" />
+              <input type="number" name="system.disciplines.{{discipline.key}}.modifier" value="{{lookup (lookup ../system.disciplines discipline.key) 'modifier'}}" min="-10" max="10" />
+            </div>
+          {{/each}}
+        </section>
+        <section class="panel technique-columns">
+          <h2>Kung Fu Techniques</h2>
+          <div class="item-actions">
+            <button type="button" data-action="create-item" data-type="technique" data-tooltip="{{help.newTechnique}}">New Kung Fu Technique</button>
+            <span>Drop technique items anywhere on this sheet.</span>
+          </div>
+          <div class="technique-group-grid">
+            {{#each techniqueGroups as |group|}}
+              <div class="technique-group">
+                <h3>{{label}}</h3>
+                <div class="item-list">
+                  {{#each items as |technique|}}
+                    <div class="item-line compact technique-line" data-item-id="{{technique.item.id}}">
+                      <span>{{technique.item.name}}</span>
+                      <span data-tooltip="Required Qi Rank; techniques do not spend Qi.">Qi {{technique.item.system.qiRank}}</span>
+                      <span class="technique-damage" data-tooltip="{{technique.damage.tooltip}}">{{technique.damage.label}}</span>
+                      <span class="item-row-actions">
+                        <button type="button" data-action="roll-technique" data-item-id="{{technique.item.id}}" data-tooltip="{{../../help.useTechnique}}">{{#if (eq ../key "counter")}}Counter{{else if (eq ../key "stance")}}Assume{{else}}Use{{/if}}</button>
+                        <button type="button" data-action="roll-technique" data-cathartic="true" data-item-id="{{technique.item.id}}" data-tooltip="{{../../help.catharticTechnique}}">Cathartic</button>
+                        <button type="button" data-action="open-item" data-item-id="{{technique.item.id}}" data-tooltip="{{../../help.editItem}}">Edit</button>
+                        <button type="button" data-action="delete-item" data-item-id="{{technique.item.id}}" data-tooltip="{{../../help.deleteItem}}">Delete</button>
+                      </span>
+                    </div>
+                  {{/each}}
+                </div>
+              </div>
+            {{/each}}
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="tab gear" data-group="primary" data-tab="gear">
+      <section class="panel">
+        <h2>Equipment</h2>
+        <div class="item-actions compact">
+          <button type="button" data-action="create-item" data-type="equipment" data-tooltip="{{help.newGear}}">New Gear</button>
+          <span data-tooltip="{{help.equipmentDrop}}">{{help.equipmentDrop}}</span>
+        </div>
+        <div class="item-list equipment-drop-zone" data-tooltip="{{help.equipmentDrop}}">
+          {{#each equipment as |item|}}
+            <div class="item-line equipment-line" data-item-id="{{item.id}}" data-tooltip="Right-click to edit or delete {{item.name}}.">
+              <span>{{item.name}}</span>
+              <span>{{item.categoryLabel}}</span>
+              <span>{{item.status}}</span>
+              {{#if (eq item.type "weapon")}}
+                <button type="button" data-action="roll-weapon-attack" data-item-id="{{item.id}}" data-tooltip="{{../help.weaponAttack}}">Attack</button>
+                <button type="button" data-action="roll-weapon-damage" data-item-id="{{item.id}}" data-tooltip="{{../help.weaponDamage}}">Damage</button>
+                <button type="button" data-action="toggle-weapon-equipped" data-item-id="{{item.id}}">{{item.equipLabel}}</button>
+              {{else if (eq item.type "armor")}}
+                <button type="button" data-action="toggle-armor-equipped" data-item-id="{{item.id}}">{{item.equipLabel}}</button>
+                <span></span>
+                <span></span>
+              {{else}}
+                <span></span>
+                <span></span>
+                <span></span>
+              {{/if}}
+              <button type="button" data-action="open-item" data-item-id="{{item.id}}" data-tooltip="{{../help.editItem}}">Edit</button>
+              <button type="button" data-action="delete-item" data-item-id="{{item.id}}" data-tooltip="{{../help.deleteItem}}">Delete</button>
+            </div>
+          {{/each}}
+        </div>
+      </section>
+    </div>
+
+    <div class="tab notes" data-group="primary" data-tab="notes">
+      <section class="panel">
+        <h2>Legacy Powers Text</h2>
+        <textarea name="system.notes.special">{{system.notes.special}}</textarea>
+      </section>
+      <section class="panel">
+        <h2>Notes</h2>
+        <textarea name="system.notes.status">{{system.notes.status}}</textarea>
+      </section>
+      <section class="panel">
+        <h2>Biography</h2>
+        <textarea name="system.notes.biography">{{system.notes.biography}}</textarea>
+      </section>
+    </div>
+  </section>
+</form>
