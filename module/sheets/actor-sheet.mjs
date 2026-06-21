@@ -1,6 +1,7 @@
 import { OGRE_GATE } from "../config.mjs";
 import { GOODS_CATALOG, MOUNT_TRANSPORT_CATALOG, WEAPON_CATALOG } from "../content/equipment-catalog.mjs";
 import { prepareCharacterCreation } from "../rules/character-creation.mjs";
+import { parseOgreGateStatblock, statblockPreviewItemData } from "../rules/statblock-importer.mjs";
 
 const { ActorSheetV2 } = foundry.applications.sheets;
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -95,6 +96,83 @@ function qualifiedDamageSkill(skillKey = "") {
   if (["athletics", "endurance", "muscle", "speed", "swim", "ride", "sail"].includes(key)) return `physical.${key}`;
   if (["reason", "reasoning"].includes(key)) return "mental.reasoning";
   return key;
+}
+
+function rawActorItems(actor) {
+  const liveItems = Array.from(actor.items ?? []);
+  if (liveItems.length) return liveItems;
+  const objectItems = Array.from(actor.toObject?.().items ?? []);
+  const sourceItems = Array.from(actor._source?.items ?? []);
+  const rawItems = objectItems.length ? objectItems : sourceItems;
+  if (rawItems.length) return rawItems.map((item) => ({
+    ...item,
+    id: item._id ?? item.id,
+    system: item.system ?? {},
+    toObject: () => item
+  }));
+  const statblock = actor.getFlag?.(OGRE_GATE.id, "statblock")
+    ?? foundry.utils.getProperty(actor, `flags.${OGRE_GATE.id}.statblock`)
+    ?? foundry.utils.getProperty(actor._source ?? {}, `flags.${OGRE_GATE.id}.statblock`);
+  if (!statblock) return [];
+  return statblockPreviewItemData(parseOgreGateStatblock(statblock)).map((item, index) => {
+    item._id = item._id ?? `stat${index.toString(36).padStart(12, "0")}`.slice(0, 16);
+    return {
+      ...item,
+      id: item._id,
+      system: item.system ?? {},
+      toObject: () => item
+    };
+  });
+}
+
+function actorStatblock(actor) {
+  return actor.getFlag?.(OGRE_GATE.id, "statblock")
+    ?? foundry.utils.getProperty(actor, `flags.${OGRE_GATE.id}.statblock`)
+    ?? foundry.utils.getProperty(actor._source ?? {}, `flags.${OGRE_GATE.id}.statblock`)
+    ?? "";
+}
+
+function prepareHeaderVitals(actor) {
+  let parsed = null;
+  const statblock = actorStatblock(actor);
+  if (statblock) {
+    try {
+      parsed = parseOgreGateStatblock(statblock);
+    } catch (error) {
+      console.warn("Ogre Gate | Unable to parse actor statblock for header vitals", error);
+    }
+  }
+
+  const sourceSystem = actor._source?.system ?? actor.toObject?.()?.system ?? {};
+  const rank = Number(actor.system.qi.rank ?? sourceSystem.qi?.rank ?? parsed?.qi ?? 0);
+  const temporary = Number(actor.system.qi.temporary ?? sourceSystem.qi?.temporary ?? 0);
+  const effectiveQi = Math.max(0, rank - temporary);
+  const printedMaxWounds = Number(parsed?.maxWounds ?? sourceSystem.resources?.wounds?.max ?? actor.system.resources.wounds.max ?? 0);
+  const autoMax = actor.system.resources.wounds.autoMax ?? sourceSystem.resources?.wounds?.autoMax;
+  const maxWounds = autoMax === false && printedMaxWounds
+    ? printedMaxWounds
+    : Number(actor.system.resources.wounds.max ?? printedMaxWounds ?? 0);
+  const currentWounds = Math.clamp(
+    Number(actor.system.resources.wounds.value ?? sourceSystem.resources?.wounds?.value ?? maxWounds),
+    Number(actor.system.resources.wounds.min ?? 0),
+    maxWounds
+  );
+  const woundState = actor.system.combat.dying
+    ? "dying"
+    : currentWounds <= 0
+      ? "incapacitated"
+      : currentWounds < (maxWounds / 2)
+        ? "bloodied"
+        : currentWounds < maxWounds
+          ? "wounded"
+          : "healthy";
+  return {
+    currentWounds,
+    maxWounds,
+    qiRank: rank,
+    effectiveQi,
+    woundState
+  };
 }
 
 function starterWeaponData(entry) {
@@ -419,11 +497,13 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
     const actor = this.actor;
     const creation = prepareCharacterCreation(actor);
     this._collapsedSkillGroups ??= new Set();
+    const displayItems = rawActorItems(actor);
     return {
       ...context,
       actor,
       system: actor.system,
       config: OGRE_GATE,
+      headerVitals: prepareHeaderVitals(actor),
       martialDisciplines: Object.entries(OGRE_GATE.disciplines)
         .filter(([key]) => !["none", "multiple"].includes(key))
         .map(([key, label]) => ({ key, label })),
@@ -445,7 +525,7 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
       selectedAttackMode: this.#prepareSelectedAttackMode(actor),
       preparedStrikeStatus: actor.system.preparedStrike.ready ? "Armed" : "Not Armed",
       activeStance: this.#prepareActiveStance(actor),
-      powers: actor.items
+      powers: displayItems
         .filter((item) => item.type === "power")
         .sort((a, b) => a.name.localeCompare(b.name))
         .map((item) => ({
@@ -475,8 +555,8 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
         self: "Character in Control",
         spirit: "Spirit in Control"
       }[actor.system.imbalance.possessionControl] ?? "Not Rolled",
-      combatTechniques: actor.items.filter((item) => item.type === "combatTechnique"),
-      flaws: actor.items.filter((item) => item.type === "flaw"),
+      combatTechniques: displayItems.filter((item) => item.type === "combatTechnique"),
+      flaws: displayItems.filter((item) => item.type === "flaw"),
       equipment: this.#prepareEquipment(actor),
       equippedArmorSummary: this.#prepareEquippedArmorSummary(actor)
     };
@@ -727,7 +807,7 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
   }
 
   #prepareTechniqueGroups(actor) {
-    const techniques = actor.items.filter((item) => item.type === "technique");
+    const techniques = rawActorItems(actor).filter((item) => item.type === "technique");
     return Object.entries(OGRE_GATE.techniqueTypes).map(([key, label]) => ({
       key,
       label,
@@ -1122,7 +1202,7 @@ export class OgreGateActorSheet extends HandlebarsApplicationMixin(ActorSheetV2)
   }
 
   #prepareEquipment(actor) {
-    return actor.items
+    return rawActorItems(actor)
       .filter((item) => ["weapon", "armor", "equipment", "substance"].includes(item.type))
       .map((item) => {
         const system = item.system;
@@ -2428,13 +2508,19 @@ export class OgreGateNpcSheet extends OgreGateActorSheet {
     };
   }
 
+  async _onRender(context, options) {
+    await super._onRender(context, options);
+    if (await this.actor.repairMissingStatblockItems?.()) this.render(false);
+  }
+
   #prepareNpcSkillGroups(actor) {
+    const items = rawActorItems(actor);
     return Object.entries(OGRE_GATE.skillGroups)
       .filter(([groupKey]) => groupKey !== "defenses")
       .map(([groupKey, group]) => ({
         key: groupKey,
         label: group.label,
-        skills: actor.items
+        skills: items
           .filter((item) => item.type === "skills" && item.system.group === groupKey)
           .sort((a, b) => a.name.localeCompare(b.name))
           .map((item) => {

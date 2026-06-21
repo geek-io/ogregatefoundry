@@ -22,7 +22,8 @@ function resourceSchema(value = 0, max = 0) {
   return new SchemaField({
     value: numberField(value, { min: 0 }),
     min: numberField(0, { min: 0 }),
-    max: numberField(max, { min: 0 })
+    max: numberField(max, { min: 0 }),
+    autoMax: new BooleanField({ required: true, initial: true })
   });
 }
 
@@ -303,7 +304,7 @@ class OgreGateBaseActorData extends foundry.abstract.TypeDataModel {
       }),
       status: new SchemaField({
         woundState: textField("healthy"),
-        effectiveQi: numberField(1, { min: 0 }),
+        effectiveQi: numberField(0, { min: 0 }),
         imbalanceRating: numberField(0, { min: 0 }),
         dyingRoundsMax: numberField(0, { min: 0 })
       }),
@@ -331,9 +332,10 @@ class OgreGateBaseActorData extends foundry.abstract.TypeDataModel {
     this.status.effectiveQi = Math.max(0, this.qi.rank - this.qi.temporary);
     this.resources.qi.value = this.status.effectiveQi;
     this.resources.qi.max = Math.max(6, this.qi.rank);
-    this.resources.wounds.max = this.creation.ironHeroes
+    const derivedWoundsMax = this.creation.ironHeroes
       ? (this.qi.rank * 3) + 3
       : Math.max(1, (this.qi.rank * 2) + 1);
+    if (this.resources.wounds.autoMax) this.resources.wounds.max = derivedWoundsMax;
     this.resources.wounds.value = Math.clamp(this.resources.wounds.value, this.resources.wounds.min, this.resources.wounds.max);
 
     if (this.imbalance.autoMax) this.imbalance.max = 12 + this.qi.rank;

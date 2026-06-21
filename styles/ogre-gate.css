@@ -966,8 +966,8 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
 .ogre-gate .npc-skill-header,
 .ogre-gate .npc-skill-row {
   display: grid;
-  grid-template-columns: 38px minmax(140px, 1fr) 42px 42px 54px minmax(120px, .8fr) auto auto;
-  gap: 5px;
+  grid-template-columns: 40px minmax(120px, 1fr) 42px 42px 56px minmax(82px, .55fr) 54px 62px;
+  gap: 4px;
   align-items: center;
 }
 
@@ -983,6 +983,35 @@ body.ogre-gate-dark-sheets .ogre-gate input:disabled {
   padding: 4px 6px;
   border-bottom: 1px solid var(--og-line);
   background: color-mix(in srgb, var(--og-panel) 72%, transparent);
+}
+
+.ogre-gate .npc-skill-row > button,
+.ogre-gate .npc-skill-row > input,
+.ogre-gate .npc-skill-row > strong,
+.ogre-gate .npc-skill-row > span {
+  min-width: 0;
+}
+
+.ogre-gate .npc-skill-row > button,
+.ogre-gate .npc-skill-row > input {
+  width: 100%;
+}
+
+.ogre-gate .npc-skill-header span:nth-child(3),
+.ogre-gate .npc-skill-header span:nth-child(4),
+.ogre-gate .npc-skill-header span:nth-child(5),
+.ogre-gate .npc-skill-header span:nth-child(7),
+.ogre-gate .npc-skill-header span:nth-child(8),
+.ogre-gate .npc-skill-row input[type="number"],
+.ogre-gate .npc-skill-row strong,
+.ogre-gate .npc-skill-row > button {
+  justify-self: center;
+  text-align: center;
+}
+
+.ogre-gate .npc-skill-row input[type="number"] {
+  padding-right: 2px;
+  padding-left: 2px;
 }
 
 .ogre-gate .npc-skill-row > span {
@@ -1263,8 +1292,9 @@ body.ogre-gate-dark-sheets .ogre-gate-chat-button {
     grid-template-columns: minmax(160px, 1.1fr) 54px minmax(150px, 1fr) minmax(132px, auto);
   }
 
+  .ogre-gate .npc-skill-header,
   .ogre-gate .npc-skill-row {
-    grid-template-columns: 38px minmax(140px, 1fr) 42px 42px 54px minmax(120px, .8fr) auto auto;
+    grid-template-columns: 40px minmax(120px, 1fr) 42px 42px 56px minmax(82px, .55fr) 54px 62px;
   }
 }
 
@@ -1346,6 +1376,25 @@ body.ogre-gate-dark-sheets .ogre-gate-chat-button {
   .ogre-gate .skills .rank-row > button[data-action="delete-item"] {
     grid-column: span 2;
     padding: 2px 5px;
+    font-size: 10px;
+  }
+
+  .ogre-gate .npc-skill-header,
+  .ogre-gate .npc-skill-row {
+    grid-template-columns: 34px minmax(86px, 1fr) 38px 38px 48px minmax(56px, .45fr) 48px 54px;
+    gap: 3px;
+  }
+
+  .ogre-gate .npc-skill-header {
+    font-size: 9px;
+  }
+
+  .ogre-gate .npc-skill-row {
+    padding: 3px 4px;
+  }
+
+  .ogre-gate .npc-skill-row > button {
+    padding: 2px 4px;
     font-size: 10px;
   }
 

@@ -22,10 +22,10 @@
       <div class="vital-group">
         <h2 data-tooltip="{{help.health}}">Health</h2>
         <div class="resource-row">
-          <label data-tooltip="{{help.health}}">Current <input type="number" name="system.resources.wounds.value" value="{{system.resources.wounds.value}}" min="0" /></label>
-          <label data-tooltip="{{help.health}}">Max <input type="number" name="system.resources.wounds.max" value="{{system.resources.wounds.max}}" disabled /></label>
+          <label data-tooltip="{{help.health}}">Current <input type="number" name="system.resources.wounds.value" value="{{headerVitals.currentWounds}}" min="0" /></label>
+          <label data-tooltip="{{help.health}}">Max <input type="number" name="system.resources.wounds.max" value="{{headerVitals.maxWounds}}" disabled /></label>
         </div>
-        <div class="status-pill {{system.status.woundState}}" data-tooltip="{{help.health}}">{{system.status.woundState}}</div>
+        <div class="status-pill {{headerVitals.woundState}}" data-tooltip="{{help.health}}">{{headerVitals.woundState}}</div>
         {{#if system.combat.dying}}
           <label data-tooltip="{{help.dyingRounds}}">Dying Rounds <input type="number" name="system.combat.dyingRoundsElapsed" value="{{system.combat.dyingRoundsElapsed}}" min="0" /> / {{system.status.dyingRoundsMax}}</label>
         {{/if}}
@@ -33,8 +33,8 @@
 
       <div class="vital-group">
         <h2>Qi</h2>
-        <label data-tooltip="{{help.qiRank}}">Rank <input type="number" name="system.qi.rank" value="{{system.qi.rank}}" min="0" max="12" /></label>
-        <div class="metric-row" data-tooltip="{{help.drain}}"><span>Effective Qi</span><strong>{{system.status.effectiveQi}}</strong></div>
+        <label data-tooltip="{{help.qiRank}}">Rank <input type="number" name="system.qi.rank" value="{{headerVitals.qiRank}}" min="0" max="12" /></label>
+        <div class="metric-row" data-tooltip="{{help.drain}}"><span>Effective Qi</span><strong>{{headerVitals.effectiveQi}}</strong></div>
       </div>
 
       <div class="vital-group">

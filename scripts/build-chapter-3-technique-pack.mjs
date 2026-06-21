@@ -1,21 +1,13 @@
 import { createRequire } from "node:module";
 import { readdir, readFile, rm } from "node:fs/promises";
 import path from "node:path";
+import { assertInsideRoot, packSourcePath, root } from "./pack-paths.mjs";
 
 const require = createRequire(import.meta.url);
 const { ClassicLevel } = require("classic-level");
 
-const root = path.resolve(import.meta.dirname, "..");
-const source = path.join(root, "packs-src", "techniques");
+const source = packSourcePath("techniques");
 const destination = path.join(root, "packs", "techniques");
-
-function assertInsideRoot(target) {
-  const resolvedRoot = path.resolve(root);
-  const resolvedTarget = path.resolve(target);
-  if (!resolvedTarget.startsWith(resolvedRoot)) {
-    throw new Error(`Refusing to write outside repository root: ${resolvedTarget}`);
-  }
-}
 
 async function readJsonFiles(directory) {
   const entries = await readdir(directory, { withFileTypes: true });

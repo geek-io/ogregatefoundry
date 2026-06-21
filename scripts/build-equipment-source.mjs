@@ -3,8 +3,8 @@ import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { OGRE_GATE } from "../module/config.mjs";
 import { GOODS_CATALOG, MOUNT_TRANSPORT_CATALOG, WEAPON_CATALOG } from "../module/content/equipment-catalog.mjs";
+import { packSourcePath } from "./pack-paths.mjs";
 
-const root = path.resolve(import.meta.dirname, "..");
 const source = "Wandering Heroes of Ogre Gate, Chapter 5: Equipment and Goods";
 
 function documentId(key) {
@@ -44,7 +44,7 @@ async function writeFolder(destination, key, name, folder = null) {
 }
 
 async function buildWeapons() {
-  const destination = path.join(root, "packs-src", "weapons");
+  const destination = packSourcePath("weapons");
   await rm(destination, { recursive: true, force: true });
   await mkdir(destination, { recursive: true });
 
@@ -101,7 +101,7 @@ async function buildWeapons() {
 }
 
 async function buildArmor() {
-  const destination = path.join(root, "packs-src", "armor");
+  const destination = packSourcePath("armor");
   await rm(destination, { recursive: true, force: true });
   await mkdir(destination, { recursive: true });
 
@@ -156,7 +156,7 @@ async function buildArmor() {
 }
 
 async function buildGoods() {
-  const destination = path.join(root, "packs-src", "goods");
+  const destination = packSourcePath("goods");
   await rm(destination, { recursive: true, force: true });
   await mkdir(destination, { recursive: true });
 

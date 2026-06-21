@@ -19,7 +19,7 @@ const DISCIPLINE_KEYS = {
   dianxue: "dianxue"
 };
 
-const BOOK_FIELD_PATTERN = /^(Defenses|Key Skills|Skills|Qi Rank|Qi|Max Wounds|Wounds|Weapons|Weapon|Equipment|Combat Technique|Combat Techniques|Combat Perk|Combat Perks|Key Kung Fu Techniques|Kung Fu Techniques|Expertise|Reputation|Flaws|Powers)\b/i;
+const BOOK_FIELD_PATTERN = /^(?:Powers\b:?\s*$|(?:Defenses|Key Skills|Skills|Weapons|Weapon|Equipment|Combat Technique|Combat Techniques|Combat Perk|Combat Perks|Key Kung Fu Techniques|Kung Fu Techniques|Key Techniques|Techniques|Profound Techniques|Immortal Powers|Expertise|Reputation|Flaws)(?:\s*\([^)]*\))?\s*:|(?:Qi Rank|Qi|Max Wounds|Wounds)\s*(?::|\d))/i;
 
 const WEAPON_ALIASES = {
   shortbow: "Bow, Short",
@@ -30,8 +30,42 @@ const WEAPON_ALIASES = {
   daggers: "Dagger",
   oxtaildao: "Ox Tail Dao",
   butterflysword: "Butterfly Swords",
-  butterflyswords: "Butterfly Swords"
+  butterflyswords: "Butterfly Swords",
+  dragonlongpole: "Gun Staff (Dragon Long Pole)",
+  spear: "Qiang (Spear)",
+  unarmed: "Arm Strike",
+  woodenstaff: "Gun Staff (Wood)",
+  woodstaff: "Gun Staff (Wood)"
 };
+
+const TECHNIQUE_ALIASES = {
+  weaponsstride: "Weapon Stride"
+};
+
+const CUSTOM_COMBAT_SKILLS = new Set([
+  "bite",
+  "biteandclaw",
+  "breath",
+  "claw",
+  "claws",
+  "constrict",
+  "firebreath",
+  "gore",
+  "grappling",
+  "grapplingroots",
+  "kick",
+  "peck",
+  "peckbite",
+  "ram",
+  "ramsquash",
+  "snakebite",
+  "spit",
+  "stomp",
+  "stoneThrow",
+  "tail",
+  "tongueattack",
+  "tusk"
+].map(normalizeKey));
 
 function escapeHtml(value = "") {
   const div = document.createElement("div");
@@ -43,8 +77,16 @@ function normalizeKey(value = "") {
   return String(value ?? "").trim().toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
+function cleanTechniqueName(value = "") {
+  const cleaned = String(value ?? "")
+    .replace(/\s*\((?:counter|normal|secret|unorthodox)\)\s*$/i, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return TECHNIQUE_ALIASES[normalizeKey(cleaned)] ?? cleaned;
+}
+
 function techniqueMatchKey(value = "") {
-  return normalizeKey(String(value ?? "").replace(/\s*\((secret|unorthodox)\)\s*$/i, ""));
+  return normalizeKey(cleanTechniqueName(value));
 }
 
 function objectValue(source, keys, fallback = undefined) {
@@ -142,6 +184,14 @@ function resolveSkill(name = "") {
     const base = parenthetical[1].trim();
     const specific = parenthetical[2].trim();
     const baseKey = normalizeKey(base);
+    const baseResolved = resolveSkill(base);
+    if (baseResolved?.skillKey && baseResolved.source !== "Imported statblock") {
+      return {
+        ...baseResolved,
+        name: `${baseResolved.name}: ${specific}`,
+        skillKey: customKey(baseResolved.skillKey, specific)
+      };
+    }
     if (baseKey === "talent" || baseKey === "trade" || baseKey === "survival" || baseKey === "ritual") {
       return {
         name: `${base}: ${specific}`,
@@ -162,7 +212,7 @@ function resolveSkill(name = "") {
 
   return {
     name: display || "Imported Skill",
-    group: "specialist",
+    group: CUSTOM_COMBAT_SKILLS.has(normalizeKey(display)) ? "combat" : "specialist",
     skillKey: normalizeKey(display) || "importedSkill",
     description: "Imported from statblock; assign a more specific skill group or rules key if needed.",
     source: "Imported statblock"
@@ -279,6 +329,17 @@ function parsePowerSection(lines = []) {
   return powers;
 }
 
+function parseBookDescription(lines = [], name = "") {
+  const fieldIndex = lines.findIndex((line) => BOOK_FIELD_PATTERN.test(line));
+  const preface = fieldIndex >= 0 ? lines.slice(0, fieldIndex) : lines;
+  const nameKey = normalizeKey(name);
+  return preface
+    .filter((line) => !looksLikeBookHeading(line) && normalizeKey(line) !== nameKey)
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function normalizePowerArray(value = []) {
   return normalizedArray(value).map((entry) => {
     if (typeof entry === "string") return parsePowerText(entry);
@@ -338,9 +399,10 @@ function parseDefenseText(value = "") {
 
 function parseSkillText(value = "") {
   return splitList(value).map((entry) => {
-    let match = entry.match(/^(.+?)(?::|\s)\s*(-?\d+\s*d10|-?\d+)(?:\s*\([^)]*\))?(?:\s+or\s+.+)?$/i);
+    let match = entry.match(/^(.+?)(?::|\s)\s*(-?\d+\s*d10|-?\d+)(?:\s*\(([^)]*)\))?(?:\s+or\s+.+)?$/i);
     let name = match?.[1]?.trim() ?? "";
     let dice = match?.[2] ?? "";
+    let notes = match?.[3]?.trim() ?? "";
     if (!match) {
       match = entry.match(/^(.+?):\s*\((.+?)\)\s*(-?\d+\s*d10|-?\d+)$/i);
       if (match) {
@@ -358,7 +420,8 @@ function parseSkillText(value = "") {
     if (!match) return null;
     return {
       name: normalizeKey(name) === "kick" ? "Leg Strike" : name,
-      dice: parseDice(dice)
+      dice: parseDice(dice),
+      notes
     };
   }).filter(Boolean);
 }
@@ -420,7 +483,10 @@ function parseWeaponText(value = "") {
     const name = match[1].trim().replace(/^(and|or)\s+/i, "");
     const detail = match[2] ?? "";
     const attack = detail.match(/(-?\d+\s*d10|-?\d+)\s+Attack/i);
-    const damage = detail.match(/(-?\d+\s*d10|-?\d+)\s+Damage/i);
+    const damage = detail.match(/(-?\d+\s*d10|-?\d+)\s+open\s+Damage/i)
+      ?? detail.match(/open\s+Damage\s+(-?\d+\s*d10|-?\d+)/i)
+      ?? detail.match(/\bDamage\s+(-?\d+\s*d10|-?\d+)/i)
+      ?? detail.match(/(-?\d+\s*d10|-?\d+)\s+Damage/i);
     const bareDice = detail.match(/^(-?\d+\s*d10|-?\d+)$/i);
     const accuracy = detail.match(/([+-]\s*\d+\s*d10|[+-]\s*\d+)\s+Accuracy/i);
     return {
@@ -428,20 +494,50 @@ function parseWeaponText(value = "") {
       attackDice: attack ? parseDice(attack[1]) : null,
       damageDice: damage ? parseDice(damage[1]) : bareDice ? parseDice(bareDice[1]) : null,
       accuracyModifier: accuracy ? parseSignedDiceModifier(accuracy[1]) : null,
+      openDamage: /\bopen\b/i.test(detail),
       notes: detail
     };
   }).filter((entry) => entry?.name);
 }
 
+function parseNaturalAttackDamage(entry = {}) {
+  const notes = String(entry.notes ?? "").trim();
+  if (!notes || (!/\bdamage\b/i.test(notes) && !/\bopen\b/i.test(notes))) return null;
+  const damageMatch = notes.match(/\bopen\s+damage\s+(-?\d+\s*d10|-?\d+)/i)
+    ?? notes.match(/(-?\d+\s*d10|-?\d+)\s+open\s+damage/i)
+    ?? notes.match(/\bdamage\s+(-?\d+\s*d10|-?\d+)/i)
+    ?? notes.match(/(-?\d+\s*d10|-?\d+)\s+damage/i)
+    ?? notes.match(/(-?\d+\s*d10|-?\d+)\s+open\b/i);
+  if (!damageMatch) return null;
+  return {
+    name: displaySkillName(entry.name),
+    attackDice: Number(entry.dice ?? 0),
+    damageDice: parseDice(damageMatch[1]),
+    attackSkillName: entry.name,
+    damageSkillName: "none",
+    naturalAttack: true,
+    openDamage: /\bopen\b/i.test(notes),
+    damageType: /\bfire\s+damage\b|\bflame\b/i.test(notes) ? "fire" : "special",
+    notes
+  };
+}
+
+function naturalAttackEntries(skills = []) {
+  return skills
+    .map(parseNaturalAttackDamage)
+    .filter(Boolean);
+}
+
 function parseTextStatblock(text = "") {
   const rawLines = textLines(text);
   const lines = mergeBookLines(rawLines);
+  const name = inferBookName(rawLines);
   const data = {
-    name: inferBookName(rawLines),
+    name,
     defenses: {},
     skills: [],
     disciplines: {},
-    qi: 1,
+    qi: 0,
     maxWounds: 0,
     weapons: [],
     equipment: [],
@@ -450,6 +546,7 @@ function parseTextStatblock(text = "") {
     powers: parsePowerSection(rawLines),
     expertise: [],
     notes: [],
+    description: parseBookDescription(rawLines, name),
     raw: String(text ?? "").trim()
   };
 
@@ -471,9 +568,11 @@ function parseTextStatblock(text = "") {
       data.equipment.push(...splitList(value).map((entry) => entry.trim()).filter((entry) => entry && !/^(none|varies)$/i.test(entry)));
     }
     else if (key === "combattechnique" || key === "combattechniques" || key === "combatperk" || key === "combatperks") data.combatTechniques.push(...splitList(value));
-    else if (key.startsWith("kungfutechniques") || key.startsWith("keykungfutechniques") || key === "techniques") {
+    else if (key.startsWith("kungfutechniques") || key.startsWith("keykungfutechniques") || key.startsWith("techniques") || key.startsWith("keytechniques")) {
       const disciplineBlock = keyMatch[1].match(/\((.+)\)/)?.[1] ?? "";
       data.disciplines = { ...data.disciplines, ...parseDisciplineText(disciplineBlock) };
+      data.techniques.push(...splitList(value));
+    } else if (key === "profoundtechniques" || key === "immortalpowers") {
       data.techniques.push(...splitList(value));
     } else if (key === "powers") {
       data.powers.push(...parsePowerText(value));
@@ -615,11 +714,58 @@ function activationSkillKey(value = "") {
   return `${resolved.group}.${resolved.skillKey}`;
 }
 
-function targetDefenseFromSkillLine(value = "") {
+function targetDefenseFromText(value = "") {
   const text = String(value ?? "").toLowerCase();
-  if (/\bagainst\s+(?:the\s+)?attack\s+roll\b/.test(text)) return "attackRoll";
-  const defense = Object.keys(DEFENSE_KEYS).find((key) => text.includes(`against ${key}`));
+  if (/\b(?:the\s+)?attack\s+roll\b/.test(text)) return "attackRoll";
+  const defense = Object.keys(DEFENSE_KEYS).find((key) => text.includes(key));
   return defense ? DEFENSE_KEYS[defense] : "tn";
+}
+
+function targetDefenseFromSkillLine(value = "", { counter = false } = {}) {
+  const text = String(value ?? "");
+  if (counter) {
+    const markedCounterTarget = text.match(/(?:against\s+)?(?:the\s+)?(attack\s+roll|parry|evade|hardiness|resolve|wits|stealth)\s*\(\s*counter\s*\)/i);
+    if (markedCounterTarget) return targetDefenseFromText(markedCounterTarget[1]);
+
+    const counterClause = text.match(/\b(?:counter)\s*[:;-]?\s*(?:against\s+)?(?:the\s+)?(attack\s+roll|parry|evade|hardiness|resolve|wits|stealth)\b/i);
+    if (counterClause) return targetDefenseFromText(counterClause[1]);
+  }
+
+  const lower = text.toLowerCase();
+  if (/\bagainst\s+(?:the\s+)?attack\s+roll\b/.test(lower)) return "attackRoll";
+  const defense = Object.keys(DEFENSE_KEYS).find((key) => lower.includes(`against ${key}`));
+  return defense ? DEFENSE_KEYS[defense] : "tn";
+}
+
+function companionTechniqueDamageFields(description = "", cathartic = "") {
+  const text = String(description ?? "");
+  const catharticText = String(cathartic ?? "");
+  const damageMatch = text.match(/(?:deal|does|inflict|inflicts)\s+(\d+d10)\s+(open\s+)?damage/i)
+    ?? text.match(/(\d+d10)\s+(open\s+)?damage/i);
+  const catharticDamageMatch = catharticText.match(/(?:deal|does|inflict|inflicts)\s+(\d+d10)\s+(open\s+)?damage/i)
+    ?? catharticText.match(/(\d+d10)\s+(open\s+)?damage/i);
+  const fields = {
+    damage: damageMatch?.[1] ?? "",
+    openDamage: Boolean(damageMatch?.[2]),
+    catharticOpenDamage: Boolean(catharticDamageMatch?.[2])
+  };
+  if (catharticDamageMatch && !fields.damage) {
+    fields.damage = catharticDamageMatch[1];
+    fields.catharticOpenDamage = Boolean(catharticDamageMatch[2]);
+  }
+
+  const extraWoundMatch = text.match(/(\d+)\s+extra\s+wounds?/i);
+  const catharticExtraWoundMatch = catharticText.match(/(\d+)\s+extra\s+wounds?/i);
+  fields.extraWounds = extraWoundMatch ? Number(extraWoundMatch[1]) : 0;
+  fields.catharticExtraWounds = catharticExtraWoundMatch ? Number(catharticExtraWoundMatch[1]) : 0;
+
+  const lowerText = text.toLowerCase();
+  if (/you and your target both lose\s+1\s+hardiness/.test(lowerText)) {
+    fields.targetDrains = "defense.hardiness=1";
+    fields.consequenceNote = "User also loses 1 Hardiness on a successful use.";
+  }
+
+  return fields;
 }
 
 function splitCompanionTechniqueBlocks(text = "") {
@@ -678,19 +824,29 @@ function companionTechniqueItemData(lines = []) {
 
   const skillLine = fields.skill ?? "";
   const secret = /\(\s*secret\s*\)/i.test(name);
-  const cleanName = name.replace(/\s*\(\s*Secret\s*\)\s*/i, "").trim();
+  const cleanName = cleanTechniqueName(name);
+  const techniqueType = /\(\s*counter\s*\)/i.test(name) ? "counter" : techniqueTypeKey(fields.type);
+  const description = descriptionLines.join("\n").trim();
+  const damageFields = companionTechniqueDamageFields(description, cathartic);
   return {
     name: cleanName || name,
     type: "technique",
     system: {
-      description: descriptionLines.join("\n").trim(),
+      description,
       source: "Imported from Companion App",
       discipline: disciplineKey(fields.discipline) || "none",
-      techniqueType: techniqueTypeKey(fields.type),
+      techniqueType,
       activationSkill: activationSkillKey(skillLine),
-      targetDefense: targetDefenseFromSkillLine(skillLine),
+      targetDefense: targetDefenseFromSkillLine(skillLine, { counter: techniqueType === "counter" }),
       targetNumber: 6,
       qiRank: Number(fields.qi?.match(/\d+/)?.[0] ?? 0),
+      damage: damageFields.damage,
+      openDamage: damageFields.openDamage,
+      catharticOpenDamage: damageFields.catharticOpenDamage,
+      extraWounds: damageFields.extraWounds,
+      catharticExtraWounds: damageFields.catharticExtraWounds,
+      targetDrains: damageFields.targetDrains ?? "",
+      consequenceNote: damageFields.consequenceNote ?? "",
       secret,
       requirementNotes: requirement,
       catharticEffect: cathartic,
@@ -772,7 +928,7 @@ export function parseOgreGateTechniqueImport(input = "") {
   };
 }
 
-function skillItemData(entry) {
+export function skillItemData(entry) {
   const resolved = resolveSkill(entry.name);
   const expertiseEntries = normalizedArray(entry.expertise).map((expertise) => ({
     name: typeof expertise === "string" ? expertise : objectValue(expertise, ["name", "Name"], ""),
@@ -849,18 +1005,23 @@ function armorItemData(entry) {
 
 function weaponItemData(entry, skillRanks = new Map()) {
   const alias = WEAPON_ALIASES[normalizeKey(entry.name)];
-  const catalog = WEAPON_CATALOG.find((candidate) => normalizeKey(candidate.name) === normalizeKey(alias ?? entry.name));
+  const naturalAttack = Boolean(entry.naturalAttack);
+  const catalog = naturalAttack ? null : WEAPON_CATALOG.find((candidate) => normalizeKey(candidate.name) === normalizeKey(alias ?? entry.name));
   const importedAttackSkill = entry.attackSkillName ? resolveSkill(entry.attackSkillName).skillKey : "";
-  const attackSkill = catalog?.attackSkill || importedAttackSkill || catalog?.category || "mediumMelee";
+  const attackSkill = naturalAttack
+    ? (importedAttackSkill || normalizeKey(entry.name) || "mediumMelee")
+    : (catalog?.attackSkill || importedAttackSkill || catalog?.category || "mediumMelee");
   const baseAccuracy = Number(catalog?.accuracyModifier ?? 0);
   const baseDamageDice = Number(catalog?.damageDice ?? 0);
   const attackDice = entry.attackDice == null ? null : parseDice(entry.attackDice);
   const importedDamageSkill = entry.damageSkillName && normalizeKey(entry.damageSkillName) !== "none"
     ? resolveSkill(entry.damageSkillName).skillKey
     : "";
-  const damageSkill = qualifiedDamageSkill(catalog?.damageSkill ?? importedDamageSkill ?? "");
+  const damageSkill = naturalAttack ? "" : qualifiedDamageSkill(catalog?.damageSkill ?? importedDamageSkill ?? "");
   const damageSkillRanks = damageSkill ? skillRank(skillRanks, damageSkill) : 0;
-  const damageDice = entry.damageDice == null
+  const damageDice = naturalAttack
+    ? Math.max(-1, Math.min(10, parseDice(entry.damageDice)))
+    : entry.damageDice == null
     ? baseDamageDice
     : Math.max(-1, Math.min(10, parseDice(entry.damageDice) - damageSkillRanks));
   const attackSkillLabel = OGRE_GATE.skillGroups.combat.skills[attackSkill] ?? attackSkill;
@@ -883,9 +1044,9 @@ function weaponItemData(entry, skillRanks = new Map()) {
       evadeBonus: Number(catalog?.evadeBonus ?? 0),
       muscleRequirement: Number(catalog?.muscleRequirement ?? 0),
       lethal: catalog?.lethal ?? true,
-      damageType: catalog?.damageType ?? "special",
+      damageType: catalog?.damageType ?? entry.damageType ?? "special",
       reach: catalog?.reach ?? "normal",
-      openDamage: Boolean(catalog?.openDamage),
+      openDamage: Boolean(catalog?.openDamage ?? entry.openDamage),
       qualities: [
         catalog?.qualities ?? "",
         entry.notes ? `Imported statblock: ${entry.notes}` : "",
@@ -895,7 +1056,7 @@ function weaponItemData(entry, skillRanks = new Map()) {
   };
 }
 
-function gearItemData(entry, skillRanks = new Map()) {
+export function gearItemData(entry, skillRanks = new Map()) {
   if (findArmorRule(entry.name)) return armorItemData(entry);
   return weaponItemData(entry, skillRanks);
 }
@@ -952,8 +1113,10 @@ function powerItemData(power = {}) {
   };
 }
 
-async function techniqueItemData(name = "") {
-  const pack = game.packs.get(`${OGRE_GATE.id}.techniques`);
+export async function techniqueItemData(name = "") {
+  const cleanName = cleanTechniqueName(name);
+  const isCounter = /\(Counter\)/i.test(name);
+  const pack = globalThis.game?.packs?.get(`${OGRE_GATE.id}.techniques`);
   if (pack) {
     const index = await pack.getIndex({ fields: ["name", "type", "system"] });
     const incomingKey = techniqueMatchKey(name);
@@ -974,13 +1137,13 @@ async function techniqueItemData(name = "") {
   }
 
   return {
-    name: String(name ?? "").trim(),
+    name: cleanName,
     type: "technique",
     system: {
       description: "Imported from statblock. No matching technique compendium entry was found.",
       source: "Imported statblock",
       discipline: "",
-      techniqueType: "normal",
+      techniqueType: isCounter ? "counter" : "normal",
       qiRank: 0,
       activationSkill: "",
       targetDefense: "tn",
@@ -1005,12 +1168,71 @@ function inferDisciplineRanks(itemData = []) {
   }, {});
 }
 
+export async function statblockItemData(parsed) {
+  const skillItems = parsed.skills.map(skillItemData);
+  const skillRanks = new Map();
+  for (const item of skillItems) {
+    skillRanks.set(normalizeKey(item.system.skillKey), Number(item.system.ranks ?? 0));
+    skillRanks.set(normalizeKey(`${item.system.group}.${item.system.skillKey}`), Number(item.system.ranks ?? 0));
+    skillRanks.set(normalizeKey(item.name), Number(item.system.ranks ?? 0));
+  }
+  const itemData = [
+    ...skillItems,
+    ...naturalAttackEntries(parsed.skills).map((attack) => gearItemData(attack, skillRanks)),
+    ...parsed.weapons.map((weapon) => gearItemData(weapon, skillRanks)),
+    ...parsed.equipment.map(equipmentItemData),
+    ...parsed.combatTechniques.map(combatTechniqueItemData),
+    ...(parsed.powers ?? []).map(powerItemData)
+  ];
+  for (const technique of parsed.techniques) itemData.push(await techniqueItemData(technique));
+  return itemData;
+}
+
+export function statblockPreviewItemData(parsed) {
+  const skillItems = parsed.skills.map(skillItemData);
+  const skillRanks = new Map();
+  for (const item of skillItems) {
+    skillRanks.set(normalizeKey(item.system.skillKey), Number(item.system.ranks ?? 0));
+    skillRanks.set(normalizeKey(`${item.system.group}.${item.system.skillKey}`), Number(item.system.ranks ?? 0));
+    skillRanks.set(normalizeKey(item.name), Number(item.system.ranks ?? 0));
+  }
+  return [
+    ...skillItems,
+    ...naturalAttackEntries(parsed.skills).map((attack) => gearItemData(attack, skillRanks)),
+    ...parsed.weapons.map((weapon) => gearItemData(weapon, skillRanks)),
+    ...parsed.equipment.map(equipmentItemData),
+    ...parsed.combatTechniques.map(combatTechniqueItemData),
+    ...(parsed.powers ?? []).map(powerItemData),
+    ...parsed.techniques.map((name) => ({
+      name: cleanTechniqueName(name),
+      type: "technique",
+      system: {
+        description: "Imported from statblock. No matching technique compendium entry was found.",
+        source: "Imported statblock",
+        discipline: "",
+        techniqueType: /\(Counter\)/i.test(name) ? "counter" : "normal",
+        qiRank: 0,
+        activationSkill: "",
+        targetDefense: "tn",
+        targetNumber: 6
+      }
+    }))
+  ].filter((item) => item.name && item.type && item.system);
+}
+
 function actorUpdates(parsed) {
   const updates = {
-    "system.qi.rank": Math.max(0, Number(parsed.qi ?? 1)),
+    "system.qi.rank": Math.max(0, Number(parsed.qi ?? 0)),
+    "system.qi.temporary": 0,
+    "system.resources.qi.value": Math.max(0, Number(parsed.qi ?? 0)),
+    "system.status.effectiveQi": Math.max(0, Number(parsed.qi ?? 0)),
     "system.creation.enabled": false
   };
-  if (parsed.maxWounds) updates["system.resources.wounds.value"] = Number(parsed.maxWounds);
+  if (parsed.maxWounds) {
+    updates["system.resources.wounds.value"] = Number(parsed.maxWounds);
+    updates["system.resources.wounds.max"] = Number(parsed.maxWounds);
+    updates["system.resources.wounds.autoMax"] = false;
+  }
   if (Number.isFinite(Number(parsed.currentImbalance))) updates["system.imbalance.value"] = Math.max(0, Number(parsed.currentImbalance));
   for (const [key, value] of Object.entries(parsed.defenses ?? {})) {
     const defenseKey = DEFENSE_KEYS[normalizeKey(key)] ?? key;
@@ -1026,11 +1248,9 @@ function actorUpdates(parsed) {
     if (!OGRE_GATE.disciplines[disciplineKey] || disciplineKey === "none") continue;
     updates[`system.disciplines.${disciplineKey}.ranks`] = Math.max(0, Number(value));
   }
-  updates["system.notes.status"] = [
-    "<p>Imported from Bedrock-style or book statblock.</p>",
-    parsed.notes?.length ? `<p>${escapeHtml(parsed.notes.join(" | "))}</p>` : "",
-    `<pre>${escapeHtml(parsed.raw ?? "")}</pre>`
-  ].filter(Boolean).join("");
+  updates["system.notes.status"] = parsed.notes?.length ? `<p>${escapeHtml(parsed.notes.join(" | "))}</p>` : "";
+  if (parsed.description) updates["system.notes.description"] = `<p>${escapeHtml(parsed.description)}</p>`;
+  if (parsed.raw) updates[`flags.${OGRE_GATE.id}.statblock`] = parsed.raw;
   return updates;
 }
 
@@ -1041,21 +1261,7 @@ export async function importOgreGateStatblock(input, { actorType = "npc", render
   const actor = await Actor.create({ name: parsed.name, type }, { renderSheet: false });
   await actor.update(actorUpdates(parsed));
 
-  const skillItems = parsed.skills.map(skillItemData);
-  const skillRanks = new Map();
-  for (const item of skillItems) {
-    skillRanks.set(normalizeKey(item.system.skillKey), Number(item.system.ranks ?? 0));
-    skillRanks.set(normalizeKey(`${item.system.group}.${item.system.skillKey}`), Number(item.system.ranks ?? 0));
-    skillRanks.set(normalizeKey(item.name), Number(item.system.ranks ?? 0));
-  }
-  const itemData = [
-    ...skillItems,
-    ...parsed.weapons.map((weapon) => gearItemData(weapon, skillRanks)),
-    ...parsed.equipment.map(equipmentItemData),
-    ...parsed.combatTechniques.map(combatTechniqueItemData),
-    ...(parsed.powers ?? []).map(powerItemData)
-  ];
-  for (const technique of parsed.techniques) itemData.push(await techniqueItemData(technique));
+  const itemData = await statblockItemData(parsed);
   const inferredDisciplines = inferDisciplineRanks(itemData);
   const disciplineUpdates = {};
   for (const [discipline, ranks] of Object.entries(inferredDisciplines)) {

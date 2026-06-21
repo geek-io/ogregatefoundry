@@ -2,9 +2,9 @@ import { createHash } from "node:crypto";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { SKILL_CATALOG } from "../module/content/skill-catalog.mjs";
+import { packSourcePath } from "./pack-paths.mjs";
 
-const root = path.resolve(import.meta.dirname, "..");
-const destination = path.join(root, "packs-src", "skills");
+const destination = packSourcePath("skills");
 const groupLabels = {
   combat: "Combat",
   specialist: "Specialist",

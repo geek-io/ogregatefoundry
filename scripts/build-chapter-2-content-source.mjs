@@ -2,8 +2,7 @@ import { createHash } from "node:crypto";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { AFFLICTION_CATALOG, AFFLICTION_RULES, SUBSTANCE_CATALOG } from "../module/content/chapter-2-substances.mjs";
-
-const root = path.resolve(import.meta.dirname, "..");
+import { packSourcePath } from "./pack-paths.mjs";
 
 function documentId(key) {
   return createHash("sha256").update(`ogre-gate-chapter-two:${key}`).digest("hex").slice(0, 16);
@@ -15,7 +14,7 @@ function filename(name, key) {
 }
 
 async function buildPack({ packName, entries, groups, type, systemFields }) {
-  const destination = path.join(root, "packs-src", packName);
+  const destination = packSourcePath(packName);
   await rm(destination, { recursive: true, force: true });
   await mkdir(destination, { recursive: true });
 
@@ -65,7 +64,7 @@ async function buildPack({ packName, entries, groups, type, systemFields }) {
 }
 
 async function buildRulesReferencePack() {
-  const destination = path.join(root, "packs-src", "chapter-2-rules");
+  const destination = packSourcePath("chapter-2-rules");
   await rm(destination, { recursive: true, force: true });
   await mkdir(destination, { recursive: true });
   const id = documentId("chapter-2-rules.poisons-and-diseases");

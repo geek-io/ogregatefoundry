@@ -2,10 +2,10 @@
   "id": "ogregatefoundry",
   "title": "The Wandering Heroes of Ogre Gate",
   "description": "A Foundry VTT v13 game system for The Wandering Heroes of Ogre Gate.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "url": "https://github.com/geek-io/ogregatefoundry",
   "manifest": "https://github.com/geek-io/ogregatefoundry/releases/latest/download/system.json",
-  "download": "https://github.com/geek-io/ogregatefoundry/releases/download/0.2.0/system.zip",
+  "download": "https://github.com/geek-io/ogregatefoundry/releases/download/0.2.1/system.zip",
   "readme": "https://github.com/geek-io/ogregatefoundry/blob/master/README.md",
   "bugs": "https://github.com/geek-io/ogregatefoundry/issues",
   "license": "GPL-3.0-or-later",
@@ -79,6 +79,13 @@
       "label": "Chapter 2 Rules Reference",
       "path": "packs/chapter-2-rules",
       "type": "JournalEntry",
+      "system": "ogregatefoundry"
+    },
+    {
+      "name": "npcs",
+      "label": "NPCs, Threats, and Monsters",
+      "path": "packs/npcs",
+      "type": "Actor",
       "system": "ogregatefoundry"
     }
   ],

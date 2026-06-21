@@ -6,7 +6,17 @@ import { assertInsideRoot, packSourcePath, root } from "./pack-paths.mjs";
 const require = createRequire(import.meta.url);
 const { ClassicLevel } = require("classic-level");
 
-const packs = ["weapons", "armor", "goods"];
+const packs = [
+  "skills",
+  "techniques",
+  "weapons",
+  "armor",
+  "goods",
+  "chapter-2-afflictions",
+  "substances",
+  "chapter-2-rules",
+  "npcs"
+];
 
 async function readJsonFiles(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -39,6 +49,8 @@ for (const pack of packs) {
 
   results[pack] = {
     items: docs.filter((doc) => doc._key?.startsWith("!items!")).length,
+    actors: docs.filter((doc) => doc._key?.startsWith("!actors!")).length,
+    journals: docs.filter((doc) => doc._key?.startsWith("!journal!")).length,
     folders: docs.filter((doc) => doc._key?.startsWith("!folders!")).length
   };
 }

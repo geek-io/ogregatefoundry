@@ -2,9 +2,9 @@ import { createHash } from "node:crypto";
 import { mkdir, rm, writeFile, readFile } from "node:fs/promises";
 import path from "node:path";
 import { TECHNIQUE_CATALOG } from "../module/content/chapter-3-techniques.mjs";
+import { packSourcePath, root } from "./pack-paths.mjs";
 
-const root = path.resolve(import.meta.dirname, "..");
-const destination = path.join(root, "packs-src", "techniques");
+const destination = packSourcePath("techniques");
 const systemManifest = JSON.parse(await readFile(path.join(root, "system.json"), "utf8"));
 
 function documentStats(compendiumSource = null) {

@@ -5,6 +5,29 @@ A Foundry VTT v13 game system for *The Wandering Heroes of Ogre Gate* by Bedrock
 
 ***This projrect uses copyright material owned by Bedrock Games, under their Bedrock Games Community Use Policy. This is not an official product of Bedrock Games.***
 
+# v 0.2.1
+## NPC compendium and importer polish
+- Companion App technique imports now detect printed damage phrases such as `6d10 Open Damage` and populate the Technique item's Damage and Open Damage fields.
+- Companion App technique imports now capture obvious Extra Wound text and the shared Hardiness drain reminder in techniques such as Headless Ghost's Vengeance.
+- Added the first Actor compendium pack: NPCs, Threats, and Monsters.
+- Seeded the NPC pack with an initial Chapter 10 Human Threats folder for live-table testing.
+- Expanded the NPC pack with additional Chapter 10 human threats and sample masters, including Zun soldiers, Zun Demon Master, Zun Warrior, and the Fearsome, Deadly, and Profound Master templates.
+- Added an initial Monsters folder to the NPC pack with itemized Power entries for Water Monkeys, Fei Beasts, Fire Gluttons, Golden Guardians, E Gui, Shui Gui, Jiangshi, and Jufu.
+- Monster-specific attack skills such as Bite, Claws, Gore, and Fire Breath now import into the Combat skill group instead of being treated as generic Specialist skills.
+- Monster statblock skill damage notes now generate natural-attack Weapon items, so attacks such as Claws, Bite, Gore, and Fire Breath appear on the Gear tab with attack and damage buttons.
+- Expanded the Monsters folder with Kui Demon, Leather Shadow Puppets, Longzhi, Naga, Virtuous Naga, Nao Ren, Ogre Demon, and Painted Death.
+- Monster natural-attack parsing now recognizes `9d10 Open` and `Damage 4d10 Open` wording, and power names such as `Qi Immunity` no longer get mistaken for core stat fields.
+- Added a larger Chapter 10 monster/Qi spirit batch, including Qi Spirit templates, Red Ru-Fish, Raksha Demon, Roc, Skeleton variants, Xiaoyang, Yaksha Demon, Yumen, and Zhen Bird.
+- Creature-only attack names such as Peck and Peck/Bite now import as Combat skills and generate natural-attack weapons when damage is printed in the statblock.
+- Finished the Chapter 10 creature and named-threat compendium pass with animals, demons, ghosts, mountain gods, celestial demons, Supreme Judge Yu, and The Yao; the NPC pack now builds to 77 actors.
+- Statblock field detection now handles labels like `Key Kung Fu Techniques (Waijia 2):`, preventing weapons from swallowing following technique fields during import.
+- Book weapon parsing now handles `Damage 5d10` and `7d10 Open Damage` phrasing in addition to the existing `5d10 Damage` style.
+- Finished the Chapter 10 human threats and sect-member pass, adding Society of Leather Shadows, Dehua, Golden Dragon, Hai'an, Heiping, Majestic Lion, Mystic Sword, Nature Loving Monk, Perfect Heaven, Purple Cavern, Red Claw, Southern River, Sun Mai, Nine Suns, Tree-Dwelling Nun, Zhaoze, and Zhe Valley templates.
+- Plain `Techniques (Waijia...)` statblock fields now split correctly from Combat Technique fields, so sect NPCs such as Mount Hai'an and Majestic Lion entries keep their combat perks and Kung Fu technique lists separate.
+- Added source and pack builder scripts for future NPC/monster compendium expansion.
+- Moved generated compendium source JSON out of the repository tree; rebuild scripts now use a temporary source folder and keep only the Foundry-ready `packs/` databases.
+- Researched Enhanced Combat HUD / Argon support. The current public Argon documentation expects a separate system-specific adapter module, so Ogre Gate compatibility should be implemented as an `enhancedcombathud-ogregatefoundry` adapter once we are ready to wire panels and actions.
+
 # v 0.2.0
 ## Live table and NPC workflow
 - Added a compact NPC/monster sheet with a main Skills panel grouped by skill category and alphabetized within each group.

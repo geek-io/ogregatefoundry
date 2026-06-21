@@ -1,6 +1,7 @@
 import { OGRE_GATE } from "./config.mjs";
 import { OgreGateRoll } from "./rolls.mjs";
 import { prepareCharacterCreation } from "./rules/character-creation.mjs";
+import { parseOgreGateStatblock, statblockItemData } from "./rules/statblock-importer.mjs";
 
 const MELEE_SKILLS = new Set(["armStrike", "legStrike", "grapple", "throw", "lightMelee", "mediumMelee", "heavyMelee"]);
 const RANGED_SKILLS = new Set(["smallRanged", "largeRanged"]);
@@ -23,6 +24,49 @@ function escapeHtml(value = "") {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+function unescapeHtml(value = "") {
+  return String(value ?? "")
+    .replace(/&quot;/g, "\"")
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&");
+}
+
+function textFromHtml(value = "") {
+  return unescapeHtml(String(value ?? "")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim());
+}
+
+function extractStatblockFromHtml(value = "") {
+  const text = String(value ?? "");
+  const preMatch = text.match(/<pre[^>]*>([\s\S]*?)<\/pre>/i);
+  const candidate = preMatch ? textFromHtml(preMatch[1]) : textFromHtml(text);
+  return /\bDefenses\s*:/i.test(candidate) && /\b(?:Key Skills|Skills)\s*:/i.test(candidate) ? candidate : "";
+}
+
+async function npcCompendiumItemsByName(name = "") {
+  const pack = globalThis.game?.packs?.get(`${OGRE_GATE.id}.npcs`);
+  if (!pack || !name) return [];
+  const index = await pack.getIndex({ fields: ["name", "type"] });
+  const match = index.find((entry) => normalizeKey(entry.name) === normalizeKey(name));
+  if (!match) return [];
+  const document = await pack.getDocument(match._id);
+  const items = document?.items?.size
+    ? Array.from(document.items).map((item) => item.toObject())
+    : Array.from(document?.toObject?.().items ?? []);
+  return items.map((item) => {
+    const copy = foundry.utils.deepClone(item);
+    delete copy._id;
+    return copy;
+  });
 }
 
 function effectiveRanks(entry) {
@@ -577,6 +621,47 @@ function renderRollValues(results) {
 }
 
 export class OgreGateActor extends Actor {
+  async _preCreate(data, options, user) {
+    await super._preCreate(data, options, user);
+    const source = this.toObject?.() ?? data ?? {};
+    const existingItems = Array.from(source.items ?? data?.items ?? []);
+    const hasSkills = existingItems.some((item) => item?.type === "skills");
+    const statblock = foundry.utils.getProperty(source, `flags.${OGRE_GATE.id}.statblock`)
+      ?? foundry.utils.getProperty(data ?? {}, `flags.${OGRE_GATE.id}.statblock`)
+      ?? extractStatblockFromHtml(source.system?.notes?.status ?? data?.system?.notes?.status ?? "");
+    if (!statblock || hasSkills) return;
+
+    const parsed = parseOgreGateStatblock(statblock);
+    const items = await statblockItemData(parsed);
+    if (items.length) {
+      this.updateSource({
+        items: [...existingItems, ...items],
+        [`flags.${OGRE_GATE.id}.statblock`]: statblock,
+        "system.notes.status": ""
+      });
+    }
+  }
+
+  async repairMissingStatblockItems() {
+    if (!["npc", "monster", "character"].includes(this.type)) return false;
+    if (this.items.some((item) => item.type === "skills")) return false;
+    const statblock = this.getFlag(OGRE_GATE.id, "statblock")
+      ?? foundry.utils.getProperty(this, `flags.${OGRE_GATE.id}.statblock`)
+      ?? extractStatblockFromHtml(this.system?.notes?.status ?? "");
+    if (this.pack || !this.isOwner) return false;
+    const items = statblock
+      ? await statblockItemData(parseOgreGateStatblock(statblock))
+      : await npcCompendiumItemsByName(this.name);
+    if (!items.length) return false;
+    await this.createEmbeddedDocuments("Item", items, { renderSheet: false });
+    const updates = {
+      "system.notes.status": ""
+    };
+    if (statblock) updates[`flags.${OGRE_GATE.id}.statblock`] = statblock;
+    await this.update(updates);
+    return true;
+  }
+
   getRaceSkillModifier(groupKey, skillKey) {
     skillKey = normalizeKey(skillKey);
     const race = this.system.creation.race;
