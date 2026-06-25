@@ -19,7 +19,7 @@ const DISCIPLINE_KEYS = {
   dianxue: "dianxue"
 };
 
-const BOOK_FIELD_PATTERN = /^(?:Powers\b:?\s*$|(?:Defenses|Key Skills|Skills|Weapons|Weapon|Equipment|Combat Technique|Combat Techniques|Combat Perk|Combat Perks|Key Kung Fu Techniques|Kung Fu Techniques|Key Techniques|Techniques|Profound Techniques|Immortal Powers|Expertise|Reputation|Flaws)(?:\s*\([^)]*\))?\s*:|(?:Qi Rank|Qi|Max Wounds|Wounds)\s*(?::|\d))/i;
+const BOOK_FIELD_PATTERN = /^(?:Powers\b:?\s*$|(?:Defenses|Key Skills|Skills|Weapons|Weapon|Armor|Equipment|Combat Technique|Combat Techniques|Combat Perk|Combat Perks|Key Kung Fu Techniques|Kung Fu Techniques|Key Techniques|Techniques|Profound Techniques|Immortal Powers|Expertise|Reputation|Flaws)(?:\s*\([^)]*\))?\s*:|(?:Qi Rank|Qi|Max Wounds|Wounds)\s*(?::|\d))/i;
 
 const WEAPON_ALIASES = {
   shortbow: "Bow, Short",
@@ -563,7 +563,7 @@ function parseTextStatblock(text = "") {
     else if (key === "keyskills" || key === "skills") data.skills.push(...parseSkillText(value));
     else if (key === "qi" || key === "qirank") data.qi = Number(value.match(/\d+/)?.[0] ?? data.qi);
     else if (key === "maxwounds" || key === "wounds") data.maxWounds = Number(value.match(/\d+/)?.[0] ?? 0);
-    else if (["weapon", "weapons"].includes(key)) data.weapons.push(...parseWeaponText(value));
+    else if (["weapon", "weapons", "armor"].includes(key)) data.weapons.push(...parseWeaponText(value));
     else if (key === "equipment") {
       data.equipment.push(...splitList(value).map((entry) => entry.trim()).filter((entry) => entry && !/^(none|varies)$/i.test(entry)));
     }
@@ -652,7 +652,7 @@ function parseJsonStatblock(input) {
   const parsed = typeof input === "string" ? JSON.parse(input) : input;
   const data = Array.isArray(parsed) ? parsed[0] : parsed;
   const rawSkills = normalizedArray(objectValue(data, ["skills", "keySkills", "KeySkills", "Key Skills"]));
-  const rawWeapons = normalizedArray(objectValue(data, ["weapons", "weapon", "Weapons", "Weapon", "equipment", "Equipment"]));
+  const rawWeapons = normalizedArray(objectValue(data, ["weapons", "weapon", "Weapons", "Weapon", "armor", "Armor", "equipment", "Equipment"]));
   const rawCombatTechniques = normalizedArray(objectValue(data, ["combatTechniques", "combatTechnique", "combatPerks", "combatPerk", "Combat Technique"]));
   const rawPowers = objectValue(data, ["powers", "Powers", "specialAbilities", "SpecialAbilities", "specialAbilities", "Special Abilities"], []);
   const defenses = objectValue(data, ["defenses", "Defenses"], {});

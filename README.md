@@ -5,8 +5,14 @@ A Foundry VTT v13 game system for *The Wandering Heroes of Ogre Gate* by Bedrock
 
 ***This projrect uses copyright material owned by Bedrock Games, under their Bedrock Games Community Use Policy. This is not an official product of Bedrock Games.***
 
+# v 0.2.2
+## NPC and Monster pass 2
+- Added the chapter 9 NPCs to the compendium.
+- Named NPCs with a biography have it listed on the sheet under Notes -> Biography.
+- NPCs with armor and weapons have them listed properly.
+
 # v 0.2.1
-## NPC compendium and importer polish
+## NPC and Monster pass 1
 - Companion App technique imports now detect printed damage phrases such as `6d10 Open Damage` and populate the Technique item's Damage and Open Damage fields.
 - Companion App technique imports now capture obvious Extra Wound text and the shared Hardiness drain reminder in techniques such as Headless Ghost's Vengeance.
 - Added the first Actor compendium pack: NPCs, Threats, and Monsters.
@@ -25,8 +31,6 @@ A Foundry VTT v13 game system for *The Wandering Heroes of Ogre Gate* by Bedrock
 - Finished the Chapter 10 human threats and sect-member pass, adding Society of Leather Shadows, Dehua, Golden Dragon, Hai'an, Heiping, Majestic Lion, Mystic Sword, Nature Loving Monk, Perfect Heaven, Purple Cavern, Red Claw, Southern River, Sun Mai, Nine Suns, Tree-Dwelling Nun, Zhaoze, and Zhe Valley templates.
 - Plain `Techniques (Waijia...)` statblock fields now split correctly from Combat Technique fields, so sect NPCs such as Mount Hai'an and Majestic Lion entries keep their combat perks and Kung Fu technique lists separate.
 - Added source and pack builder scripts for future NPC/monster compendium expansion.
-- Moved generated compendium source JSON out of the repository tree; rebuild scripts now use a temporary source folder and keep only the Foundry-ready `packs/` databases.
-- Researched Enhanced Combat HUD / Argon support. The current public Argon documentation expects a separate system-specific adapter module, so Ogre Gate compatibility should be implemented as an `enhancedcombathud-ogregatefoundry` adapter once we are ready to wire panels and actions.
 
 # v 0.2.0
 ## Live table and NPC workflow

@@ -13,6 +13,12 @@ const FOLDERS = {
     directory: "human-threats",
     section: "Human Threats"
   },
+  chapter9Named: {
+    id: "b83f0a7c9d2e6145",
+    name: "Chapter 9 Named NPCs",
+    directory: "chapter-9-named-npcs",
+    section: "Chapter 9 Named NPCs"
+  },
   monsters: {
     id: "f9c4a6d84503b812",
     name: "Monsters",
@@ -22,6 +28,1287 @@ const FOLDERS = {
 };
 
 const STATBLOCKS = [
+  {
+    id: "c9abbessxhbio001",
+    name: "Abbess Xiong-Hua",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Abbess Xiong-Hua was born into the Tree-Dwelling Nun sect, her mother being a respected Senior Nun and her father an Initiate. The Abbess is called the Ferocious Flower, because she adorns herself in lotus flowers and has an unrelenting fighting style. Her chief personality traits are stubbornness and bravery.
+
+She is friendly with Abbot Huan Dai of the Nature Loving Monk sect and has a long-standing grudge with Lady Plum Blossom of the Purple Cavern sect (who poisoned one of her junior disciples). She also has a grudge against The Gentle Demon for marrying her disciple, Huifing. Above all she despises the Dehua sect because of their haughtiness. For this reason, she immediately hates anyone who appears to be friendly with Dehua.`,
+    text: `Abbess Xiong-Hua
+Abbess Xiong-Hua was born into the Tree-Dwelling Nun sect, her mother being a respected Senior Nun and her father an Initiate. The Abbess is called the Ferocious Flower, because she adorns herself in lotus flowers and has an unrelenting fighting style.
+Defenses: Hardiness 5, Evade 8, Parry 6, Stealth 10, Wits 6, Resolve 8
+Key Skills: Grapple: 3d10, Arm Strike: 2d10, Throw: 1d10, Kick: 1d10, Light Melee: 3d10 or 5d10 with Butterfly Swords, Medium Melee: 2d10, Heavy Melee: 1d10, Athletics: 3d10, Speed: 2d10, Muscle: 2d10, Endurance: 3d10, Meditation: 3d10, Ritual (Spirit Keeping): 3d10, Ritual (Zun Forest Shaping): 2d10, Ritual (Activation): 2d10, Ritual (Binding Demon): 2d10, Divination: 3d10, Detect: 3d10, Languages (Daoyun): 3d10, Language (Li Fai): 3d10, Language (Hai'anese): 2d10, Institutions (Sects): 3d10, Institutions (Criminal Underworld): 2d10, Places (Dai Bien and Zun River Valley): 3d10, Survival (Wilderness): 3d10, Survival (Mountains): 2d10, Religion (Yen-Li): 3d10, Religion (Qi Zhao): 2d10, Creatures (Spirits): 3d10, Read Script (Tree-Dwelling Nun): 3d10
+Qi: 6
+Max Wounds: 13
+Weapons: Net, Butterfly Swords (3d10 Damage, +1d10 Accuracy), and Daggers (2d10 Damage)
+Expertise: Butterfly Swords
+Reputation: Brave-Ferocious
+Key Kung Fu Techniques (Waijia 1, Qinggong 2, Neigong 1): Blasting Blade, Drift of the Butterfly Fish, Flight of the Hawk, Great Stride, Tree Bounding Stride, Tree Bounding Strike, Horizontal Sidestep, Ferocious Flower's Storming Petals, Breath of the Lotus Petal, Lashing Dragon, Leap of the Swan, Purge Spirit, Great Stride, Storming Needles, Trapping Wind, Finger Flick, Storming Daggers, Weapon Hunts for Food, Blazing Net, Horizontal Sidestep (Counter), Whirling Dodge (Counter), Interception Arrow (Counter)`
+  },
+  {
+    id: "c9bronzebio00001",
+    name: "Bronze Master",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `The Bronze Master is the most influential member of the Golden Dragon sect's council of Six Masters. Throughout the martial world he is respected and held in high esteem for his profound Kung Fu and impeccable character. While he projects this image of himself to the world, inside he is selfish and will do anything to advance his own interest. Bronze Master is the martial world's supreme hypocrite. He values his reputation and is not above stooping to murder to stamp out gossip or rumor.
+
+Thirty years ago, the Bronze Master was deeply in love with another member of the council, Lady Sapphire, but romance between members of the sect was forbidden. He learned that Lady Sapphire and Master Emerald had already consummated a love affair and was filled with jealous rage. Though an archaic and often overlooked rule, the Bronze Master made a point of having it enforced. However he feared that if both Master Emerald and Lady Sapphire were ejected from the sect, they would continue as lovers. Therefore he put all the guilt on Sapphire, accusing her of seducing Master Emerald with sorcery. The punishment for this was death.
+
+When Emerald pleaded with him for Lady Sapphire's life, Bronze Master agreed to let her leave the sect in peace so long as Master Emerald remained and continued to atone for his crimes. If he ever tried to leave the sect, Bronze Master vowed to have Lady Sapphire killed. Later, Bronze Master disguised himself as Master Emerald and told Lady Sapphire his position in the sect meant more to him than their love. Lady Sapphire left the sect, and changed her name to Lady Plum Blossom.
+
+To this day Bronze Master loves Lady Plum Blossom and has exerted his influence from time to time to protect her from harm. He is the sort of man who usually feels no remorse for things he has done. However, thinking of Lady Plum Blossom brings regret and remorse. He is not worthy of her love and knows it.`,
+    text: `Bronze Master
+The Bronze Master is the most influential member of the Golden Dragon sect's council of Six Masters. Throughout the martial world he is respected and held in high esteem for his profound Kung Fu and impeccable character.
+Defenses: Hardiness 10, Evade 4, Parry 4, Stealth 6, Wits 8, Resolve 7
+Key Skills: Grapple: 3d10, Arm Strike: 3d10, Throw: 2d10, Kick: 3d10, Light Melee: 2d10, Medium Melee: 3d10, Heavy Melee: 3d10, Athletics: 1d10, Speed: 1d10, Muscle: 3d10, Endurance: 3d10, Medicine: 1d10, Meditation: 3d10, Detect: 3d10, Deception: 3d10, Persuade: 2d10, Languages (Daoyun): 3d10, Languages (Li Fai): 2d10, Languages (Hai'anese): 3d10, Read Script (Feishu): 3d10, Read Script (Golden Dragon): 3d10, History (Era of the Demon Emperor): 3d10, History (Era of the Righteous Emperor): 3d10, Institutions (Sects): 3d10, Creatures (Demons): 3d10, Creatures (Spirits): 2d10
+Qi: 5
+Max Wounds: 11
+Weapons: Qiang (5d10 Damage)
+Reputation: Righteous-Unjust
+Flaws: Secretly Evil
+Key Kung Fu Techniques (Waijia 1, Qinggong 1, Neigong 1, Dianxue 1): Blast of the Dragon, Calm of Sunan, Drift of the Butterfly Fish, Flaming Dragon, Fluttering Kicks, Inverted Three-Point Strike, Lashing Dragon, Leap of the Swan, Palm of the Dragon, Rising Dragon Stance, Shift of the Chameleon, Spear of the Infinite Emperor, Spear Swipe, Spinning Back Kick (Counter), Whirling Dodge (Counter)`
+  },
+  {
+    id: "c9caiyuanyubio001",
+    name: "Cai Yuanyu",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Cai Yuanyu is the Senior Grand Councilor of the Zhan Dao Empire and the close adviser of Emperor Zhan. He appears to be no older than his early fifties but is actually 134 years old. Cai Yuanyu stopped aging when he was 54 after the Yao recovered the Heart of Yao-Feng. While the object is supposed to prolong the life of the person who wears it, currently Emperor Zhan Dao, for some reason it appears to have benefited Cai Yuanyu as well.
+
+Cai Yuanyu has an unusual background. He was originally a Yen-Li priest of Five Ghost Lineage in the Banyan region, but left after having relentless dreams about the Demon Emperor. He became convinced that in a former life he had served the Demon Emperor in some capacity and secretly began to venerate the spirit of Yao-Feng. He studied the history of the emperor's reign and devised his own rituals to draw on the Demon Emperor's power.
+
+Though he never took the Imperial Exams, he was appointed to a position in the Department of the Censorate by a sponsor, Cai Yanbo, who saw promise in him. Yuanyu took his sponsor's surname and entered his household. It was from Cai Yanbo that Yuanyu learned about the Bold King and the Heart of Yao-Feng. Cai Yanbo ensured he had a good career path in the Department of the Censorate. He regarded Cai Yuanyu as his own son, bestowing his wealth and property on him when he died.
+
+Yuanyu came to the emperor's attention by hinting at the existence of the Heart of Yao-Feng and using his knowledge as a surveillance official to help the emperor improve the Bureau of Inward and Outward Righteousness. Because of his hard work, he was ultimately made director of this institution. As director, Yuanyu introduced the Heart Taking Ritual to ensure the loyalty of their Martial Heroes. He also led the mission nearly 80 years ago to obtain the Heart of Yao-Feng.
+
+Cai Yuanyu is feared and respected by other Imperial officials. His temperament is cool but curious and friendly if his interest is piqued. Though he comes from a humble background, decades of palace life have spoiled him. Yuanyu's knowledge of certain topics is encyclopedic but no one would describe him as naturally intelligent; his accomplishments are a product of determination more than inherent ability. This has led to several notable weaknesses, particularly in subjects he has little interest in.`,
+    text: `Cai Yuanyu
+Cai Yuanyu is the Senior Grand Councilor of the Zhan Dao Empire and the close adviser of Emperor Zhan. He appears to be no older than his early fifties but is actually 134 years old.
+Defenses: Hardiness 4, Evade 6, Parry 9, Stealth 7, Wits 6, Resolve 10
+Key Skills: Throw: 2d10, Grapple: 3d10, Arm Strike: 3d10, Leg Strike: 3d10, Medium Melee: 2d10, Light Melee: 3d10, Speed: 3d10 (60 feet), Muscle: 1d10, Detect: 2d10, Athletics: 1d10, Endurance: 1d10, Trade (Alchemy): 3d10, Ritual (Wealth Attainment): 3d10, Ritual (Spirit Keeping): 3d10, Ritual (Heart Taking): 3d10, Ritual (Extract Phoenix Spirit): 2d10, Ritual (Activation): 2d10, Ritual (Zun Demon Master Ritual): 2d10, Ritual (Tattoo of the Demon King): 2d10, Ritual (Petition to the Five Ghosts): 3d10, Ritual (Blood Offering for the Demon Emperor): 3d10, Ritual (Blood Pledge of the Demon Emperor): 3d10, Ritual (Binding Demon): 2d10, Medicine: 3d10, Meditation: 2d10, Talent (Poetry): 0d10, Talent (Poison): 3d10, Persuade: 2d10, Deception: 3d10, Empathy: 3d10, The Classics (All): 1d10, History (Era of the Demon Emperor): 3d10, History (Era of the Glorious Emperor): 3d10, History (Era of the Righteous Emperor): 3d10, History (Era of the Two Kingdoms): 2d10, History (Era of The Eastward Bound Invaders): 2d10, Places/Cultures (All): 3d10, Languages (Singh, Daoyun, Khubsi): 3d10, Read Script (Feishu, Sai): 3d10, Institutions (Imperial Bureaucracy): 3d10, Religion (Yen-Li): 3d10, Religion (Bold King): 3d10, Creatures (Demons): 3d10
+Qi: 4
+Max Wounds: 9
+Weapons: Fan (4d10 Damage)
+Expertise: Alchemy-Longevity Substances, Alchemy-Transformative Substances
+Reputation: Cunning-Shameful
+Key Kung Fu Techniques (Waijia 1, Neigong 3): Absorbing Palm, Curing Palm, Gust of the Fan Blade, Naga Palm, Purge Spirit, Ringing Strike of the Divine Ram, Trapping Wind, Swift Rebuttal (Counter)
+Powers
+Immortality: The Heart of Yao-Feng bestows its powers of immortality on Cai Yuanyu as well as the emperor. As long as the Emperor lives, so will Cai Yuanyu.`
+  },
+  {
+    id: "c9caobaibio00001",
+    name: "Cao Bai",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Cao Bai is a well respected scholar in his early 70s, from Hai'an. He is an expert on the Age of the Demon Emperor, with an interest in Sunan and Bao, and a special devotion to the Wind Sabre and Phoenix Crown.
+
+Cao Bai is both admired and ridiculed for his honesty. This recently got him into trouble with General Qiang of Rong-Yao, his former patron. He offered too frank an assessment of the General's thorough methods of justice and is now in flight. He is currently looking for a group of martial heroes to travel with so they can protect him.`,
+    text: `Cao Bai
+Cao Bai is a well respected scholar in his early 70s, from Hai'an. He is an expert on the Age of the Demon Emperor, with an interest in Sunan and Bao, and a special devotion to the Wind Sabre and Phoenix Crown.
+Defenses: Hardiness 3, Evade 3, Parry 3, Stealth 6, Wits 9, Resolve 6
+Key Skills: Combat Skills: 0d10, Speed: 1d10, Muscle: 0d10, Endurance: 1d10, Divination: 2d10, Medicine: 2d10, Meditation: 1d10, Talent (Poetry): 2d10, Persuade: 2d10, Deception: 2d10, Detect: 1d10, Institutions (Sects): 2d10, Places (Jian Shu and Dai Bien): 3d10, History (Era of the Demon Emperor): 3d10, History (Era of the Righteous Emperor): 3d10, History (Era of the Five Kingdoms): 3d10, Languages (Li Fai): 3d10, Languages (Daoyun): 3d10, Language (Hai'anese): 3d10, The Classics (All): 3d10, Creatures (Demons): 1d10, Creatures (Spirits): 2d10
+Max Wounds: 1
+Expertise: History-City/Topic-Wind Sabre of Sunan, History-City/Topic-Phoenix Crown of Bao
+Reputation: Truthful-Truthful`
+  },
+  {
+    id: "c9compmonkbio001",
+    name: "Compassionate Monkey",
+    type: "monster",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Compassionate Monkey is a monkey who learned Kung Fu by spying on great masters then using it on his fellow apes. In the process he became an intelligent but cruel spirited beast, and eventually learned to talk. In the Kushen Basin he marauded local populations for sport and came to lead a small gang of men.
+
+One day, Hen-Shi appeared before him and told Compassionate Monkey to repent and become a force of benevolence in the world. He attacked her and she disappeared. Struck by her beauty, every time he attacked someone Hen-Shi's words echoed in his mind. This continues to build into a great crescendo until he stifles it with a good deed. Though his nature is still cruel, Compassionate Monkey performs good services to silence the echoes of Hen-Shi in his head. He considers himself a devotee of Hen-Shi but is also angry with her. His relationship to the deity is like that of a child who does not understand a parent's authority.
+
+Though cruel by nature, Compassionate Monkey works to improve himself. He simply lapses into his aggressive and violent past when stressed. Once he gives in, Compassionate Monkey delights in causing harm. One redeeming quality Compassionate Monkey possesses is honesty. Sometimes this gets him in trouble, but it also means he does not go back on his promises; if he does, he is genuinely remorseful.
+
+Compassionate Monkey has two disciples, Xun and Anzhi. Xun is missing his left arm, while Anzhi is missing his right. They were ripped out by Compassionate Monkey in a rage when the two initially refused to devote themselves to Hen-Shi. Xun and Anzhi are all that remain of his gang from the Kushen Basin. Compassionate Monkey came to Red Mountain Villa following rumors of a great treasure, but was defeated by the Immortals and forced to take a vow to watch the mountain bridge. Taking the vow seriously, he guards the bridge and has his disciples protect the path up the mountain.`,
+    text: `Compassionate Monkey
+Compassionate Monkey is a monkey who learned Kung Fu by spying on great masters then using it on his fellow apes. In the process he became an intelligent but cruel spirited beast, and eventually learned to talk.
+Defenses: Hardiness 4, Evade 6, Parry 8, Stealth 9, Wits 6, Resolve 8
+Key Skills: Bite: 1d10 (Damage 4d10), Throw: 2d10, Grapple: 3d10, Arm Strike: 3d10, Leg Strike: 2d10, Medium Melee: 2d10 or 4d10 with Jian, Speed: 3d10 (60 feet), Muscle: 4d10, Detect: 3d10, Athletics: 3d10, Talent (Flute): 2d10, Empathy: 1d10
+Qi: 4
+Max Wounds: 10
+Weapons: Jian (5d10 Damage, +2d10 Accuracy)
+Reputation: Loyal-Cruel
+Flaws: Foul Tempered
+Mental Affliction: Explosive Rage
+Key Kung Fu Techniques (Waijia 2, Qinggong 1, Neigong 1): Breath of Fury, Crawling Tiger, Mighty Paws of the Lion, Swan Taming Strike, Weapon Stride (Counter)
+Powers
+The Ripping Arms of Compassion: This must be used Cathartically. When used Cathartically Monkey needs only 1 Total Success on a Maiming attempt to tear out a person's arms.
+Climb: Monkeys can use their Athletics Skill to climb trees and craggy surfaces at their full speed.
+Beast Strength: x2`
+  },
+  {
+    id: "c9dancinghawk001",
+    name: "Dancing Hawk",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Dancing Hawk is the nephew of Master Ta and is madly in love with Madame Hamaya, who does not return his affection but encourages it. Dancing Hawk is known for his flirtatious ways and a hot temper. However his heart belongs to Madame Hamaya and he sometimes spends weeks drinking or going to brothels in the face of her unreciprocated affection.
+
+He is also a local bully who likes to spend his time gambling and causing problems in Wu Pen. When not in Wu Pen, he is typically at his uncle's villa or at the Fragrant Petal. Though he boasts modest martial arts abilities himself, Dancing Hawk is routinely finding himself in grudges or disputes with equal or better experts. To escape such situations intact he resorts to paying other Martial Heroes to do the job for him. On more than one occasion he has put out a call for great champions to compete for position as one of his bodyguards or servants.`,
+    text: `Dancing Hawk
+Defenses: Hardiness 3, Evade 6, Parry 4, Stealth 6, Wits 6, Resolve 8
+Key Skills: Grapple: 1d10, Throw: 1d10, Arm Strike: 2d10, Leg Strike: 1d10, Light Melee: 2d10, Medium Melee: 2d10 or 4d10 with Jian/Gun, Heavy Melee: 0d10, Small Ranged: 1d10, Speed: 2d10, Muscle: 1d10, Language (Daoyun): 3d10
+Qi: 2
+Max Wounds: 5
+Weapons: Wooden Gun Staff (1d10 Damage, +2d10 Accuracy), Jian (2d10 Damage, +2d10 Accuracy)
+Reputation: Too Reckless-Shameful
+Key Kung Fu Techniques (Waijia 1, Qinggong 3): Dancing Hawk Sword Stance, Drift of the Butterfly Fish, Hands of the Hawk Beak, Stunning Stick Strike, Tai Lan's Staff Strike, Spinning Back Kick (Counter), Clutch of the Hawk (Counter)`
+  },
+  {
+    id: "c9fearlessrival1",
+    name: "Fearless Rival of Dai Bien",
+    type: "monster",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Seniang was called the Fearless Rival of Dai Bien because she challenged great Kung Fu experts with no fear, eagerly becoming their nemesis. Known for her rigid adherence to the Xia Code, her devotion to truth, and her endless compassion for those in need, she became a much-adored hero in Dai Bien. However, she practiced her Kung Fu too recklessly while fighting with the Nature Loving Monks and began to transform into a Vulture Spirit. Now she wanders the Banyan aimlessly destroying anything in her path, including people.
+
+Se Seniang is lean and wiry, with overly long limbs. Her features are smooth but striking. The proportions just seem too long and her nose curved down to her lower lip. Her eyes have the vacant black stare of a vulture. Her hands are bony and end in lengthy talons. These are the effects of her transformation into a Vulture Spirit. The most obvious sign of this change is a large pair of black wings from her back, which she conceals under heavy capes and shawls.`,
+    text: `Fearless Rival of Dai Bien
+Defenses: Hardiness 8, Evade 6, Parry 6, Stealth 10, Wits 6, Resolve 8
+Key Skills: Grapple: 1d10, Throw: 1d10, Arm Strike: 1d10, Leg Strike: 1d10, Light Melee: 3d10, Muscle: 2d10, Medium Melee: 3d10, Heavy Melee: 2d10, Fly: 6d10 (90 feet), Speed: 3d10, Bite: 2d10 (3d10), Detect: 2d10, Command: 2d10, Deception: 2d10, Persuade: 3d10, Knowledge (Varies): 2d10
+Qi: 3
+Max Wounds: 7
+Weapons: Jian, Spear
+Reputation: Brave-Ferocious
+Key Kung Fu Techniques (Waijia 2, Qinggong 2): Fearless Reply of the Spear, Flight of the Hawk, Pounce of the Lion, Slashing Blade, Spear of the Infinite Emperor, Spear Swipe, Sword Stance, Whirling Dodge (Counter)
+Powers
+Flight: Se Seniang can fly using the Fly skill because she has wings.
+Burning Gaze: Se Seniang causes terrible pain by looking at a person. Roll Command against Resolve. On a success she imposes a -1d10 pain penalty for 2 rounds.
+Claws of the Vulture: Se Seniang's Claws expose anyone struck by them to a disease of the spirit. Roll 2d10 against Hardiness. On a success the person is afflicted with terrible nightmares filled with scenes of gore and violence. This makes sleep all but impossible. Only a concoction of Ginseng and Mild Poison can purge the body of this affliction.
+Limb Breaking Beak: This is normally not visible but appears as a ghostly beak when she chooses to strike. It does 3d10 Damage. On a Total Success it breaks bones and these take two weeks to heal.
+Piercing Wail: Se Seniang can release a loud shriek that causes 2d10 Damage to everyone in a 20-foot radius. This is a Move action.`
+  },
+  {
+    id: "c9firelancebros1",
+    name: "Firelance Brothers",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `The Firelance Brothers are identical twins who work for Red Claw Demon and are important leaders in the Red Claw Gang. They both have foul tempers, being prone to outbursts and bullying at the slightest provocation. Generally they don't get along with others or follow rules well.
+
+While loyal to Red Claw they freely bend his orders to gain the most for themselves personally. Physically impressive, they prefer to go bare-chested and are always seen with their firelances.`,
+    text: `Firelance Brothers
+Defenses: Hardiness 5, Evade 8, Parry 5, Stealth 8, Wits 6, Resolve 6
+Key Skills: Grapple: 1d10, Throw: 1d10, Arm Strike: 2d10, Leg Strike: 1d10, Light Melee: 1d10, Heavy Melee: 2d10, Small Ranged: 2d10, Athletics: 1d10, Speed: 1d10, Muscle: 2d10, Meditation: 1d10, Read Script (Red Claw Gang): 2d10
+Qi: 2
+Max Wounds: 5
+Weapons: Fire Lance (4d10 or 3d10 Fire Damage 20 feet), Fly Whisk (1d10 disarm, roll Damage against Parry)
+Reputation: Ferocious-Unjust
+Combat Technique: Hefty Crush
+Key Kung Fu Techniques (Waijia 3, Neigong 1): Guiding the Crashing Wave, Iron Foot Stance, Lash of the Fly-whisk, Spear Swipe, Iron Spirit Resistance (Counter)`
+  },
+  {
+    id: "c9immortalji0001",
+    name: "Ji, Immortal of Red Mountain Villa",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Ji is one of the Five Immortals of Red Mountain Villa, the immortal guardians tasked with watching over Zhehu, the Ogre Demon who possesses the Key of Feng. The Five Immortals resemble one another but are different sizes, with Ji being the smallest and Hong the largest. Though they are immortal guardians, they consider themselves cultivated gentlemen and present as such to the world.
+
+Ji is an expert in poetry. The Five Immortals spend most of their leisure time pursuing their respective interests. They are confined to Red Mountain Villa, with only one or two at a time occasionally leaving when an important matter demands attention. They are hospitable to visitors who demonstrate an interest and aptitude for the pleasures they enjoy, but will not allow those who do not possess such talents to enter the villa grounds.`,
+    text: `Ji, Immortal of Red Mountain Villa
+Defenses: Hardiness 3, Evade 6, Parry 6, Stealth 6, Wits 9, Resolve 6
+Key Skills: Arm Strike: 2d10, Leg Strike: 5d10, Light Melee: 4d10, Medium Melee: 2d10, Speed: 3d10, Muscle: 2d10, Endurance: 2d10, Meditation: 3d10, Talent (Poetry): 5d10 or 6d10 (with Expertise), Talent (Calligraphy): 2d10, Persuade: 5d10, Deception: 2d10, Detect: 2d10, Read Scripts (All): 3d10, Languages (All): 3d10, Classics (All): 2d10
+Qi: 15
+Max Wounds: 31
+Weapons: Bamboo Fan, Needle
+Expertise: Talent-Composition
+Combat Technique: Light Melee-Counter
+Key Kung Fu Techniques (Waijia 2, Qinggong 2): Arms of Silk, Blood Letting Thorns, Gust of the Fan Blade, Spinning Back Kick, Storming Needles, Whirling Dodge (Counter), Horizontal Sidestep (Counter)
+Profound Techniques: Burning Array, Thundering Palm of the Heavens
+Powers
+Insight - All are One: Insight possessed by Ji.
+Shape Change: Ji can change his appearance at will to anything he wants, provided it is the same size as himself.`
+  },
+  {
+    id: "c9immortalzhu001",
+    name: "Zhu, Immortal of Red Mountain Villa",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Zhu is one of the Five Immortals of Red Mountain Villa, the immortal guardians tasked with watching over Zhehu, the Ogre Demon who possesses the Key of Feng. The Five Immortals resemble one another but are different sizes, with Ji being the smallest and Hong the largest. Though they are immortal guardians, they consider themselves cultivated gentlemen and present as such to the world.
+
+Zhu knows about statecraft and Dehuan philosophy. The Five Immortals spend most of their leisure time pursuing their respective interests. They are confined to Red Mountain Villa, with only one or two at a time occasionally leaving when an important matter demands attention. They are hospitable to visitors who demonstrate an interest and aptitude for the pleasures they enjoy, but will not allow those who do not possess such talents to enter the villa grounds.`,
+    text: `Zhu, Immortal of Red Mountain Villa
+Defenses: Hardiness 3, Evade 3, Parry 3, Stealth 8, Wits 9, Resolve 10
+Key Skills: Light Melee: 3d10, Medium Melee: 3d10, Heavy Melee: 3d10, Speed: 2d10, Muscle: 1d10, Endurance: 1d10, Meditation: 1d10, Divination: 3d10, Ritual: 5d10, Talent (Poetry): 1d10, Talent (Poison): 2d10, Persuade: 3d10 or 4d10 (with Expertise), Deception: 6d10, Detect: 3d10, Read Scripts (All): 3d10, Languages (All): 3d10, Classics (All): 3d10, Religion (Dehua): 6d10, Institutions (Imperial Bureaucracy): 3d10, Institutions (Religious Organizations): 4d10, Institutions (Sects): 2d10
+Qi: 14
+Max Wounds: 29
+Weapons: Fly-whisk
+Expertise: Persuade-Convince
+Combat Technique: Light Melee-From the Shadows
+Key Kung Fu Techniques (Waijia 2, Qinggong 1, Neigong 1): Crushing Lash of Lady Plum Blossom, Choking Lash of Lady Plum Blossom, Lash of the Fly-whisk, Venom of the Fly-whisk, Graceful Retreat (Counter), Horizontal Sidestep (Counter)
+Profound Techniques: Demon Strike
+Powers
+Insight - Detect Weakness: Insight possessed by Zhu.
+Enchanting Whisper: With a gentle word Zhu can convince anyone, even enemies, that he is their friend. Roll Persuade against Resolve.`
+  },
+  {
+    id: "c9immortalli0001",
+    name: "Li, Immortal of Red Mountain Villa",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Li is one of the Five Immortals of Red Mountain Villa, the immortal guardians tasked with watching over Zhehu, the Ogre Demon who possesses the Key of Feng. The Five Immortals resemble one another but are different sizes, with Ji being the smallest and Hong the largest. Though they are immortal guardians, they consider themselves cultivated gentlemen and present as such to the world.
+
+Li is a painter and expert swordsman. The Five Immortals spend most of their leisure time pursuing their respective interests. They are confined to Red Mountain Villa, with only one or two at a time occasionally leaving when an important matter demands attention. They are hospitable to visitors who demonstrate an interest and aptitude for the pleasures they enjoy, but will not allow those who do not possess such talents to enter the villa grounds.`,
+    text: `Li, Immortal of Red Mountain Villa
+Defenses: Hardiness 8, Evade 3, Parry 10, Stealth 6, Wits 6, Resolve 6
+Key Skills: Arm Strike: 2d10, Leg Strike: 1d10, Light Melee: 4d10, Medium Melee: 5d10, Heavy Melee: 4d10, Speed: 3d10, Muscle: 2d10, Endurance: 3d10, Meditation: 2d10, Talent (Calligraphy): 2d10, Talent (Painting): 5d10, Detect: 2d10, Read Scripts (All): 3d10, Languages (All): 3d10, Classics (All): 1d10
+Qi: 13
+Max Wounds: 27
+Weapons: Jian, Ox Tail Dao
+Expertise: Medium Melee-Jian
+Combat Technique: Medium Melee-Press
+Key Kung Fu Techniques (Waijia 3, Qinggong 1): Blasting Blade, Drift of the Butterfly Fish, Grudge-Bearing Sword Strike, Phantom Phoenix Sword, Slashing Blade, Swan Taming Strike, Sword Whipping Strike, Horizontal Side Step (Counter), Whirling Dodge (Counter)
+Profound Techniques: Great Transference
+Powers
+Insight - All Passions Blaze: Insight possessed by Li.
+Control Wind: Li can summon winds and storms with the swing of his sword.`
+  },
+  {
+    id: "c9immortalshuang",
+    name: "Shuang, Immortal of Red Mountain Villa",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Shuang is one of the Five Immortals of Red Mountain Villa, the immortal guardians tasked with watching over Zhehu, the Ogre Demon who possesses the Key of Feng. The Five Immortals resemble one another but are different sizes, with Ji being the smallest and Hong the largest. Though they are immortal guardians, they consider themselves cultivated gentlemen and present as such to the world.
+
+Shuang is a musician. The Five Immortals spend most of their leisure time pursuing their respective interests. They are confined to Red Mountain Villa, with only one or two at a time occasionally leaving when an important matter demands attention. They are hospitable to visitors who demonstrate an interest and aptitude for the pleasures they enjoy, but will not allow those who do not possess such talents to enter the villa grounds.`,
+    text: `Shuang, Immortal of Red Mountain Villa
+Defenses: Hardiness 3, Evade 10, Parry 5, Stealth 6, Wits 8, Resolve 6
+Key Skills: Arm Strike: 5d10, Throw: 2d10, Heavy Melee: 2d10, Speed: 3d10, Muscle: 1d10, Athletics: 2d10, Endurance: 3d10, Meditation: 3d10, Medicine: 3d10, Talent (Instrument-Guzheng): 4d10, Talent (Instrument-Pipa): 4d10, Talent (Instrument-Yangqin): 6d10, Talent (Instrument-Dizi): 5d10, Detect: 6d10, Read Scripts (All): 3d10, Languages (All): 3d10, Classics (All): 2d10, Religion (Dehua): 3d10, Institutions (Imperial Bureaucracy): 3d10, Institutions (Religious Organizations): 2d10, Institutions (Sects): 2d10
+Qi: 13
+Max Wounds: 27
+Weapons: Hands, Instruments or Bian
+Expertise: Talent-Perform
+Combat Technique: Light-Opportunity
+Key Kung Fu Techniques (Qinggong 1, Neigong 3): Absorbing Palm, Cherry Blossom Palm, Curing Palm, Drift of the Butterfly Fish, First Song of Shan Lushan, Flaming Dragon, Flight of the Hawk, Harmonizing Strike, Ringing Strike of the Divine Ram, Weapon Stride (Counter)
+Profound Techniques: Sleeves of Frost
+Powers
+Insight - Natural Understanding: Insight possessed by Shuang.
+Perfect Hearing: Shuang's hearing is so perfect he is unaffected by total darkness and rolls 6d10 for Detect. In addition he can hear at extraordinary distance, and is capable of eavesdropping on any conversation anywhere in a fifty-mile radius.`
+  },
+  {
+    id: "c9immortalhong01",
+    name: "Hong, Immortal of Red Mountain Villa",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Hong is one of the Five Immortals of Red Mountain Villa, the immortal guardians tasked with watching over Zhehu, the Ogre Demon who possesses the Key of Feng. The Five Immortals resemble one another but are different sizes, with Ji being the smallest and Hong the largest. Though they are immortal guardians, they consider themselves cultivated gentlemen and present as such to the world.
+
+Hong is the senior of the five immortals. Hong is a master of food, able to decipher a great deal of information from smells and flavors alone, has an abiding interest in ancient relics, and a profound appreciation of wine. The Five Immortals spend most of their leisure time pursuing their respective interests. They are confined to Red Mountain Villa, with only one or two at a time occasionally leaving when an important matter demands attention.`,
+    text: `Hong, Immortal of Red Mountain Villa
+Defenses: Hardiness 3, Evade 10, Parry 5, Stealth 6, Wits 8, Resolve 6
+Key Skills: Arm Strike: 2d10, Kick: 4d10, Throw: 3d10, Heavy Melee: 3d10, Medium Melee: 3d10, Speed: 1d10, Muscle: 6d10, Athletics: 2d10, Endurance: 4d10, Meditation: 3d10, Medicine: 2d10, Divination: 2d10, Talent (Cooking): 5d10, Talent (Tea Preparation): 6d10, Talent (Poison): 3d10, Survival (Wilderness): 3d10, Trade (Architecture and Engineering): 2d10, Detect: 5d10 or 6d10 (Tasting), Read Scripts (All): 3d10, Languages (All): 3d10, Classics (All): 3d10, Religion (Dehua): 3d10, History (All): 3d10, Institutions (Imperial Bureaucracy): 3d10, Institutions (Religious Organizations): 2d10, Institutions (Sects): 2d10
+Qi: 15
+Max Wounds: 31
+Weapons: Qiang, Ox Tail Dao
+Expertise: Detect-Taste
+Combat Technique: Heavy Melee-Hefty Crush
+Key Kung Fu Techniques (Waijia 1, Qinggong 1, Neigong 1, Dianxue 1): Calm of Sunan, Double Thrust, Eight Divine Snake Strike, Gaze of the Lion, Heart Smashing Palm, Heart Strike, Inverted Three-Point Strike, Iron Body, Iron Spirit, Kick of the Golden Elephant, Lung Strike, Majesty of the Lion, Pounce of the Lion, Spearing Blade, Iron Spirit Reversal (Counter), Iron Spirit Resistance (Counter)
+Profound Techniques: Thundering Palm of the Heavens
+Powers
+Insight - Dew Upon the Lily: Insight possessed by Hong.
+Incredible Strength: Hong is stronger than any mortal, with 6d10 Muscle and Beast Strength (x20). This means he can lift heavy objects with ease, multiplying his base lift by 20.`
+  },
+  {
+    id: "c9frowningeagle",
+    name: "Frowning Eagle",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `An orphan who was raised by Li Sou Chao, the Witch of Zhaoze Zhou, Bang Run became the leader of the Zun River Gang. Though a criminal, Frowning Eagle likes to think he is fair and brings a certain amount of order to the region. His nickname stems from his demeanor and the eternal expression of displeasure on his face, even when supremely happy or laughing.
+
+He is loyal to Li Sou Chao and regards her as a mother. Frowning Eagle is married to E'hua. His brother-in-law, Sheng, runs the Ornamental Pearl in Bouzhou.`,
+    text: `Frowning Eagle
+Defenses: Hardiness 4, Evade 3, Parry 7, Stealth 6, Wits 7, Resolve 7
+Key Skills: Grapple: 1d10, Arm Strike: 2d10, Throw: 2d10, Leg Strike: 1d10, Light Melee: 1d10, Medium Melee: 2d10, Heavy Melee: 1d10, Speed: 2d10, Muscle: 2d10, Endurance: 1d10, Meditation: 2d10, Detect: 2d10
+Qi: 2
+Max Wounds: 5
+Weapons: None
+Reputation: Trustworthy-Unjust
+Key Kung Fu Techniques (Waijia 1, Neigong 3): Eagle Descends Loudly, Finger Flick, Iron Foot Stance, Red Claw Strike, Ringing Strike of the Divine Ram, Whirling Dodge (Counter)`
+  },
+  {
+    id: "c9galganbaatar1",
+    name: "Gal Ganbaatar Khagan",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Ganbaatar is the son of Gal Batu Khan. He united the tribes of the Kushen and is planning in the future to invade the Empire by way of Li Fan. He is also a great martial hero in his own right and something of a reformer, granting more freedom to female tribesmen, especially his wives.
+
+Ganbaatar has seven wives, all of whom are his personal bodyguards, though this is not known beyond his immediate circle. Three of his wives have been made Commanders of 10,000. He had one daughter, Princess Sarnai, and five sons: Mengettu, Galsuren, Togu, Dobun, and Jungsai. He distrusts all his sons, ever since Togu allied with Ganbaatar's brother Urgi to overthrow him. He exiled Togu and has since executed Dobun and Jungsai. Unlike other Khans and Khagans, Ganbaatar emphasizes personal loyalty and only trusts command to those who have earned it, refusing to give his children positions of power with the exception of Princess Sarnai.
+
+Ganbaatar is fiercely opposed to human slavery, particularly of women, but this quality is often overlooked by his enemies due to his ferocious tactics in warfare.`,
+    text: `Gal Ganbaatar Khagan
+Defenses: Hardiness 5, Evade 6, Parry 8, Stealth 6, Wits 8, Resolve 7
+Key Skills: Grapple: 2d10, Throw: 3d10, Arm Strike: 2d10, Leg Strike: 3d10, Light Melee: 2d10, Medium Melee: 3d10, Heavy Melee: 2d10, Small Ranged: 3d10 (4d10 with Composite Bow), Ride: 3d10, Speed: 2d10, Muscle: 3d10, Deception: 2d10, Persuade: 2d10, Command: 3d10, Reason: 3d10, Meditation: 3d10, Talent (Hawk Handling): 3d10, Survival (Plains): 3d10, Survival (Mountains): 2d10, Languages (Kushen): 3d10, Languages (Daoyun): 3d10, Read Script (Yanzi): 3d10
+Qi: 7
+Max Wounds: 15
+Weapons: Kushen Sabre (4d10 Damage), Bow of Loma (3d10 Damage plus 2 Extra Wounds)
+Reputation: Loyal-Cunning
+Key Kung Fu Techniques (Waijia 1, Qinggong 1, Neigong 2): Slicing Arrow, Life Taking Hand, Cleave of the Sabre, Kick of the Swan, Flying Swan Kick, Whirling Blade, Whirling Dodge (Counter)
+Profound Techniques: Thundering Palm of the Heavens
+Powers
+Slicing Arrow: Small Ranged against Evade for a powerful arrow strike that does 6d10 damage. Cathartic: Strikes anyone in a 60-foot area line, which can take a crescent shaped path, passing through each target. Each target it passes through reduces damage by 1d10.
+Life Taking Hand: Arm Strike against Evade on one target. Then roll 3d10 against Resolve. On a success all their defenses reduce by 1 per rank of Neigong. Cathartic: Target ages 10 years, or 5 years per rank of Neigong.
+Cleave of the Sabre: Normal Sabre attack, 1 extra wound. Cathartic: Cuts deep into a meridian line and rattles the target, reducing Parry and Evade by 1 for one hour, plus 1 hour for every rank of Waijia.`
+  },
+  {
+    id: "c9generaldee001",
+    name: "General Dee",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `General Dee is a loyal servant of the Demon Emperor and a disciple of Cai Yuanyu. He has command of the army in Hu Qin and is the effective ruler of the city of Yu Zhing, but his main goal is to help restore the Demon Emperor and enable him to take over heaven. He hopes to be rewarded for his efforts with immortality or deification.
+
+General Dee appears to be in his early 50s. He is sadistic and merciless. He surrounds himself with equally terrible people and admires those who demonstrate both intelligence and ruthlessness. In such company he enjoys watching as all try to outdo one another with tales of their own cruelty. He is missing his left hand but has replaced it with an iron fist. Some call him Iron Fisted General, but he hates this nickname and kills anyone known to utter it.
+
+He has had two great loves. The first was a Nun of Heiping he once seduced to learn some of her techniques, but he fell in love. She was kicked out of the sect and came after him for revenge. He killed her reluctantly during a confrontation and erected a shrine to her in his residence.
+
+He also was once married to a woman named Pei Xinyu, ages ago before he became cruel. In his past, General Dee was a well-respected and decent man. However Cai Yuanyu seduced him with offers of power, and his mastery of rituals dedicated to the Demon Emperor changed his nature, making him sadistic. He also acquired the ability to take a terrible new ogre demon form. Xinyu left him and retreated to Snake Peak after his temperament and personality changed.`,
+    text: `General Dee
+Defenses: Hardiness 7, Evade 7, Parry 7, Stealth 6, Wits 6, Resolve 10
+Key Skills: Grapple: 1d10, Throw: 1d10, Arm Strike: 2d10, Leg Strike: 2d10, Light Melee: 2d10, Medium Melee: 3d10, Heavy Melee: 3d10, Small Ranged: 0d10, Speed: 2d10, Muscle: 3d10, Meditation: 3d10, Athletics: 1d10, Detect: 2d10, Empathy: 2d10, Ritual (Blood Offering of the Demon Emperor): 3d10, Read Script (Feishu): 3d10, Language (Daoyun): 3d10, Institutions (Imperial Bureaucracy): 3d10, Classics (All): 2d10, Creatures (Demons): 2d10, History (Era of the Demon Emperor): 2d10, Ritual (Activation): 2d10, Ritual (Binding Demon Ritual): 2d10, Ritual (Blood Pledge for the Demon Emperor): 1d10, Ritual (Tattoo of the Demon King): 1d10, Ritual (Petition to the Five Ghosts): 1d10
+Qi: 5
+Max Wounds: 11
+Weapons: Ox Tail Dao (5d10 Damage), Fist (4d10 Damage)
+Combat Technique: None
+Affliction: Sadism
+Flaws: Lame (Missing left hand; replaced with iron fist)
+Key Kung Fu Techniques (Neigong 1, Waijia 2, Qinggong 1): Phantom Phoenix Sword, Spearing Blade, Sword Whipping Strike, Swan Taming Strike, Whirling Dodge (Counter), Weapon Stride (Counter), Stern Rebuke of Heiping (Counter)
+Powers
+Gift of Discernment: Can tell if someone is lying with a successful Empathy roll.
+Gift of Ogre Kind: When reduced to 0 health, General Dee transforms into an Ogre Demon. If he can eat human flesh by the end of the day, he can turn back; otherwise he is permanently in Ogre Demon Form.`
+  },
+  {
+    id: "c9deedemonform1",
+    name: "Ogre Demon Form of General Dee",
+    type: "monster",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `In this form, General Dee is eight feet tall and has purple skin. If his human body dies, he immediately changes to his demon form with full health.`,
+    text: `Ogre Demon Form of General Dee
+Defenses: Hardiness 9, Evade 5, Parry 8, Stealth 7, Wits 6, Resolve 8
+Key Skills: Grapple: 2d10, Arm Strike: 2d10, Throw: 3d10, Kick: 2d10, Light Melee: 2d10, Medium Melee: 3d10, Heavy Melee: 3d10, Speed: 1d10, Muscle: 4d10, Endurance: 2d10, Detect: 3d10
+Max Wounds: 10
+Powers
+Qi Immunity: 25%.
+Qi Disruption: Ogre Demon attacks can disrupt Qi and blood flow.
+Beast Strength: x2.
+Might: Mighty physical attacks.
+Weakness: Snake Venom and Snake Skin.`
+  },
+  {
+    id: "c9generalqiang01",
+    name: "General Qiang",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `A former commander in the army of the Zhan Dao Empire, General Qiang led his men into the Ghezong River region in search of glory. They conquered the city of Dao-Yu and renamed it Rong-Yao. Qiang is an effective if tough leader, who has brought his city to new heights and established order in its streets.
+
+He is fond of his position, of the adoration and acclaim it brings him. He is kind to his friends and allies but ruthless against his foes. In particular, he despises the Nature Loving Monk sect, because it has a foothold among the beggars in Rong-Yao and he believes they seek to overthrow him. He also has a personal dislike of their disorderly ways. General Qiang is a handsome man with a strikingly tall and wide build.`,
+    text: `General Qiang
+Defenses: Hardiness 10, Evade 3, Parry 5, Stealth 6, Wits 7, Resolve 8
+Key Skills: Grapple: 2d10, Arm Strike: 2d10, Throw: 1d10, Kick: 2d10, Light Melee: 1d10, Medium Melee: 2d10, Heavy Melee: 3d10, Small Ranged: 2d10, Large Ranged: 3d10, Speed: 2d10, Muscle: 3d10, Endurance: 3d10, Meditation: 3d10, Command: 3d10, Persuade: 2d10, Detect: 3d10, Martial Disciplines (Waijia and Neigong): 2d10, Institutions (Imperial Bureaucracy and Sects): 3d10, Languages (Li Fai): 2d10, Languages (Daoyun): 3d10, Languages (Hai'anese): 3d10, Classics (The Sayings of Kong Zhi): 2d10
+Qi: 5
+Max Wounds: 11
+Weapons: Qiang, Dao
+Reputation: Kind-Cruel
+Key Kung Fu Techniques (Waijia 2, Neigong 2): Breath of Fury, Calm of Sunan, Gaze of the Lion, Heart Smashing Palm, Iron Spirit, Mighty Paws of the Lion, Naga Palm, Spearing Blade, Spear of the Infinite Emperor, Spear Swipe, Storm of Arrows, Swift Rebuttal (Counter), Iron Body (Counter)`
+  },
+  {
+    id: "c9gentledemon001",
+    name: "Gentle Demon",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Gentle Demon is broad shouldered, tall and has a robust physique. He has a reputation for being outrageous and shameful, which he makes worse by deliberately shocking and provoking his enemies with words and deeds. However to those close to him he is true to his oaths, a good ally who remembers his friends. A vegetarian, Gentle Demon will not tolerate even minor mistreatment of animals or even insects.
+
+He wears his hair long but slightly unkempt. His wide smile can be either soothing or terrifying depending on his mood. He is a master scholar, poet, and painter, but also a creature filled with boundless rage against those who wrong him or stand in his way. Gentle Demon is unique for his ability to speak and read every known language with near perfection.
+
+Gentle Demon took over Zhe Valley thirty years ago when he united Water and Thorn sect against Canyon and Zhe River sect. Since then he has ruled without question, and officially retired from the martial world to pursue the arts. He also married Huifing, a former member of the Tree-Dwelling Nun sect. Their love is genuine but rumors of sorcery on Zhe Ling's part has caused the Tree-Dwelling Nuns to regard the marriage as forced. There are also rumors that Huifing is a Fox Demon.
+
+Not the greatest Martial Hero, Zhe Ling often relies on rituals to supplement his lack of martial ability. When he does fight, he prefers to use the Guan Dao.`,
+    text: `Gentle Demon
+Defenses: Hardiness 8, Evade 3, Parry 8, Stealth 6, Wits 8, Resolve 6
+Key Skills: Grapple: 3d10, Throw: 2d10, Arm Strike: 3d10, Leg Strike: 1d10, Light Melee: 2d10, Medium Melee: 2d10, Heavy Melee: 3d10, Small Ranged: 1d10, Meditation: 3d10, Ritual (Zhe Valley Heart): 3d10, Ritual (Green Guardian): 3d10, Ritual (Curse of the Spirit): 2d10, Medicine: 2d10, Talent (Painting and Poetry): 3d10, Speed: 2d10, Muscle: 3d10, Athletics: 2d10, Languages (All): 3d10, Read Script (All): 3d10
+Qi: 5
+Max Wounds: 11
+Weapons: Guan Dao (5d10 Damage), Ji (6d10 Damage)
+Reputation: Shameful-Kind
+Key Kung Fu Techniques (Waijia 1, Qinggong 1, Neigong 1, Dianxue 1): Blasting Blade, Breath of Fury, Double Thrust, Drift of the Butterfly Fish, Flight of the Hawk, Intercepting Arrow, Iron Foot Stance, Iron Spirit, Spearing Blade, Zhe Valley Blade, Zhe Valley Fist, Weapon Stride (Counter), Iron Spirit Reversal (Counter), Intercepting Arrow (Counter), Hands of the Hawk Beak (Counter)`
+  },
+  {
+    id: "c9saltwellnua001",
+    name: "Goddess of the Salt Wells",
+    type: "monster",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Nua was once a great Martial Hero, possibly a member of Heiping sect, though she has forgotten most of her past. She transformed into a Water/Snake Spirit while seeking revenge against members of Dehua sect who had wronged her. She now resides in the salt wells of Heiping Mountain where local Zun people, particularly Yipu village, worship her and give her sacrifices.`,
+    text: `Goddess of the Salt Wells
+Defenses: Hardiness 8, Evade 6, Parry 6, Stealth 10, Wits 6, Resolve 8
+Key Skills: Grapple/Constrict: 3d10, Bite: 2d10 (Poison), Throw: 1d10, Arm Strike: 3d10, Leg Strike: 1d10, Light Melee: 2d10, Medium Melee: 3d10, Heavy Melee: 2d10, Small Ranged: 1d10, Meditation: 3d10, Medicine: 2d10, Speed: 6d10, Fly: 6d10, Swim: 6d10, Muscle: 2d10, Athletics: 2d10
+Qi: 4
+Max Wounds: 13
+Key Kung Fu Techniques (Waijia 1, Qinggong 1, Neigong 1, Dianxue 1): Blasting Blade, Breath of Fury, Drift of the Butterfly Fish, Eight Divine Snakes, Flight of the Hawk, White Flower Palm, Iron Spirit Reversal (Counter), Weapon Stride (Counter), Hands of the Hawk Beak (Counter), Intercepting Arrow (Counter)
+Powers
+Immunities: Immune to mundane attacks, only susceptible to magic and Kung Fu Techniques.
+Constrict: Constricting attack.
+Bite: Bite does 1d10 Damage and Poison.
+Poison: Snake Spirit Venom.`
+  },
+  {
+    id: "c9goldenroc00001",
+    name: "Golden Roc",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Yanshi is a stout man in his mid-40s, who lives in the western cliffs of Mount Peng, where his only companions are the local Rocs. A master of internal Qi, Yanshi is known for his powerful Five Fist Techniques and his ability to pulverize stone.
+
+His personality and demeanor is impassive and without compassion. It is rumored he was once more inclined to mercy and passion, but his heart was crushed by a lover, of whom he never speaks, and so he set out to make it strong like stone. While he rarely teaches his Techniques to students he regards laughter as the only genuine and permissible emotion, and will teach one Technique to anyone who makes him laugh.`,
+    text: `Golden Roc
+Defenses: Hardiness 10, Evade 3, Parry 5, Stealth 6, Wits 6, Resolve 8
+Key Skills: Grapple: 2d10, Throw: 3d10, Arm Strike: 3d10, Leg Strike: 2d10, Light Melee: 1d10, Medium Melee: 1d10, Heavy Melee: 3d10, Small Ranged: 1d10, Speed: 0d10, Muscle: 3d10, Creatures (Animals): 3d10
+Qi: 5
+Max Wounds: 11
+Weapons: Fists (3d10 Damage due to Fists of Steel Expertise)
+Expertise: Fists of Steel
+Reputation: Calm-Trustworthy
+Key Kung Fu Techniques (Waijia 1, Neigong 3): Clutch of the Hawk, Fifth Fist of Yanshi, First Fist of Yanshi, Fourth Fist of Yanshi, Hidden Fist of Yanshi, Second Fist of Yanshi, Third Fist of Yanshi, Grasp of the Python (Counter)`
+  },
+  {
+    id: "c9greenguard0001",
+    name: "Green Guardian",
+    type: "monster",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `The Green Guardian was once a man, but now his body and face are covered in soil, moss, and Zhe Valley chrysanthemums. This allows him to blend in and surprise foes. He wields a Dao and carries a belt of 8 daggers.
+
+The Green Guardian is intelligent but has no memories of his past and cannot speak. He is devoted to protecting Zhe Valley from unwanted intruders and spends most of his time guarding the eastern pass leading into the valley.`,
+    text: `Green Guardian
+Defenses: Hardiness 8, Evade 5, Parry 9, Stealth 6 (10 in forest or greenery), Wits 6, Resolve 10
+Key Skills: Grapple: 2d10, Throw: 2d10, Arm Strike: 2d10, Leg Strike: 2d10, Light Melee: 2d10, Medium Melee: 3d10 or 2d10 with Ox Tail Dao, Heavy Melee: 3d10, Small Ranged: 1d10, Medicine: 2d10, Speed: 3d10, Muscle: 2d10, Athletics: 3d10
+Qi: 4
+Max Wounds: 13
+Weapons: Daggers (2d10 Damage), Ox Tail Dao (4d10 Damage, -1d10 Accuracy)
+Key Kung Fu Techniques (Waijia 2, Qinggong 2): Blasting Blade, Drift of the Butterfly Fish, Flight of the Hawk, Great Stride, Intercepting Arrow, Slashing Blade, Storming Daggers, Sword Whipping Strike, Tree Bounding Stride, Weapon Stride (Counter), Whirling Dodge (Counter)
+Powers
+Harming Touch: With a single attack, using Arm Strike against resisting targets, the Green Guardian causes 3 Wounds. He uses his right hand to harm.
+Heal Self: To heal, the Green Guardian simply fades into the soil for one hour, emerging fully recovered. If killed, he dissipates into the soil and takes 30 days to repair himself.
+Healing Touch: With a single attack, using Arm Strike against resisting targets, the Green Guardian heals 1 Wound. This cannot be used on himself. He uses his left hand to heal.`
+  },
+  {
+    id: "c9headmastermu01",
+    name: "Headmaster Mu",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Headmaster Mu is a eunuch and scholar, as well as the present headmaster of Golden Grotto Academy. He castrated himself when Lady Tao promised him the Merciless Willow Manual, only to learn she had deceived him. He fled to Chen and has been plotting his revenge ever since, learning a variety of Yen-Li Rituals to aid him. For more information on Headmaster Mu see Chapter Thirteen: Ghosts from the Ashes.`,
+    text: `Headmaster Mu
+Defenses: Hardiness 3, Evade 3, Parry 6, Stealth 6, Wits 9, Resolve 6
+Key Skills: Grapple: 1d10, Throw: 1d10, Arm Strike: 2d10, Leg Strike: 1d10, Light Melee: 2d10, Medium Melee: 1d10 (3d10 with Jian), Heavy Melee: 1d10, Small Ranged: 0d10, Speed: 2d10, Muscle: 1d10, Athletics: 1d10, Meditation: 3d10, Talent (Tattooing): 2d10, Ritual (Western Heavens): 3d10, Ritual (Petition to the Five Ghosts): 2d10, Ritual (Tattoo of the Demon King): 3d10, History (Era of the Demon Era): 3d10, History (Era of the Five Kingdoms): 3d10, History (Era of the Dutiful State): 2d10, History (Era of 100 Pieces): 3d10, Religion (Dehua): 3d10, Religion (Yen-Li): 3d10, Classics (All): 3d10
+Qi: 3
+Max Wounds: 7
+Weapons: Jian (2d10 Damage, +2d10 to Attack)
+Reputation: Righteous-Vengeful
+Key Kung Fu Techniques (Waijia 1, Qinggong 1, Neigong 1, Dianxue 1): Blasting Blade, Calm of Sunan, Drift of the Butterfly Fish, Inverted Three-Point Strike, Sword Stance, Three-Point Strike`
+  },
+  {
+    id: "c9heartlessdog01",
+    name: "Heartless Dog",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Kang is a Martial Hero whose true motivations are hidden behind a fog of drunkenness. While on the surface he seems to seek only money, wine and violence, his true goal is redemption. He drinks heavily to bury the pain of his past, where inaction cost his family dearly. Now, with the aid of alcohol, he acts without thinking of consequences and often without caring for them.
+
+A known follower of Red Claw Demon, he has acted as an enforcer for the crime boss and muscle for his Sifu, Strange Phoenix. The heavy drinking has caused Kang to hallucinate a young girl named Lily Blossom, who follows him around. He has been known to abandon tasks or stand back from a fight if he feels Lily is in danger. The Heartless Dog has become friendly with the Nature Loving Monks and the Purple Cavern sect.`,
+    text: `Heartless Dog
+Defenses: Hardiness 7, Evade 5, Parry 6, Stealth 6, Wits 6, Resolve 7
+Key Skills: Arm Strike: 1d10, Leg Strike: 2d10, Grapple: 2d10, Light Melee: 1d10, Medium Melee: 2d10, Gun Staff Expertise: 1d10, Athletics: 2d10, Muscle: 2d10, Medicine: 1d10, Meditation: 1d10, Talent (Theft): 1d10, Talent (Poisons): 1d10, Survival (Plains): 1d10, Survival (Wilderness): 1d10, Persuade: 1d10, Deception: 1d10, Detect: 2d10 (Glance +1d10), Creatures (Monsters): 1d10, Creatures (Demons): 1d10, Institutions (Sects): 1d10, Institutions (Criminal Underground): 1d10, Language (Khubsi): 1d10, Read Script (Khubsi): 1d10, Read Script (Red Claw Gang): 1d10
+Qi: 3
+Max Wounds: 7
+Weapons: Gun Staff (Wood), Dagger (x2)
+Armor: Leather Lamellar
+Equipment: Two wine jugs
+Combat Technique: Drunken Fighter
+Reputation: Reckless-Ferocious
+Key Kung Fu Techniques (Waijia 2, Qinggong 1, Neigong 1): Blasting Blade, Dip of the Drunken Snake, Dog Bashing Stick, Somersault of the Drunken Monkey, Stance of the Drunken Cat, Tai Lan's Staff Strike, Horizontal Sidestep (Counter), Clutch of the Hawk (Counter)
+Powers
+Wine Spitting: Kang is known to spit wine in a form of untrained Divination and will abide by the results almost religiously, no matter what they are.`
+  },
+  {
+    id: "c9ironskymaid001",
+    name: "Iron Sky Maiden",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `The Iron Sky Maiden is an immortal who was born hundreds of years ago during the era of the Eastward Bound Invaders in the Kushen Basin at a small and forgotten Kailin oasis village. She had visions at an early age and was a gifted astrologer. At 18, she sensed signs of an impending disaster when a large stone mound appeared slowly over the course of days. The rest of the village interpreted this as a good sign, while she knew it meant death for her people.
+
+She went to the Banyan to train at Sun Mai Temple in hopes of gaining the power to defeat what was to come. In her absence a face appeared upon the stone mound and the people of her village began to worship it. What they did not realize was this was a fragment of Yao-Feng and formed a gate to a pocket realm he had created as a contingency measure during his reign. In her travels she met Hen-Shi and Xian Nu Shen who gave her the Sky Lantern of the Blue Heart.
+
+The Iron Sky Maiden returned to her village with a group of heroes she had befriended called the Seven Blood Brothers and drove back Yao-Feng's forces just as they began to exit the gate. She then stormed into the pocket realm and used the Sky Lantern of the Blue Heart to subdue its Ogre Demons. Hen-Shi then taught her and her companions the secrets of Immortality, giving her control of the pocket realm, which she named Infinite Sky Realm, and making her its Queen.
+
+Iron Sky Maiden appears as a tall woman with a lean but athletic frame who still dresses in traditional Kailin fashion. The only weapon she carries is a fan, but she also possesses the Sky Lantern of the Blue Heart which she can absorb into her body for holding but release at will.`,
+    text: `Iron Sky Maiden
+Defenses: Hardiness 9, Evade 6, Parry 9, Stealth 6, Wits 6, Resolve 9
+Key Skills: Grapple: 3d10, Arm Strike: 4d10, Leg Strike: 5d10, Light Melee: 6d10 or 7d10 with Metal Fan, Medium Melee: 2d10, Speed: 4d10, Fly: 5d10, Muscle: 4d10, Endurance: 2d10, Ride (Horse): 3d10, Meditation: 5d10, Divination: 6d10, Command: 6d10, Detect: 3d10, Read Scripts (All): 3d10, Languages (Kushen): 3d10, Language (Daoyun): 2d10, Qi Ritual (Celestial Mind): 4d10, Ritual (Demon Binding): 5d10, Talent (Sing): 5d10, Religion (All): 4d10, Institutions (Bureaucracy of Heaven): 4d10
+Qi: 22
+Max Wounds: 45
+Weapons: Metal Fan (5d10 Damage)
+Expertise: Light Melee-Fan
+Combat Technique: Light Melee-From The Shadows
+Key Kung Fu Techniques (Waijia 2, Qinggong 1, Neigong 1, Dianxue 1): Clutch of the Hawk, Eagle Descends Loudly, Encompassing Emerald of Sun Mai, Flying Swan Kick, Gust of the Fan Blade, Hands of the Hawk Beak, Iron Body, Iron Spirit, Sun Mai Sword, Trapping Wind, Iron Spirit Resistance (Counter), Iron Spirit Reversal (Counter)
+Profound Techniques: Celestial Mind Technique, Dreams of the Infinite Sky Realm, Great Transference
+Powers
+All Standard Techniques: Iron Sky Maiden knows all of the standard Techniques in the rulebook.
+Insight - Death and Life are the Same: Insight possessed by Iron Sky Maiden.
+Insight - Profound Awareness: Insight possessed by Iron Sky Maiden.
+Control Weather: Iron Sky Maiden can control the weather and create powerful winds with her fan.
+Kung Fu Mastery: Iron Sky Maiden has an extra rank in Waijia.
+Timeless Dream: This can place a settlement outside of time.
+Empathic Link: Can communicate with anyone through her statue in Kwam Metta in the Pagoda of Golden Mercies. This can even work outside her Realm but every exchange requires a month of rest.`
+  },
+  {
+    id: "c9ironclawlion01",
+    name: "Iron-Clawed Lion",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Iron-Clawed Lion is a man in his early fifties and the King of Majestic Lion cult. Despite his age and graying hair, he is robust and looks healthy. He is loud, boastful, and above all has a powerful appetite for bloodshed. Whereas some masters see killing and death as an unfortunate necessity, he sees them as the purpose of existence. Iron-Clawed Lion lives for three things: killing, admiring beautiful women, and revelry.
+
+Presently he seeks to kill the leader of Hai'an sect and to master the Majesty of the Lion Technique. Though he practices Kung Fu regularly, Iron-Clawed Lion has plateaued because he focuses too much on aggression and lacks the creativity to grow. His development has also been delayed by regular disruptions and attacks from Mount Hai'an sect.
+
+Iron-Clawed Lion has always liked violence and killing. As a young man in Zun City learning Kung Fu, he could not wait to practice his skills on the other local children. His Sifu eventually rejected him and banished Iron-Clawed Lion from Zun City. He fell in with local bandits and thoroughly enjoyed the life this afforded him. When he turned twenty he was almost killed when a great Martial Expert named Soft Dragon speared him through the belly while Iron-Clawed Lion's gang tried to rob him. Soft Dragon killed the entire gang and spared Iron-Clawed Lion, taking him to Majestic Lion cult palace.
+
+When he assumed leadership of the cult, Iron-Clawed Lion decided he must be married so he proposed to Jinghui, the leader of Mount Hai'an. Days before the wedding, he was introduced to Lady Xiang who was even more beautiful than Jinghui. He married her instead and sent a formal letter to Jinghui rescinding his original proposal. Jinghui responded by killing Lady Xiang one year after the wedding. He has a daughter named Fearless Cat who is a member of his sect, though he has kept her identity secret to protect her from Jinghui.`,
+    text: `Iron-Clawed Lion
+Defenses: Hardiness 8, Evade 3, Parry 7, Stealth 6, Wits 6, Resolve 8
+Key Skills: Arm Strike: 3d10, Leg Strike: 2d10, Grapple: 3d10, Throw: 2d10, Light Melee: 1d10, Medium Melee: 2d10, Heavy Melee: 3d10, Small Ranged: 1d10, Athletics: 2d10, Speed: 1d10, Muscle: 3d10, Endurance: 3d10, Medicine: 1d10, Command: 3d10, Meditation: 2d10, Talent (Singing): 0d10, Talent (Poetry): 2d10, Talent (Painting): 1d10, Religion/Gods (Majestic Lion Cult): 3d10, Detect: 2d10, Meditation: 3d10, Language (Daoyun): 3d10, Language (Khubsi): 2d10, Languages (Singh): 1d10, Read Script (Feishu): 3d10, Read Script (Yoshaic): 1d10, Read Script (Majestic Lion Cult): 3d10
+Qi: 4
+Max Wounds: 9
+Weapons: Iron Claw (3d10 Damage)
+Reputation: Ferocious-Cruel
+Key Kung Fu Techniques (Waijia 1, Qinggong 1, Neigong 2): Absorbing Palm, Breath of Fury, Curing Palm, Fierce Strike, Fluttering Kicks, Gaze of the Lion, Hands of the Hawk Beak, Lion at Rest Stance, Merciless Black Claw, Mighty Paws of the Lion, Pounce of the Lion, Roar of the Lion, Swift Pounce of the Cheetah, Iron Spirit Resistance (Counter), Spinning Back Kick (Counter), Graceful Retreat (Counter), Grasp of the Python (Counter), Deflecting Canopy (Counter)`
+  },
+  {
+    id: "c9jadebutterfly1",
+    name: "Jade Butterfly",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Jade Butterfly is a free spirited hero with a mysterious past. Though she gravitates toward the unorthodox and has many allies among the unorthodox sects, she is kind and considered a protector among the people living in the Southern Banyan. In particular she has a soft spot for the Zun who live in the mountains and forests near her cave.
+
+Though she ventures into the cities occasionally her home is the wilderness. Among her enemies there is a rumor that she is a water demon or butterfly fish spirit, but this is untrue. Jade Butterfly is good friends with Shan Lushan, the leader of Zhaoze sect, and Abbess Xiong-Hua, leader of the Tree-Dwelling Nun sect.`,
+    text: `Jade Butterfly
+Defenses: Hardiness 3, Evade 8, Parry 9 (10 with Butterfly Sword), Stealth 6, Wits 6, Resolve 8
+Key Skills: Grapple: 2d10, Arm Strike: 3d10, Throw: 2d10, Kick: 3d10, Light Melee: 3d10 or 4d10 with Butterfly Swords, Medium Melee: 3d10, Heavy Melee: 2d10, Swim: 3d10, Athletics: 3d10, Speed: 3d10, Muscle: 1d10, Endurance: 1d10, Meditation: 3d10, Detect: 2d10, Persuade: 2d10, Deception: 3d10, Language (Daoyun): 3d10, Read Script (Feishu): 3d10, Language (Hai'anese): 3d10, Institutions (Sects): 3d10, Survival (Sea): 3d10, Survival (Wilderness): 3d10, Talent (Flute): 3d10, Talent (Sing): 2d10, Ritual (Spirit Keeping): 3d10, Ritual (Zun Forest Shaping): 2d10, Ritual (Song of Gu): 1d10
+Qi: 5
+Max Wounds: 11
+Weapons: Butterfly Swords (2d10 Damage, +1d10 Accuracy), Daggers (1d10 Damage)
+Reputation: Kind-Unorthodox
+Key Kung Fu Techniques (Waijia 1, Qinggong 2, Neigong 1): Absorbing Palm, Blast of the Dragon, Breath of Fury, Curing Palm, Drift of the Butterfly Fish, First Song of Shan Lushan, Flying Swan Kick, Phantom Phoenix Sword, Roar of the Lion, Shift of the Chameleon, Spearing Blade, Spinning Steel, Stick of the Rebounding Dog, Storming Daggers, Trapping Wind, Stern Rebuke of Heiping (Counter)`
+  },
+  {
+    id: "c9jadepriest0001",
+    name: "Jade Priestess",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Jade Priestess is a high-ranking member of the Demon Moon cult, being the High Priestess and just below Lord Moon in rank. She was born a man but identifies as a woman. She is tall but otherwise it is difficult to detect her birth gender. She dresses in fine silk waist skirts and robes, keeps her hair in a tall double bun adorned with Jade and gold, and wears a shawl embroidered with swans.
+
+Among the members of the Demon Moon cult she is highly respected and even among the orthodox sects she is perceived as the reasonable actor within the cult. Jade Priestess is kind by nature and abides by the Xia code even though many of her fellow sect members do not. She is particularly disdainful of Martial Experts who use their powers to harm or bully the weak. However she can be lethal and cunning when she needs to and when it serves the interests of the cult. Though she is a poisoner, Jade Priestess has been careful to conceal this from others, preserving her reputation.
+
+Much less cruel than Lord Moon, but loyal, Jade Priestess looks forward to the day when she can rightfully take over leadership of the cult and refashion it according to her own principles.`,
+    text: `Jade Priestess
+Defenses: Hardiness 8, Evade 4, Parry 8, Stealth 6, Wits 7, Resolve 6
+Key Skills: Grapple: 2d10, Throw: 3d10, Arm Strike: 3d10, Leg Strike: 2d10, Light Melee: 2d10, Medium Melee: 1d10, Heavy Melee: 3d10, Athletics: 1d10, Speed: 2d10, Muscle: 3d10, Endurance: 3d10, Meditation: 3d10, Detect: 2d10, Command: 1d10, Talent (Poison): 3d10, Talent (Disguise): 3d10, Deception: 3d10, Persuade: 3d10, Survival (Wilderness): 3d10, Ritual (Curse of the Spirit): 3d10, Ritual (Ritual of Boundless Perfection): 2d10, Ritual (Blood Offering of the Demon Emperor): 3d10, Creatures (Demons): 3d10, Religion (Yao-Feng): 3d10, Read Script (Demon Moon Cult): 3d10
+Qi: 4
+Max Wounds: 9
+Weapons: Butterfly Sword, Hands
+Reputation: Righteous-Untrustworthy
+Key Kung Fu Techniques (Waijia 1, Qinggong 1, Neigong 2): Arms of Silk, Jade Rending Claw, Life Stealing Blue Claw, Ringing Strike of the Divine Ram, Slashing Blade, Whirling Dodge (Counter), Illuminating Ice Claw (Counter), Deflecting Canopy (Counter)
+Powers
+Summon and Sense Animal Companions: The Jade Priestess is bonded with a Zhen Bird named Red Beak. She can see through its eyes and summon it at will. She can also command it to perform tasks.
+Transform: The Jade Priestess can transform into a crocodile.`
+  },
+  {
+    id: "c9jinghui000000",
+    name: "Jinghui",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Jinghui is the Sifu of Mount Hai'an sect. For the last thirty years of her life she has devoted the sect's energy to killing members of Majestic Lion cult and occasionally members of Mystic Sword. Jinghui is a beautiful woman in her late 50s who has an air of authority and might. Though her Kung Fu is not as good as many of the other masters, she is an effective leader and has earned the loyalty of all her disciples for her fairness and resourcefulness.
+
+Thirty years ago, Jinghui was engaged to Iron-Clawed Lion. At the time she admired his honesty and straight-forwardness, defending his reputation among the Orthodox sects. However he betrayed her, taking Lady Xiang as his lover and marrying her instead. Jinghui retaliated by killing Xiang one year after the wedding. This was not primarily an act of jealousy. Jinghui was angered because Iron-Clawed Lion's act tarnished her reputation and the reputation of her sect in the martial world; it was an act that demanded a life-long grudge.
+
+Now she views their conflict as a game of strategy in which she is the superior player. Her aim is to draw out the conflict for as long as possible to help thwart Iron-Clawed Lion's progress, so she can catch up to his abilities and face him in a duel.`,
+    text: `Jinghui
+Defenses: Hardiness 6, Evade 5, Parry 6, Stealth 6, Wits 7, Resolve 8
+Key Skills: Arm Strike: 2d10, Leg Strike: 3d10, Grapple: 2d10, Throw: 2d10, Light Melee: 3d10, Medium Melee: 0d10, Heavy Melee: 0d10, Small Ranged: 0d10, Athletics: 3d10, Speed: 3d10, Muscle: 2d10, Endurance: 3d10, Reasoning: 3d10, Command: 3d10, Persuade: 2d10, Deception: 1d10, Empathy: 3d10, Detect: 2d10, Meditation: 3d10, Medicine: 3d10, Divination: 2d10, Languages (Hai'anese): 3d10, Languages (Daoyun): 3d10, Read Script (Feishu): 3d10, Read Script (Mount Hai'an Sect): 3d10, Institutions (Sects): 2d10, Creatures (Spirits): 2d10, Creatures (Animals): 2d10, Creatures (Demons): 2d10, History (Era of the Demon Emperor): 3d10, History (Era of the Glorious Emperor): 3d10, History (Era of the Righteous Emperor): 3d10, Places/Cultures (Hai'an): 3d10, Places/Cultures (Dai Bien): 2d10, Places/Cultures (Zun River Valley): 3d10, Survival (Wilderness): 3d10, Survival (Mountains): 3d10, Martial Disciplines (All): 2d10, Talent (Calligraphy): 3d10, Classics (All): 2d10
+Qi: 3
+Max Wounds: 7
+Weapons: Unarmed, Fan
+Reputation: Trustworthy-Cunning
+Combat Technique: Fists of Steel
+Key Kung Fu Techniques (Waijia 2, Neigong 1, Dianxue 1): Breath of Fury, Breath of the Lotus Petal, Clutch of the Hawk, Eagle Descends Loudly, Elephant Stance, Finger Flick, Fluttering Kicks, Gust of the Fan Blade, Inverted Three Point Strike, Iron Spirit, Kick of the Golden Elephant, Nine Divine Snakes, Restoring Palm, Ringing Strike of the Divine Ram, Spinning Back Kick, Stone Shattering Finger, Three Point Strike, Deflecting Canopy (Counter), Swift Rebuttal (Counter), Iron Body (Counter), Iron Spirit Resistance (Counter)`
+  },
+  {
+    id: "c9kingqiangqing1",
+    name: "King Qiang Qing",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `King Qiang Qing is the ruler of Hai'an. He is a great admirer of music, perhaps to a fault. He spends much of his time listening to famous musicians and performing on the guzheng. He also believes he can detect disloyalty among his officials by listening to them play melodies on instruments or hearing them sing. Therefore he requires all members of the palace to gain musical proficiency. This caution sometimes serves him well but also isolates him further and further from the people.
+
+Though he lacks his father's charisma, he is perhaps braver than the former king, often leading his own men into battle against the advice of his inner circle. In matters of state, King Qiang Qing usually defers to his mother, Queen Ai Nu. However on some issues, like how to deal with disloyal members of his own family, he has shown greater mercy than she. The King has been known to take musical retreats for months, leaving his mother in charge in his absence.`,
+    text: `King Qiang Qing
+Defenses: Hardiness 7, Evade 4, Parry 7, Stealth 6, Wits 7, Resolve 8
+Key Skills: Arm Strike: 2d10, Leg Strike: 1d10, Grapple: 0d10, Throw: 0d10, Light Melee: 1d10, Medium Melee: 2d10, Heavy Melee: 1d10, Meditation: 2d10, Ritual (Spirit Keeping): 2d10, Ritual (Celestial Spirit Ritual): 2d10, Religion (Yen-Li): 3d10, Places (Hai'an): 3d10, History (Era of the Righteous Emperor): 2d10, Medicine: 2d10, Athletics: 2d10, Muscle: 1d10, Speed: 2d10, Endurance: 1d10, Command: 1d10, Persuade: 0d10, Deception: 1d10, Talent (Poetry): 3d10, Talent (Guzheng): 3d10, Talent (Flute): 3d10, Talent (Singing): 2d10, Talent (Painting): 2d10, Language (Hai'anese): 3d10, Language (Daoyun): 3d10, Read Script (Feishu): 3d10
+Qi: 4
+Max Wounds: 9
+Weapons: Jian, Unarmed
+Key Kung Fu Techniques (Waijia 2, Qinggong 1, Dianxue 1): Blasting Blade, Slashing Blade, Four-Point Touch, Drift of the Butterfly Fish, White Flower Palm, Phoenix Star Strike, Whirling Dodge (Counter)`
+  },
+  {
+    id: "c9ladyplumblos01",
+    name: "Lady Plum Blossom",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Lady Plum Blossom is the leader of Purple Cavern sect and a former member of the Golden Dragons. In her old sect she was known as Lady Sapphire, one of its six leading masters. After having a physical relationship with Master Emerald, she was dismissed from the order thirty years ago. Later Master Emerald informed her that his position in the sect meant more than their love, though this was really Bronze Master in disguise. Had the Golden Dragon sect also punished Master Emerald, it would have ended there, but they chose not to for their own reasons. This planted the seed of a grudge that remains to this day.
+
+Lady Plum Blossom dedicated herself to training and became one of the greatest and most feared masters in Qi Xien, perhaps the greatest. She trained and scavenged the globe for secret manuals, developing her own style on top of what she had learned from the Golden Dragon sect. Before she left, she also stole the Dragon Manual, and learned most of its contents. She then established her own organization called the Purple Cavern sect. In many ways Purple Cavern is a mirror to the Golden Dragons, with a particular dislike of hypocrisy and an abiding pledge to help the downtrodden avenge grudges. In pursuit of martial perfection, Lady Plum Blossom accepted poison use as necessary.
+
+Though the leader of an unorthodox sect with a reputation for poison use, Lady Plum Blossom genuinely believes in the principles she espouses and in the honorable history of the Golden Dragons. She places most of her focus on Sunan and Bao, adhering to the core ideals of Righteousness, Bravery, Reciprocity and Altruism. One of the chief things she believes in is helping the weak, particularly in helping them obtain justice.
+
+Since she was removed from Golden Dragon sect thirty years ago, Lady Plum Blossom has showed little sign of aging due to the Jade Maiden found in the Purple Cavern sect Headquarters. Lady Plum Blossom has also moved away from Dehua and toward Yen-Li since her departure. Her favored student is Xiu, whom she views as a daughter, and she has a pet pearl tiger named Yan Shun.`,
+    text: `Lady Plum Blossom
+Defenses: Hardiness 9, Evade 4, Parry 8, Stealth 6, Wits 7, Resolve 7
+Key Skills: Grapple: 2d10, Throw: 3d10, Arm Strike: 3d10, Leg Strike: 2d10, Light Melee: 3d10, Medium Melee: 3d10 or 5d10 with Jian, Small Ranged: 1d10, Athletics: 2d10, Swim: 3d10, Speed: 3d10, Muscle: 3d10, Endurance: 2d10, Meditation: 3d10, Ritual (Ancestor Veneration): 3d10, Ritual (Spirit Keeping): 2d10, Ritual (Celestial Spirit): 2d10, Ritual (Song of Gu): 2d10, Medicine: 3d10, History (Era of the Demon Emperor): 3d10, Martial Disciplines (All): 3d10, Institutions (Sects): 3d10, Read Script (Feishu): 3d10, Read Script (Purple Cavern Sect): 3d10, Religion (Qi Zhao, Dehua): 2d10, Religion (Yen-Li): 3d10, Talent (Poison): 3d10, Talent (Singing): 2d10, Detect: 3d10, Command: 3d10, Languages (Li Fai): 3d10, Languages (Daoyun): 3d10, Languages (Hai'anese): 3d10, Creatures (Demons): 3d10, Creatures (Spirits): 3d10
+Qi: 6
+Max Wounds: 13
+Weapons: Fly-whisk (3d10 Damage, -1d10 Accuracy), Jian (4d10 Damage, +2d10 Accuracy)
+Expertise: Fly-whisk
+Combat Technique: Deflect (Medium and Light Melee)
+Reputation: Poisoner
+Key Kung Fu Techniques (Waijia 1, Qinggong 1, Neigong 1, Dianxue 1): Blast of the Dragon, Blood Letting Thorns, Breath of the Lotus Petal, Choking Lash of Lady Plum Blossom, Crushing Lash of Lady Plum Blossom, Drift of the Butterfly Fish, Fifth Fist of Yanshi, Flaming Dragon, Flight of the Hawk, Fourth Fist of Yanshi, Happy Strike of Laughing Fox, Heart Strike, I am the Arrow, Inverted Three-Point Strike, Lash of the Fly-whisk, Naga Palm, Nine Divine Snakes, Palm of the Dragon, Path of the Dragon, Phoenix Dragon Strike, Plum Blossom Palm, Red Claw Strike, Rising Dragon Stance, Spear of the Infinite Emperor, Sword Stance, Three-Point Strike, Venom of the Fly-whisk, Blade Pinch (Counter), Whirling Dodge (Counter)`
+  },
+  {
+    id: "c9ladywhiteblade",
+    name: "Lady White Blade",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Lady White Blade is the great-granddaughter of General Dou Lun, a hero of Northern Hai'an in the final days of the Civil War. Her mother was a member of Hai'an sect named Dou Li, who formed her own branch, the Mystic Sword sect but died of poisoning, presumably at the direction of Hai'an. Lady White Blade assumed the leadership of Mystic Sword sect when her mother died.
+
+Born Dou Lei, Lady White Blade earned her nickname because her temper and sword are said to strike with the ferocity of white lightning and because she is fond of white clothing. She is famously severe as a Sifu and sect leader, and has been known to maim students who displease her. On the other hand she can be quite maternal with her disciples, and even with her enemies, when they show the proper amount of respect.
+
+There are perhaps none in the martial world as vengeful as Lady White Blade. She acquires new grudges with ease and devotes considerable energy to satisfying existing ones. Lady White Blade considers herself the greatest Martial Hero in the world and will attack anyone who suggests she is not. Her two basic goals are the destruction of Hai'an sect and the restoration of Northern Hai'an.
+
+Lady White Blade has nearly the same facial features as Strange Phoenix, a member of Red Claw Gang, because Strange Phoenix is her long lost twin sister. She is unaware of this fact, though she has heard rumors of the alleged similarity.`,
+    text: `Lady White Blade
+Defenses: Hardiness 6, Evade 3, Parry 10, Stealth 6, Wits 6, Resolve 9
+Key Skills: Grapple: 2d10, Arm Strike: 2d10, Throw: 2d10, Kick: 3d10, Light Melee: 3d10, Medium Melee: 3d10 (6d10 with Jian or 2d10 with Ox Tail Dao), Heavy Melee: 3d10, Speed: 3d10, Muscle: 2d10, Endurance: 2d10, Athletics: 2d10, Meditation: 3d10, Command: 3d10, Detect: 2d10, Deception: 2d10, Ritual (Ancestor Veneration): 2d10, Language (Li-Fai): 3d10, Language (Hai'anese): 3d10, Language (Daoyun): 3d10, Read Scripts (Feishu): 3d10, Read Script (Mystic Sword Sect): 3d10, History (Era of the Glorious Emperor): 3d10
+Qi: 6
+Max Wounds: 13
+Weapons: Ox Tail Dao (4d10 Damage, -1d10 Accuracy), Jian (3d10 Damage, +2d10 Accuracy)
+Expertise: Medium Melee-Jian
+Reputation: Righteous-Cruel
+Flaws: Foul-tempered
+Key Kung Fu Techniques (Waijia 3, Qinggong 1): Lady White Blade's Bursting Charge, Blade Pinch, Blasting Blade, Flight of the Hawk, Grudge Bearing Sword Strike, Phantom Phoenix Sword, Slicing Blade of the Flying Phantoms, Spearing Blade, Sword Whipping Strike, Slashing Blade, Swan Taming Strike, Weapon Hunts for Food, Whirling Dodge (Counter), Graceful Retreat (Counter), Horizontal Sidestep (Counter), Weapon Stride (Counter)`
+  },
+  {
+    id: "c9laughingfox001",
+    name: "Laughing Fox",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Laughing Fox is the mercurial leader of Temple of the Nine Suns sect. Now in his late 60s, he has commanded the sect for decades and always carries a bronze disc with him that symbolizes his authority. Laughing Fox looks to nature for guidance for signs sent by the sect's previous masters. Very recently he became convinced that the Wind Sabre of Sunan and the Phoenix Crown of Bao must be reunited and housed within their temple.
+
+Highly unpredictable and capable of ethical extremes, Laughing Fox meditates and reflects each morning to determine which mood and disposition is most suitable for the day. He then uses that as a basis for how he interacts with people, adopting a different persona each day.`,
+    text: `Laughing Fox
+Defenses: Hardiness 4, Evade 4, Parry 4, Stealth 7, Wits 10, Resolve 8
+Key Skills: Grapple: 3d10, Throw: 2d10, Arm Strike: 3d10, Leg Strike: 3d10, Light Melee: 1d10, Heavy Melee: 1d10, Small Ranged: 1d10, Athletics: 3d10, Speed: 3d10, Muscle: 2d10, Endurance: 3d10, Meditation: 3d10, Medicine: 3d10, Divination: 3d10, Empathy: 1d10, Language (Daoyun): 3d10, Read Script (Feishu): 3d10, Read Script (Temple of the Nine Suns): 3d10
+Qi: 4
+Max Wounds: 9
+Weapons: None
+Reputation: Truthful-Too Reckless
+Combat Technique: Fists of Steel
+Key Kung Fu Techniques (Waijia 1, Neigong 2, Dianxue 1): Absorbing Palm, Breath of Fury, Breath of the Lotus Petal, Calm of Sunan, Clutch of the Hawk, Curing Palm, Eagle Descends Loudly, Fluttering Kicks, Hands of the Hawk Beak, Happy Strike of Laughing Fox, Inverted Three-Point Strike, Kidney Strike, Restoring Palm, Three-Point Strike, Trapping Wind, Triple Yang Strike, Guiding the Crashing Wave (Counter), Iron Body (Counter)
+Powers
+Daily Persona: Roll 1d10 each day to determine Laughing Fox's persona: 1-2 Compassionate, 3-4 Merciless, 5-6 Calm and wise, 7-8 Playful and cunning, 9 Wicked and bloodthirsty, 10 Crazy.`
+  },
+  {
+    id: "c9littlevenom001",
+    name: "Little Venom",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `The daughter of the Venom of Zhaoze, Little Venom is a capable poisoner and follows in her father's footsteps. She is a dutiful daughter, looking forward to the day she can avenge her mother. Huo Ju respects and admires her father but has a softer heart than he. She can kill if she feels it is necessary or the person deserving, otherwise it is easy for her to show leniency.
+
+She is incredibly curious and easily befriends new people, though she remains cautious of dangerous behavior. In the presence of her father she feigns cruelty to placate him. Little Venom takes a slightly different approach from her father when it comes to fighting, preferring to dip needles in poison and use those instead of palm Techniques.`,
+    text: `Little Venom
+Defenses: Hardiness 4, Evade 4, Parry 5, Stealth 6, Wits 9, Resolve 7
+Key Skills: Grapple: 1d10, Arm Strike: 2d10, Throw: 0d10, Leg Strike: 2d10, Light Melee: 1d10, Medium Melee: 1d10, Heavy Melee: 0d10, Reasoning: 2d10, Speed: 3d10, Muscle: 1d10, Athletics: 2d10, Endurance: 1d10, Medicine: 1d10, Talent (Poison): 1d10, Survival (Wilderness): 2d10, Survival (Mountains): 1d10, Meditation: 2d10, Detect: 1d10, Languages (Li Fai): 3d10, Languages (Daoyun): 2d10, Languages (Hai'anese): 3d10
+Qi: 2
+Max Wounds: 5
+Weapons: Needles (with Spiny Toad Venom)
+Reputation: Poisoner
+Key Kung Fu Techniques (Waijia 1, Qinggong 1, Neigong 2): Cherry Blossom Palm, Drift of the Butterfly Fish, Leap of the Swan, Storming Needles, Iron Spirit Reversal (Counter), Spinning Back Kick (Counter)`
+  },
+  {
+    id: "c9longshu0000001",
+    name: "Long Shu",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Long Shu is a member of Purple Cavern sect who comes from Hai'an. He claims descent from a disowned part of the royal family and was sent away at a young age by his father. Raised by Purple Cavern sect during his teenage years, he also formed a bond with local Qi Zhao monks and learned a great deal from them. He is good friends with fellow disciples Xue Lingsu and Min.
+
+He decided that there cannot be good without evil, and that too much of either is the enemy of perfection. Even an evil tyrant can produce good by uniting heroes against him. Acceptance is but one part of growth, and perseverance is another essential ability to growth and improvement. He views his own life as a catalyst for these tenets, which can occasionally put him at odds with his own sect.`,
+    text: `Long Shu
+Defenses: Hardiness 4, Evade 3, Parry 7, Stealth 7, Wits 8, Resolve 7
+Key Skills: Arm Strike: 2d10, Throw: 2d10, Light Melee: 1d10, Medium Melee: 3d10 (Gun Staff), Swim: 3d10, Athletics: 2d10, Speed: 1d10, Muscle: 2d10, Ride: 1d10, Meditation: 1d10, Medicine: 2d10, Talent (Sculpting): 1d10, Trade (Wood): 1d10, Detect: 1d10, Persuade: 2d10, Deception: 3d10 (Tall Tales), Empathy: 1d10, Language (Daoyun): 3d10, Read Script (Sai): 1d10, Read Script (Purple Cavern): 2d10, History (Demon Emperor): 1d10, Institutions (Imperial Bureaucracy): 2d10, Institutions (Criminal): 1d10, Religion (Qi Zhao): 1d10
+Qi: 4
+Max Wounds: 9
+Weapons: Metal Gun Staff with retracting spear point (treat as gun staff but Sharp when using point), Dagger, Blue Thunder
+Expertise: Deception-Tall Tales
+Reputation: Righteous-Untrustworthy
+Key Kung Fu Techniques (Waijia 1, Qinggong 1, Neigong 1, Dianxue 1): Blast of the Dragon, Deflecting Canopy, Great Stride, I am the Arrow, Plum Blossom Palm, Reclining Stick Stance, Spear of the Infinite Emperor, Whirling Dodge (Counter)`
+  },
+  {
+    id: "c9luzhi000000001",
+    name: "Lu Zhi",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Lu Zhi is the leader of Heiping sect and the daughter of its former Queen, Lu Feiyan. Her adopted mother was killed by the Witch of Zhaoze Zhou over the Wind Sabre of Sunan and she has sworn to retake the blade and kill Lu Feiyan's murderer. Lu Zhi is strict with her disciples, almost cruel when they fall out of line, but gentle when they are obedient.
+
+Lu Zhi is in her late thirties and has led the sect since she was 23. This has impeded her ability to reach her full potential, as many of the sect's key Techniques died with Lu Feiyan. Still she is a highly regarded master in the martial world and known for her unbending will. Queen Lu Zhi often uses her spear instead of her Jian for sword-based Kung Fu Techniques, taking the -1d10 penalty when appropriate.`,
+    text: `Lu Zhi
+Defenses: Hardiness 3, Evade 3, Parry 9, Stealth 8, Wits 6, Resolve 9
+Key Skills: Grapple: 0d10, Arm Strike: 2d10, Throw: 0d10, Kick: 2d10, Light Melee: 0d10, Medium Melee: 3d10, Heavy Melee: 3d10, Speed: 2d10, Muscle: 2d10, Endurance: 1d10, Athletics: 1d10, Meditation: 3d10, Detect: 1d10, Divination: 2d10, Ritual (Ancestor Veneration): 3d10, Religion (Dehua): 3d10, Creatures (Spirits): 3d10, Creatures (Demons): 2d10, Language (Daoyun): 3d10, Language (Li Fai): 3d10, Language (Hai'anese): 3d10, Read Script (Feishu): 3d10, Read Script (Heiping Sect): 3d10, Classics (The Sayings of Kong Zhi): 3d10, Classics (Book of Fortunes): 2d10
+Qi: 4
+Max Wounds: 9
+Weapons: Spear, Jian
+Expertise: Heavy Melee-Qiang (Spear)
+Reputation: Pure-Vengeful
+Key Kung Fu Techniques (Waijia 2, Qinggong 1, Neigong 1): Arms of Silk, Blade Pinch, Blasting Blade, Double Thrust, Drift of the Butterfly Fish, Endless Arc of Spear, Grasp of the Python, Kick of the Swan, Leap of the Swan, Ringing Strike of the Divine Ram, Ringing Strike of the Hand, Rising Swan Stance, Slashing Blade, Spear of the Infinite Emperor, Spear Swipe, Stone Shattering Finger, Swan Taming Strike, Sword Whipping Strike, Clutch of the Hawk (Counter), Graceful Retreat (Counter), Horizontal Sidestep (Counter), Stern Rebuke of Heiping (Counter), Weapon Stride (Counter)`
+  },
+  {
+    id: "c9madamehamaya01",
+    name: "Madame Hamaya",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Owner of the Fragrant Petal, Madame Hamaya is a skilled Martial Hero and musician. She is allies with Master Ta, and often brings information about clients to him. She also uses the Fragrant Petal as a front for an assassination service.
+
+Madame Hamaya came from a prestigious family in Hai'an but narrowly escaped death at a young age when disciples of Perfect Heaven Lineage sect murdered her mother and father after they were discovered to have dealings with agents of Emperor Zhan. All she knows about her father's death is it involved the Four Finger Manual. She spent her early years in Zun City surviving as a con artist and performer. Over the years she persuaded many wandering Sifu to instruct her in Kung Fu. Her natural ability to read people enabled her to gain their trust and learn many secrets of the martial world. This information was often more valuable than the Kung Fu they taught her.
+
+Because she was able to move so easily between different levels of society, a notable assassin named Whispering Tail took her as his student. They shared a mutual hatred of Hai'an and she greatly refined her skills under his tutelage. They established the Fragrant Petal together, using it as a cover for their assassination services. Whispering Tail died last year after he assassinated King Qiang Lun of Hai'an. While rumors circulated that he had been hired by a member of the King's family, the act was actually a display of affection for Madame Hamaya. He was the only person Madame Hamaya considered worthy of her admiration and now measures all people against his memory.
+
+Madame Hamaya is friendly with Dancing Hawk, the son of Master Ta. He loves her, but she does not reciprocate, though she is happy to use his desires to her advantage. She no longer wants revenge against Hai'an, as Whispering Tail obtained it on her behalf. However she is still wary of anyone from Hai'an, rarely allowing them into her establishment. Above all, she wants the Four Finger Manual because she wants to know what her family died for.`,
+    text: `Madame Hamaya
+Defenses: Hardiness 3, Evade 3, Parry 7, Stealth 10, Wits 8, Resolve 6
+Key Skills: Grapple: 1d10, Throw: 0d10, Arm Strike: 2d10, Leg Strike: 2d10, Light Melee: 3d10, Medium Melee: 1d10, Heavy Melee: 0d10, Small Ranged: 1d10, Speed: 3d10, Muscle: 1d10, Medicine: 3d10, Survival (Wilderness): 2d10, Reason: 2d10, Persuade: 3d10, Deception: 2d10, Empathy: 3d10, Talent (Guzheng): 3d10, Talent (Flute): 3d10, Talent (Singing): 2d10, Talent (Poetry): 2d10, Talent (Poison): 2d10, Languages (Daoyun): 3d10, Languages (Hai'anese): 3d10, Read Script (Feishu): 3d10, Institutions (Sects): 3d10, Places/Cultures (Dai Bien): 2d10, Places/Cultures (Zun River Valley): 3d10, Places/Cultures (Hai'an): 2d10
+Qi: 4
+Max Wounds: 9
+Weapons: Fan, Jian
+Reputation: Kind-Shameful
+Flaws: Secret
+Key Kung Fu Techniques (Waijia 1, Qinggong 2, Dianxue 1): Arms of Silk, Dancing Hawk Sword Stance, Drift of the Butterfly Fish, Great Stride, Gust of the Fan Blade, Heart Strike, Inverted-Three Point Strike, Kick of the Golden Elephant, Leap of the Swan, Storming Needles, Swift Pounce of the Cheetah, Deflecting Canopy (Counter), Intercepting Arrow (Counter)`
+  },
+  {
+    id: "c9makchingyuen01",
+    name: "Mak Ching Yuen",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `This is a husband and wife who formed their own Yen-Li lineage called Bright Sun. They formerly belonged to the Golden Sword lineage but left when they discovered one of the priests trying to petition the Five Ghosts. Now they roam the Banyan aiding the poor and eliminating evil spirits. Mak Ching Yuen is surprisingly nimble and a skilled swordsman. He is good in a fight but also an expert exorcist. Lau Ching Sin knows minimal martial arts but is incredibly cunning and knowledgeable. They like to say that he is the soldier and she is the general. Both use the title Ritual Master.`,
+    text: `Mak Ching Yuen
+Defenses: Hardiness 7, Evade 5, Parry 5, Stealth 8, Wits 6, Resolve 7
+Key Skills: Grapple: 1d10, Arm Strike: 1d10, Throw: 2d10, Kick: 2d10, Light Melee: 1d10, Medium Melee: 3d10, Heavy Melee: 3d10, Speed: 2d10, Muscle: 2d10, Endurance: 2d10, Medicine: 3d10, Meditation: 3d10, Ritual (Spirit Keeping): 3d10, Ritual (Celestial Spirit): 3d10, Ritual (Binding Demon Ritual): 3d10, Ritual (Expulsion of the Malignant Winds): 2d10, Ritual (Song of Gu): 3d10, Detect: 2d10, Persuade: 2d10, Languages (Daoyun): 3d10, Languages (Li Fai): 3d10, Languages (Hai'anese): 1d10, Read Script (Feishu): 3d10, Creatures (Demons): 3d10, Creatures (Spirits): 3d10
+Qi: 4
+Max Wounds: 9
+Weapons: Jian (3d10 Damage)
+Reputation: Righteous-Unorthodox
+Key Kung Fu Techniques (Waijia 3, Qinggong 1): Double Thrust, Drift of the Butterfly Fish, Fierce Strike, Fluttering Kicks, Flying Swan Kick, Leap of the Swan, Slashing Blade, Spinning Back Kick, Swan Taming Strike, Whirling Blade, Whirling Dodge (Counter)`
+  },
+  {
+    id: "c9lauchingsin001",
+    name: "Lau Ching Sin",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `This is a husband and wife who formed their own Yen-Li lineage called Bright Sun. They formerly belonged to the Golden Sword lineage but left when they discovered one of the priests trying to petition the Five Ghosts. Now they roam the Banyan aiding the poor and eliminating evil spirits. Mak Ching Yuen is surprisingly nimble and a skilled swordsman. He is good in a fight but also an expert exorcist. Lau Ching Sin knows minimal martial arts but is incredibly cunning and knowledgeable. They like to say that he is the soldier and she is the general. Both use the title Ritual Master.`,
+    text: `Lau Ching Sin
+Defenses: Hardiness 4, Evade 4, Parry 4, Stealth 6, Wits 9, Resolve 7
+Key Skills: Grapple: 1d10, Arm Strike: 1d10, Throw: 1d10, Kick: 1d10, Light Melee: 1d10, Medium Melee: 2d10, Heavy Melee: 1d10, Speed: 3d10, Muscle: 1d10, Endurance: 1d10, Medicine: 3d10, Meditation: 3d10, Survival (Wilderness): 2d10, Ritual (Spirit Keeping): 2d10, Ritual (Celestial Spirit): 2d10, Ritual (Expulsion of the Malignant Winds): 1d10, Ritual (Song of Gu): 2d10, Detect: 2d10, Reasoning: 3d10, Persuade: 2d10, Languages (Daoyun): 3d10, Languages (Li Fai): 3d10, Languages (Singh): 2d10, Languages (Hai'anese): 1d10, Read Script (Feishu): 3d10, Read Script (Singh): 1d10, Creatures (Demons): 3d10, Creatures (Spirits): 3d10, Creatures (Monsters): 3d10, Places/Culture (Hai'an): 2d10, Places/Culture (Emerald Coast): 1d10, Places/Culture (Dai Bien): 2d10, Places/Cultures (Kushen Basin): 1d10, Classics (All): 2d10
+Qi: 1
+Max Wounds: 3
+Reputation: Righteous-Unorthodox
+Key Kung Fu Techniques (Waijia 1, Qinggong 3): Fierce Strike, Spinning Back Kick, Whirling Dodge (Counter)`
+  },
+  {
+    id: "c9masteremerald1",
+    name: "Master Emerald",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Master Emerald is one of the leaders of Golden Dragon Sect. He dresses in long gold robes and a golden hat. He wears a thin brown beard that appears dyed. His features are angular and somewhat handsome. Calm and refined, Master Emerald's demeanor conceals a deep sadness over the loss of his true love, Lady Plum Blossom, formerly named Lady Sapphire. Though he may seem skilled to a beginner, Master Emerald has not put the great effort that many of his peers have into training.
+
+Thirty years ago, Master Emerald was nearly kicked out of Golden Dragon sect for having an affair with Lady Sapphire. The two were discovered and Bronze Master accused Lady Sapphire of using sorcery to seduce Master Emerald. This could have resulted in her execution, but Master Emerald saved her by privately vowing to atone and remain in the sect, while she was ejected. After she left the sect she changed her name to Lady Plum Blossom. Though he still loves Lady Plum Blossom, and believes she misunderstands his actions, Master Emerald has never contacted her out of fear it would reignite the wrath of the Golden Dragons. Part of him feels like this is an act of cowardice and perhaps it is. Since these events, his enthusiasm for training has diminished.`,
+    text: `Master Emerald
+Defenses: Hardiness 7, Evade 4, Parry 7, Stealth 6, Wits 7, Resolve 7
+Key Skills: Grapple: 2d10, Arm Strike: 2d10, Throw: 2d10, Kick: 3d10, Light Melee: 2d10, Medium Melee: 2d10, Heavy Melee: 3d10 or 2d10 (Bian), Speed: 1d10, Muscle: 2d10, Endurance: 2d10, Medicine: 1d10, Meditation: 3d10, Detect: 3d10, Deception: 3d10, Persuade: 2d10, Languages (Li Fai): 2d10, Languages (Daoyun): 3d10, Languages (Hai'anese): 3d10, Read Script (Feishu): 3d10, Read Script (Purple Cavern): 3d10, Knowledge (Era of the Demon Emperor): 3d10, Knowledge (Era of the Righteous Emperor): 3d10, Institutions (Sects): 3d10, Creatures (Demons): 2d10, Creatures (Spirits): 1d10
+Qi: 4
+Max Wounds: 9
+Weapons: Bian (4d10 Damage), Qiang (Heavy Spear)
+Reputation: Righteous-Hypocritical
+Key Kung Fu Techniques (Waijia 1, Qinggong 1, Neigong 1, Dianxue 1): Blast of the Dragon, Calm of Sunan, Crack of the Hard Whip, Drift of the Butterfly Fish, Flaming Dragon, Inverted Three-Point Strike, Lashing Dragon, Palm of the Dragon, Rising Dragon Stance, Spear of the Infinite Emperor, Spear Swipe, Spinning Back Kick (Counter), Whirling Dodge (Counter)`
+  },
+  {
+    id: "c9mastershan0001",
+    name: "Master Shan",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Master Shan Jiayin is a cruel and deceitful scholar-official who controls the iron and gold mines near Iba. He has a longstanding feud with Master Ta and is obsessed with finding the Phoenix Crown of Bao and the perfect bride to wear it. He appears jovial and friendly at first but his dark nature quickly becomes apparent as he drops his guard over time.
+
+Decades ago Master Shan was an editorial academic in the Secretariat of the Zhan Dao Empire, then became a supervisor in the Salt and Tea Monopoly Bureau. He left his post suddenly when a large shipment of High-Minded Phoenix Tea was unaccounted for and suspicion fell on him. He came to the Banyan and built a villa on land under Master Ta's control, taking the nearby iron mines as well as placing the village of Iba under his authority. He also found a rich deposit of gold in the area that Master Ta had never discovered. His ferocity frightened Master Ta, who still carries a grudge. He has five disciples and 60 soldiers who work for him.`,
+    text: `Master Shan
+Defenses: Hardiness 8, Evade 4, Parry 5, Stealth 7, Wits 7, Resolve 7
+Key Skills: Grapple: 1d10, Throw: 1d10, Arm Strike: 2d10, Leg Strike: 2d10, Light Melee: 2d10, Medium Melee: 2d10, Heavy Melee: 0d10, Speed: 2d10, Muscle: 3d10, Endurance: 1d10, Deception: 3d10, Persuade: 1d10, Empathy: 2d10, Reason: 2d10, Talent (Tea Preparation): 1d10, Survival (Wilderness and Mountains): 3d10, Trade (Alchemy): 1d10, Trade (Stone): 1d10, Trade (Metal): 1d10, Talent (Poetry): 3d10, Talent (Calligraphy): 2d10, Talent (Poison): 1d10, Religion (Dehua): 2d10, Institutions (Criminal Underworld): 3d10, Institutions (Imperial Bureaucracy): 3d10, Places (Chezou River Valley): 3d10, Places (Zun River Valley): 3d10, Languages (Hai'anese and Daoyun): 3d10, Read Script (Feishu): 3d10, Classics (All): 2d10
+Qi: 3
+Max Wounds: 7
+Reputation: Cunning-Cruel
+Key Kung Fu Techniques (Neigong 2, Dianxue 2): Curing Palm, Heart Strike, Strike of the Raging Tiger, Stone Shattering Finger, Three-Point Strike, Trembling Strike, Blade Pinch (Counter)`
+  },
+  {
+    id: "c9masterta000001",
+    name: "Master Ta",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `A wealthy local magnate who lost his land to a rival, Master Ta resides on villa in a small mountain. Though he was once a champion of the weak and downtrodden, and to this day remains at his core a good man, Master Ta is obsessed with avenging the loss of his family's iron mines near Iba to Master Shan and his men. Master Ta's men remain loyal because he raised many of them out of poverty. He is friendly with the Nature Loving Monk sect and is well liked in the town of Redi. The Fragrant Petal often assists him as an information source. Master Ta has several acres of tea and sells his leaves to Redi and Zun City. Master Ta's nephew, Dancing Hawk, is a constant source of frustration, because he uses his name and money for carousing and bullying.`,
+    text: `Master Ta
+Defenses: Hardiness 3, Evade 3, Parry 3, Stealth 6, Wits 8, Resolve 8
+Key Skills: Grapple: 0d10, Throw: 1d10, Arm Strike: 0d10, Leg Strike: 0d10, Light Melee: 1d10, Medium Melee: 1d10, Heavy Melee: 0d10, Speed: 1d10, Muscle: 1d10, Deception: 2d10, Persuade: 3d10, Reason: 3d10, Talent (Cooking): 2d10, Talent (Tea Preparation): 3d10, Trade (Wood and Mechanical): 2d10, Survival (Wilderness and Mountains): 2d10, Talent (Poetry): 2d10, Institutions (Criminal Underworld): 2d10, Places (Zun River Valley): 3d10, Languages (Hai'anese and Daoyun): 3d10, Read Script (Feishu): 3d10
+Max Wounds: 1
+Expertise: Survival-Harvest/Fish
+Reputation: Cowardly-Trustworthy`
+  },
+  {
+    id: "c9min00000000000",
+    name: "Min",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Min is a swordswoman of the martial world with a rebellious streak and personal code. She always keeps to her own word, but most sees her as dishonorable because she rejects many orthodox assumptions. Stubborn and unfilial, she takes no surname as her father said she brought shame to the family when she joined Purple Cavern sect. She has a sister named Jing who she secretly visits on occasion.
+
+A recent recruit into Purple Cavern sect, she is close to Xue Lingsu and Long Shu. By working with them she became increasingly known in the martial world, as well as being recognized by Lady Plum Blossom, leader of Purple Cavern sect. She is famous for fighting with a sheathed Jian.`,
+    text: `Min
+Defenses: Hardiness 6, Evade 4, Parry 6, Stealth 6, Wits 6, Resolve 7
+Key Skills: Grapple: 2d10, Light Melee: 2d10, Medium Melee: 3d10, Speed: 3d10, Muscle: 2d10, Endurance: 2d10, Meditation: 3d10, Command: 2d10, Deception: 1d10, Reasoning: 1d10, Detect: 1d10, Institutions (Sects): 2d10, Read Script (Purple Cavern): 2d10
+Qi: 4
+Max Wounds: 9
+Weapons: Sheathed Sword (Medium Melee +0d10 to hit, Muscle +1d10 Blunt Damage), Fly-Whisk
+Reputation: Unorthodox-Unfilial
+Key Kung Fu Techniques (Waijia 2, Qinggong 1, Neigong 1): Blasting Blade, Breath of the Lotus Petal, Choking Lash of Lady Plum Blossom, Double Thrust, Fierce Strike, Gaze of the Lion, Great Stride, Hands of the Hawk Beak, Swan Taming Strike, Weapon Hunts for Food, Weapon Stride (Counter), Grasp of the Python (Counter)`
+  },
+  {
+    id: "c9nerguimogha001",
+    name: "Nergui Mogha",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Nergui Mogha is a priest of Hedra from Naqan who currently advises the Khagan of the Kushen. He has been placed in charge of protecting the Khagan's daughter, Princess Sarnai, during her expedition into the Banyan region, a duty he dislikes but intends to do well. Nergui has helped advance Princess Sarnai's Kung Fu, but is on the lookout for a good local master to help her achieve her aim of learning from one of the greats.
+
+Nergui belongs to the sect of the Chief Pillar, a Hedran group who believe that spilling blood is good if it enacts Hedra's punishing aspect. Nergui is exceptionally ugly but intelligent and affable with those he respects.`,
+    text: `Nergui Mogha
+Defenses: Hardiness 7, Evade 6, Parry 7, Stealth 6, Wits 7, Resolve 7
+Key Skills: Grapple: 2d10, Throw: 1d10, Arm Strike: 3d10, Leg Strike: 2d10, Light Melee: 2d10, Medium Melee: 2d10, Heavy Melee: 3d10 (1d10 Meteor Hammer), Small Ranged: 1d10 (2d10 with Composite Bow), Speed: 1d10, Muscle: 4d10, Deception: 3d10, Reason: 2d10, Religion (Hedra): 3d10, Institutions (Sects): 1d10, Places (Naqan): 3d10, Languages (Khusbi): 3d10, Languages (Kushen): 2d10, Languages (Daoyun): 2d10, Read Script (Yoshaic): 3d10
+Qi: 4
+Max Wounds: 9
+Weapons: Meteor Hammer (7d10 Damage)
+Reputation: Cautious-Unjust
+Key Kung Fu Techniques (Waijia 1, Qinggong 1, Neigong 2): Absorbing Palm, Kick of the Golden Elephant, Knock of the Meteor Hammer, Purge Spirit, Ringing Strike of the Divine Ram, Iron Body (Counter)`
+  },
+  {
+    id: "c9peixinyu000001",
+    name: "Pei Xinyu",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Pei Xinyu is the wife of General Dee. She lives on Snake Peak, a small mountain in Li Fan filled with snakes, and is one of the most respected masters in the region. She is a bit of a hermit, living in a small cave home.
+
+Xinyu's personality is a mixture of sternness and compassion. She believes in the traditions of Dehua, particularly the rules governing social interactions between masters and students, husbands and wives, and similar bonds. But she also believes when these are in conflict with more important virtues, like righteousness and compassion, they must be challenged. This is ultimately what led her to part ways with General Dee, after he turned to sadism and evil. Now she trains, intent on stopping him and his allies when the time comes. If she can find a worthy student to aid her, she will do so, but she has very high expectations and will only teach someone who demonstrates internal virtue.
+
+Pei Xinyu appears to be in her early 50s, and dresses in the style of the Hu Qin elite. This is important to her, because she wants General Dee to recognize her when they face in battle. Pei Xinyu knows the art of snake charming and uses it to control the snakes on Snake Peak. She is not herself a poisoner however.`,
+    text: `Pei Xinyu
+Defenses: Hardiness 8, Evade 5, Parry 7, Stealth 6, Wits 7, Resolve 8
+Key Skills: Arm Strike: 4d10, Leg Strike: 4d10, Grapple: 4d10, Throw: 2d10, Light Melee: 3d10, Medium Melee: 2d10, Heavy Melee: 1d10, Small Ranged: 0d10, Athletics: 3d10, Speed: 4d10, Muscle: 3d10, Endurance: 2d10, Talent (Snake Charming): 3d10, Talent (Flute): 3d10, Command: 2d10, Detect: 2d10, Religion (Dehua): 3d10, Read Script (Feishu): 3d10, Language (Daoyun): 3d10, Institutions (Imperial Bureaucracy): 3d10, Classics (All): 2d10, Creatures (Animals): 3d10
+Qi: 8
+Max Wounds: 17
+Weapon: Unarmed (3d10 Damage)
+Combat Technique: Fists of Steel
+Key Kung Fu Techniques (Waijia 2, Neigong 2): Emanating Palm, Lady Xinyu's Pacific Heart Technique, Breath of the Lotus Petal, Restoring Palm, Iron Spirit, Finger Flick, Stone Shattering Finger, Ribbons of Steel, Ringing Strike of the Hand, Fluttering Kicks, Arms of Silk, Deflecting Canopy (Counter), Spinning Back Kick (Counter), Iron Spirit Resistance (Counter)
+Profound Techniques: Wave of Frost
+Powers
+Emanating Palm: This creates a blast that hits everyone in a straight line of 80 feet, going through all targets in its path. It does 4d10 Damage to each person struck plus 2 Wounds. Cathartic: Works as normal but does 4d10 Damage plus 4 Extra wounds to each person struck.
+Lady Xinyu's Pacific Heart Technique: Causes a swirling flow of energy that pins and pacifies. Make a Meditation roll against Resolve of everyone in an 80-foot diameter circle. Anyone affected is frozen in place for 2 rounds but can speak and can do no harm during this time. Cathartic: Anyone affected is frozen in place for 2 hours. If the user commits any act of violence, it ends the effect.`
+  },
+  {
+    id: "c9princesssarnai",
+    name: "Princess Sarnai",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Princess Sarnai, whose official title is Gonji, is the daughter of Khagan Ganbaatar and was recently put in charge of extracting turquoise from the northern Banyan. She begged her father for the position so she could use the opportunity to learn from some of the region's great masters. Though her father knows her real intentions, he feigns ignorance and has placed her under the watchful eye of his advisor Nergui Mogha. She resides in Kusha, a temporary tent garrison, and possesses the Phoenix Crown of Bao.
+
+Princess Sarnai is short tempered due largely to her upbringing as royalty and unusually quick witted. She is sincere and loyal to those she likes. Though small, she is incredibly strong for her size.`,
+    text: `Princess Sarnai
+Defenses: Hardiness 6, Evade 6, Parry 5, Stealth 6, Wits 7, Resolve 7
+Key Skills: Grapple: 1d10, Throw: 1d10, Arm Strike: 2d10, Leg Strike: 1d10, Light Melee: 2d10, Medium Melee: 2d10, Heavy Melee: 0d10, Small Ranged: 2d10 (3d10 with Composite Bow), Ride: 3d10, Speed: 2d10, Muscle: 3d10, Deception: 2d10, Persuade: 1d10, Command: 1d10, Reasoning: 3d10, Survival (Plains): 3d10, Talent (Hawk Handling): 2d10, Languages (Kushen): 3d10, Languages (Daoyun): 2d10, Read Script (Yanzi): 3d10
+Qi: 2
+Max Wounds: 5
+Weapons: Kushen Sabre (4d10 Damage), Meteor Hammer (7d10 Damage), Composite Bow (3d10 Damage)
+Equipment: Phoenix Crown of Bao
+Reputation: Loyal-Cunning
+Key Kung Fu Techniques (Waijia 1, Qinggong 3): Knock of the Meteor Hammer, Flying Swan Kick, Kick of the Swan, Whirling Blade, Whirling Dodge (Counter)`
+  },
+  {
+    id: "c9qinwenmaster1",
+    name: "Qinwen, Master of the Seven Talismans",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Qinwen is the leader of Heaven Palace Sect and is 415 years old. He looks young, except his hair is stark white and he always dresses the old Li Fan style. Born just before the Era of the Dutiful State, Qinwen was an ambitious martial hero who stole the talismans from the ten Disciples of Pure Phoenix Sect about 350 years ago. He killed seven and took their talismans but the remaining three eluded him and killed many of his men. He is not an immortal, but has achieved longevity and youth through his talismans and been alive for centuries.
+
+Qinwen worships the Demon Emperor, though he hides this fact from the world by presenting his intimate knowledge of the subject as part of his effort to prevent the Demon Emperor's return. He also encourages conflicting rumors about his nature. His favorite is to lead people to believe he is one of the original founders of Golden Dragon Sect, or a former ally of Sunan and Bao.
+
+Qinwen is cautious, authoritative and highly confident in his abilities. He can be lenient with those who cross him, provided he contains them as a threat. He prefers to turn enemies into allies when possible and secure loyalty by demonstrating mercy. But anyone who exhausts his leniency will face severe punishments, often from the Talismans.`,
+    text: `Qinwen, Master of the Seven Talismans
+Defenses: Hardiness 5, Evade 5, Parry 7, Stealth 6, Wits 8, Resolve 8
+Key Skills: Grapple: 2d10, Throw: 2d10, Arm Strike: 4d10, Leg Strike: 3d10, Light Melee: 1d10, Medium Melee: 1d10, Heavy Melee: 1d10, Small Ranged: 1d10, Large Ranged: 2d10, Speed: 3d10, Muscle: 4d10, Medicine: 3d10, Meditation: 3d10, Athletics: 4d10, Persuade: 2d10, Empathy: 2d10, Deception: 4d10, Command: 2d10, Reasoning: 2d10, Detect: 2d10, Ritual (Binding Demon): 4d10, Ritual (Blood Offering of the Demon Emperor): 4d10, Ritual (Blood Pledge for the Demon Emperor): 3d10, Ritual (Activation): 4d10, Ritual (Extract Phoenix Spirit): 3d10, Religion (The Bold King): 3d10, Read Script (Feishu): 3d10, Language (Daoyun): 3d10, Language (Li Fai): 3d10, Language (Khubsi): 3d10, Language (Singh): 3d10, History (All): 4d10, Talent (Flute): 3d10
+Qi: 10
+Max Wounds: 21
+Weapon: None
+Flaws: White Hair
+Equipment: Talisman of Mulong/Xioa Huang, Talisman of Huo Long, Talisman of Shui Long, Talisman of Jin Long/Zhong Huang, Talisman of Tu Long
+Key Techniques (Qinggong 1, Neigong 3): Flight of the Hawk, Swift Stride, Great Stride, Flaming Dragon, Calm of Sunan, Breath of the Lotus Petal, Whipping Strands, Stone Shattering Finger, Path of the Dragon, Blast of the Dragon, Iron Spirit, Iron Spirit Resistance (Counter), Iron Spirit Reversal (Counter), Iron Body (Counter), Whirling Dodge (Counter)
+Profound Techniques: Burning Array, Roar of the Dragon
+Techniques: Hand of the Hungry Ghosts
+Powers
+Winds of the Dragon: You extend your arm as powerful light emanates from your body striking everyone in a 300-foot area. Make a Meditation Roll against Evade. On a Success everyone takes 3d10 Damage plus 1 Extra Wound. Cathartic: Everyone takes 3d10 Damage plus 2 Extra wounds and is stunned for one round.`
+  },
+  {
+    id: "c9queenainu0001",
+    name: "Queen Ai Nu",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `The true power behind the throne of Hai'an, Queen Ai Nu is an intelligent and well-educated woman who has training in the techniques of The Perfect Heaven Lineage Sect and Nature Loving Monk Sect. Though she rarely boasts or demonstrates, Queen Ai Nu is one of the foremost martial experts in Hai'an.
+
+One year ago her husband, King Qiang Lun, was killed by an assassin named Whispering Tail. An investigation revealed that his brother, Long Bai, was likely the one who hired the blade. Long Bai was executed and his wives and children arrested. King Qiang Qing decided to be merciful and offer them exile. He also gave them the option to lose all titles and change their identities if they wanted to remain within Hai'an. Queen Ai Nu is furious that her son showed mercy to the children of Long Bai, viewing this as a sign of weakness. She has used what influence she possesses to ruin the lives Long Bai's family who chose to stay in Hai'an.`,
+    text: `Queen Ai Nu
+Defenses: Hardiness 4, Evade 7, Parry 8, Stealth 6, Wits 8, Resolve 8
+Key Skills: Arm Strike: 3d10, Leg Strike: 2d10, Grapple: 2d10, Throw: 2d10, Light Melee: 3d10 (4d10 with Stick), Medium Melee: 2d10, Heavy Melee: 1d10, Meditation: 3d10, Ritual (Spirit Keeping): 2d10, Ritual (Celestial Spirit Ritual): 2d10, Religion (Yen-Li): 3d10, Places (Hai'an): 3d10, History (Era of the Righteous Emperor): 3d10, Institutions (Imperial Bureaucracy): 3d10, Medicine: 2d10, Athletics: 2d10, Muscle: 1d10, Speed: 3d10, Endurance: 2d10, Command: 3d10, Persuade: 2d10, Deception: 3d10, Talent (Poetry): 3d10, Talent (Guzheng): 3d10
+Qi: 6
+Max Wounds: 11
+Weapons: Stick (3d10 Damage), Unarmed
+Techniques (Waijia 1, Neigong 1, Qinggong 1, Dianxue 1): Blasting Blade, Slashing Blade, Four-Point Touch, Drift of the Butterfly Fish, Breath of Fury, All Dragon Techniques, Clutch of the Hawk, Reclining Stick Stance, Dog Bashing Stick, Dog Lifting Stick, Skull Breaking Stick, Stick of the Rebounding Dog, Stick of the Rising Dog, Graceful Retreat, Horizontal Sidestep, Whirling Dodge, White Flower Palm, Phoenix Star Strike, Whirling Dodge (Counter)`
+  },
+  {
+    id: "c9recklessstorm",
+    name: "Reckless Storm",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Guo is a Kung Fu master whose Phoenix Spirit of Happiness has been permanently blocked and disrupted, leaving him in a constant state of buoyant optimism. As a result he possesses a complete and utter inability to control his impulses. He is enthused by any notion or whim that enters his mind, no matter how unsafe. The only thing restraining him is a very rigid sense of propriety concerning women, parents and religion. Anything that would go against filial piety, decorum between the sexes, or violate religious precepts he reacts against with explosive rage.
+
+Beyond these particular sensibilities he is open to any suggestion someone makes, however he tends to elaborate on his own, going in quite unexpected directions by the time any plan is executed. Reckless Storm is therefore almost completely unpredictable. Reckless Storm is in his 60s but has a youthful demeanor. He delights in learning and is curious about anything he sees someone else doing; if someone can do something he cannot, he immediately seeks to master the skill.`,
+    text: `Reckless Storm
+Defenses: Hardiness 10, Evade 7, Parry 7, Stealth 7, Wits 7, Resolve 10
+Key Skills: Arm Strike: 2d10, Light Melee: 2d10, Speed: 3d10, Athletics: 3d10, Ritual (Spell of the Golden Fireball): 3d10, Survival (Wilderness): 2d10, Talent (Singing): 2d10, Talent (Guzheng): 2d10, Talent (Tea Preparation): 2d10, Talent (Dancing): 2d10, Talent (Cooking): 2d10, Talent (Theft): 2d10, Command: 1d10, Reasoning: 1d10, Detect: 1d10, Meditation: 3d10, Religion (Yen-Li): 2d10
+Qi: 6
+Max Wounds: 13
+Weapons: Metal Fan (4d10 Damage)
+Reputation: Too Reckless-Too Reckless
+Key Kung Fu Techniques (Qinggong 2, Dianxue 2): Calming Profundity, Dance of the Bixie, Fearless Stride of the Storm, Final Tranquility of the Storm, First Tranquility of the Storm, Heart Smashing Palm, Sealing the Phoenix, Second Tranquility of the Storm, Third Tranquility of the Storm, Turn of the Zhen Bird (Counter), Dreaming Heavenly Splendor (Counter)`
+  },
+  {
+    id: "c9redclawdemon1",
+    name: "Red Claw Demon",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `A former student of Yanshi, Red Claw Demon was impossible to control and used his martial powers to exploit others. His former master dismissed him, striking him hard in the left temple as he did so, leaving a permanent dent in Red Claw's head. Now Red Claw leads his own gang of 40 plus men. He is assisted by Strange Phoenix and the Firelance Brothers.
+
+Red Claw is kind to those who submit to his will but shows no mercy to those who resist. Confident, boisterous and crude, Red Claw Demon has a tendency to overestimate his own refinement and underestimate the enemy's Martial Skill. In his spare time he often plays the Guzheng. His musical talents are remedial though he considers himself a budding master with endless potential. He takes a similar approach to calligraphy.`,
+    text: `Red Claw Demon
+Defenses: Hardiness 7, Evade 3, Parry 8, Stealth 6, Wits 6, Resolve 6
+Key Skills: Grapple: 2d10, Throw: 2d10, Arm Strike: 3d10, Leg Strike: 2d10, Light Melee: 0d10, Medium Melee: 1d10, Heavy Melee: 1d10, Small Ranged: 0d10, Athletics: 2d10, Speed: 2d10, Muscle: 3d10, Meditation: 3d10, Talent (Calligraphy): 0d10, Talent (Guzheng): 0d10, Languages (Daoyun): 3d10, Read Script (Feishu): 1d10, Read Script (Red Claw Gang): 2d10
+Qi: 3
+Max Wounds: 7
+Weapons: Hands (3d10 Damage)
+Expertise: Fists of Steel
+Reputation: Merciful-Vengeful
+Key Kung Fu Techniques (Waijia 2, Neigong 2): Clutch of the Hawk, First Fist of Yanshi, Iron Spirit, Red Claw Strike, Second Fist of Yanshi, Iron Body (Counter), Guiding the Crashing Wave (Counter), Iron Spirit Resistance (Counter)`
+  },
+  {
+    id: "c9onearmedfiery1",
+    name: "One-Armed Fiery Demon",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Shang Pu is a former member of Heiping sect who left to marry the great Martial Hero Leng. To alleviate her master's anger, Shang Pu and Leng attempted to steal the Wind Sabre of Sunan from the Witch of Zhaoze Zhou. They failed but rumors persisted that they had succeeded. Lady White Blade, leader of the Mystic Sword sect, tracked the two down after their friend Weng Zheng revealed their whereabouts and demanded they hand over the Wind Sabre. When they were unable to do so, she killed Leng and cut off Shang Pu's right arm, leaving her for dead. The grief drove Min insane and turned her hair white. She fled to the mountains and trained with a number of great teachers before returning to the Banyan using the name Shang Pu. As she started taking vengeance on Mystic Sword sect members, she quickly earned the nickname One-Armed Fiery Demon.
+
+Shang Pu still dresses like a Heiping sect member but her clothes are all rose-colored. Shang Pu always smells like roses because she carries five to seven bunches at all times for use with one of her Techniques. Her hair is white and she is missing her right arm. Shang Pu is the embodiment of determination. Her goal is nothing less than the eradication of Mystic Sword sect and the death of Lady White Blade. She knows she is not ready to take on the Lady herself yet, but is content to unleash her fury on minor disciples until she improves her Kung Fu. She will ally with anyone who shares her hatred of Mystic Sword sect and has a soft spot for those who have suffered a similar loss to herself. She carries the decorative bao she once gave to Leng on her person at all times.
+
+While she is not looking for disciples, she will teach Techniques to anyone who can confirm they have killed a Mystic Sword sect member, preferably by presenting her with the head.`,
+    text: `One-Armed Fiery Demon
+Defenses: Hardiness 7, Evade 5, Parry 8, Stealth 6, Wits 6, Resolve 7
+Key Skills: Grapple: 2d10, Throw: 1d10, Arm Strike: 2d10, Leg Strike: 2d10, Light Melee: 3d10, Medium Melee: 3d10 (5d10 with Jian or 2d10 with Ox Tail Dao), Heavy Melee: 2d10, Small Ranged: 0d10, Speed: 3d10, Muscle: 1d10, Athletics: 2d10, Meditation: 3d10, Ritual (Ancestor Veneration): 3d10, Ritual (Song of Gu): 2d10, Religion (Dehua): 2d10, Institutions (Sects): 2d10, Creatures (Demons): 1d10
+Qi: 4
+Max Wounds: 9
+Weapons: Jian (2d10 Damage, +2d10 Accuracy), Ox Tail Dao (3d10 Damage, -1d10 Accuracy)
+Flaws: Missing Limb (penalties removed with Adaptation of the Maimed)
+Key Kung Fu Techniques (Waijia 2, Qinggong 1, Neigong 1): Adaptation of the Maimed, Blasting Blade, Blood Letting Thorns, Drift of the Butterfly Fish, Kick of the Swan, One-Armed Strike, Purge Spirit, Spinning Back Kick, Spinning Steel, Stealth of the Spider Demon, Swan Taming Strike, Weapon Stride (Counter), Stern Rebuke of Heiping (Counter), Whirling Dodge (Counter)`
+  },
+  {
+    id: "c9shanlushan0001",
+    name: "Shan Lushan",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Shan Lushan is a mercurial man who does what he wants and has high standards when choosing friends or associates. He is capable of extreme displays of anger and violence, though these pass quickly. The head of Zhaoze sect, which he established, Lushan prefers to surround himself with a small number of disciples who share his devotion to the arts. He lives at Zhaoze Palace, on Zhaoze Island in Zhaoze Lake, where he engages in poetry and music. He is also a patron of arts and invites promising painters, poets, musicians and scholars to reside on his grounds. Zhaoze Island is inhabited by Pearl Tigers, but Shan Lushan commands them with the Turquoise Necklace of Li Fan.
+
+Shan Lushan likes to either develop his own Techniques or trick people into teaching him Techniques he wishes to know, usually through a friendly competition. He acquired the Hidden Fist of Yanshi by beating him in a moon staring contest. Shan Lushan was not always so unconventional. This side of his personality came with age and bloodshed. He was once a member of the Yao, however he grew to despise the Emperor, not for the leader's moral failures, but for his lack of appreciation for music and poetry. In time, he came to despise the Emperor for philosophical reasons. Lushan stole the Emperor's prized Turquoise Necklace of Li Fan and fled to Zhaoze Island, where he lives today. Shan Lushan is the only former member of the Yao to recover his heart. For this he feels a certain amount of guilt. Valuing independence and being true to one's spirit, he finds the Emperor's use of the ritual highly objectionable. Nothing angers him more than the sight or mention of the Yao. The scar on his chest is a constant reminder of his past.`,
+    text: `Shan Lushan
+Defenses: Hardiness 10, Evade 4, Parry 4, Stealth 7, Wits 8, Resolve 8
+Key Skills: Grapple: 2d10, Arm Strike: 2d10, Throw: 2d10, Leg Strike: 3d10, Light Melee: 3d10 (4d10 with Flute), Medium Melee: 0d10, Heavy Melee: 0d10, Athletics: 3d10, Endurance: 3d10, Speed: 1d10, Muscle: 2d10, Detect: 2d10, Talent (Singing): 3d10, Talent (Poetry): 3d10, Talent (Guzheng): 2d10, Talent (Flute): 3d10, Talent (Painting): 1d10, Talent (Calligraphy): 2d10, Languages (Li Fai): 3d10, Languages (Daoyun): 3d10, Languages (Hai'anese): 2d10, Read Script (Feishu): 3d10
+Qi: 6
+Max Wounds: 13
+Weapons: Unarmed, Flute (1d10 Damage)
+Equipment: Turquoise Necklace of Li Fan
+Reputation: Truthful-Selfish
+Key Kung Fu Techniques (Waijia 1, Qinggong 1, Neigong 2): Cherry Blossom Palm, Dog Bashing Stick, First Song of Shan Lushan, Great Stride, Harmonizing Strike, Iron Foot Stance, Kick of the Golden Elephant, Mighty Paws of the Lion, Pounce of the Lion, Swift Pounce of the Cheetah, Blade Pinch (Counter), Hidden Fist of Yanshi (Counter), Guiding the Crashing Wave (Counter)`
+  },
+  {
+    id: "c9sistersbone001",
+    name: "Sisters of Bone Kingdom",
+    type: "monster",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `The three Sisters of Bone Kingdom were once disciples of Pure Phoenix Sect, and still regard themselves as members, but have long since abandoned its beliefs. Bingyin is the eldest and the most wicked of the sisters. She cares for no one but herself and kills the most frequently. Dawa is a few years younger than Bingyin and still retains a trace of her former compassion. Liling is intelligent and curious but enjoys toying with her foes. Of the three she is perhaps the cruelest, though she only mistreats those who infuriate her.
+
+The sisters are old and shriveled but still physically powerful, however Liling frequently uses her youthful beauty ability to alter her appearance. They have a number of Kung Fu Techniques learned from their sect but also have powers granted to them by the Phoenix Talismans they control. In addition each sister has a unique power not possessed by the others. The sisters all have habits of using the talismans to create servants for themselves, but the most creative in this respect is Liling, who twists her servants into pets that are pleasing to the eye or objects of ridicule.
+
+While Bingyin always keeps her talisman on her person, the other two sisters keep them in hidden chambers. Liling always wears one of thirteen hair pins, each representing a figure or animal for a given month. During the relevant month these bestow a bonus on any skill roll relevant to the month's nature and character.`,
+    text: `Sisters of Bone Kingdom
+Defenses: Hardiness 8, Evade 8, Parry 8, Stealth 6, Wits 6, Resolve 8
+Key Skills: Grapple: 2d10, Bite: 2d10, Throw: 2d10, Arm Strike: 3d10, Leg Strike: 3d10, Light Melee: 2d10, Medium Melee: 3d10, Heavy Melee: 2d10, Small Ranged: 2d10, Speed: 3d10, Muscle: 4d10, Endurance: 2d10, Athletics: 3d10, Ritual (Ancestor Veneration): 3d10, Ritual (Activation): 3d10, Ritual (Sword Ritual of Bao): 3d10, Ritual (Spirit Keeping): 3d10, Meditation: 3d10, Command: 3d10, Detect: 3d10, Read Script (Feishu): 3d10, Language (Daoyun): 3d10, History (Era of the Demon Emperor): 3d10, Religion (Yen-Li): 3d10, Religion (Dehua): 2d10, Religion (Hen-Shi): 3d10
+Qi: 6
+Max Wounds: 13
+Weapon: Jian (5d10 Damage)
+Combat Technique: None
+Equipment: Talisman of Yi Huang (Liling), Talisman of Li Huang (Dawa), Talisman of Ren Huang (Bingyin), Liling's Thirteen Hair Pins
+Key Techniques (Neigong 2, Waijia 1, Qinggong 1): Arms of Silk, Leap of the Swan, Drift of the Butterfly Fish, Fluttering Kicks, Biting Blade, Blasting Blade, Whirling Blade (Counter)
+Powers
+Reply of the Swan: Against any melee attack, you spin away from the strike and arch your back, striking your enemy behind you. Roll Medium Melee against the attack roll. On a success you evade the strike and make a normal attack. Cathartic: You add your ranks in Neigong to the damage roll.
+Gentle Strike: This soft hand strike feels almost like a reassuring pat or caress, but creates a delayed effect that ripples through the whole body. Roll Arm Strike against Parry. On Success the target takes 2 wounds each round for 6 rounds. The target can make a Meditation Roll TN 7 to stop damage each round. Cathartic: Hit up to 3 targets.
+Ring of the Sword: You swirl around and carve a blue ring into the air, which expands and strikes targets all around you. Roll Medium Melee against Evade. On Success opponents hit suffer your Qi rank in damage. This can exceed the soft cap. Cathartic: Anyone struck is knocked back 10 feet per rank of Qi.
+Cascading Phoenix: You arch your back and a flow of blue energy pours from your body and hits people in a curving path. Can hit 14 targets. Roll Athletics against Evade. Does 1d10 Cold Damage. Cathartic: Hits 21 targets, does 2d10 Damage, and imposes a -1d10 penalty to Physical skills for 2 rounds.
+Devour: The teeth of the Sisters are sharp and they deliver 3d10 open damage when biting.
+Command the Dead: People killed by the sisters return as skeletons and follow their commands.
+Create Skeletons: When a Sister kills someone and touches their forehead, they rise up as a skeleton under her command.
+Deathless: The sisters age but never die. They can only be killed if their bodies are destroyed and purged in a fire.
+Youthful Beauty (Liling): Only Liling has this ability. She can change her appearance at night so she looks younger and prettier than her sisters. Anyone who is attracted to females and sees her risks falling instantly in love. This effect lasts until a subsequent roll fails.
+Control Water (Dawa): Dawa can command bodies of water and even summon rain. She merely needs to make a Command roll against TN 6.
+Death Curse (Bingyin): Bingyin can perform a strange resurrection by kissing the lips of the dead. A kiss from Bingyin prevents the spirits from leaving the body but the flesh still dies. Only Bingyin's pools of Dispassion can alleviate the victim's pain.`
+  },
+  {
+    id: "c9spiderdemon001",
+    name: "Spider Demon",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Spider Demon is a street urchin who spends her time among the rooftops of the Dai Bien Forest. A hero of the people, she is kind and charitable to those who suffer from tyrants and poverty, yet vengeful against those with evil intent. It is this vengeful side that often makes her highly unpredictable; mercy or retribution lay at her hand. This judgment almost always occurs when enemies provoke combat and tapers down as the battle slows. Always conscious of her own morality, she maintains a defensive posture until threatened, and will not kill anything or anyone unless provoked.
+
+Zhi-Zhu is highly secretive, hiding her past, her associates, and her alliances. She takes no sect, and is rumored to have no true Sifu. Unswayed by money and glory, she is only driven by her sense of justice. Her greatest secret is her true name, as the name Zhi-Zhu was given to her by the Zun villagers for her innate ability to climb and lurk within the shadows.`,
+    text: `Spider Demon
+Defenses: Hardiness 4, Evade 5, Parry 4, Stealth 10, Wits 6, Resolve 6
+Key Skills: Grapple: 3d10, Light Melee: 3d10, Talent (Juggling): 2d10, Survival (Cities): 1d10 (+1d10 Forage/Shelter), Survival (Wilderness): 1d10, Detect: 3d10, Athletics: 3d10, Speed: 3d10, Muscle: 2d10, History (Righteous Emperor): 1d10 (2d10 for City Daolu), Places/Cultures (Dai Bien): 1d10 (2d10 for City Chen), Institutions (Sects): 1d10 (2d10 for People)
+Qi: 4
+Max Wounds: 9
+Weapons: Daggers, Caltrops
+Expertise: Survival (Cities)-Forage/Shelter, History (Righteous Emperor)-Daolu, Places/Cultures (Dai Bien)-Chen
+Reputation: Kind-Vengeful
+Combat Technique: Quick (Light Melee)
+Key Kung Fu Techniques (Waijia 2, Qinggong 2): Arms of Silk, Crawling Tiger, Invisible Whip of the Spider Demon, Lurking Spider Stance, Slicing Blade of the Flying Phantoms, Stealth of the Spider Demon, Storming Daggers, Storming Needles, Turn of the Caltrop, Wall of Caltrops, Weapon Stride (Counter), Horizontal Sidestep (Counter)`
+  },
+  {
+    id: "c9strangephoenix",
+    name: "Strange Phoenix",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Strange Phoenix is second in command of the Red Claw Gang. She is tall and athletic and bears a striking resemblance to Lady White Blade. She is called Strange Phoenix because her scholarly demeanor is an odd contrast to Red Claw and the rest of his gang. While she keeps her past shrouded in mystery it is clear to anyone who speaks with her that she is well educated and cultured. Loyal to Red Claw, she disagrees with some of his tactics, finding them crude and brutal. She believes the gang could be more profitable if it spent time cultivating the good will of the people it exploits. She is not against stealing, robbing or murder when it helps achieve their goals, she simply dislikes Red Claw's reckless approach.
+
+Strange Phoenix frequently serves as the face of the Red Claw Gang and will occasionally dress as a man when doing so, taking the name Mr. Yu and pretending to be a former imperial official. Intelligent and reliable, Strange Phoenix's one flaw is her love of gambling. She is well versed in the classics and in history, but has a particular interest in legends and tales of the Iron Sky Maiden.
+
+Strange Phoenix's resemblance to Lady White Blade is more than just a coincidence; the two are long lost twin sisters, though neither is aware of this. At birth, Strange Phoenix was secreted away to a reputable family in Hai'an as part of an effort to preserve General Dou Lun's lineage. Strange Phoenix has no knowledge of her true birth identity.`,
+    text: `Strange Phoenix
+Defenses: Hardiness 7, Evade 5, Parry 6, Stealth 8, Wits 7, Resolve 6
+Key Skills: Grapple: 1d10, Throw: 1d10, Arm Strike: 2d10, Leg Strike: 2d10, Light Melee: 3d10, Medium Melee: 2d10 (4d10 with Wooden Staff), Heavy Melee: 0d10, Small Ranged: 0d10, Athletics: 2d10, Speed: 3d10, Muscle: 2d10, Meditation: 2d10, Reasoning: 2d10, Command: 3d10, Persuade: 2d10, Deception: 2d10, Talent (Disguise): 2d10, Talent (Calligraphy): 2d10, Talent (Guzheng): 3d10, Talent (Theft): 3d10, Talent (Poetry): 2d10, Reason: 3d10, Medicine: 2d10, Read Script (Feishu): 3d10, Read Script (Red Claw Gang): 3d10, Languages (Daoyun, Hai'anese, Yanli and Li Fai): 3d10, Language (Kushen): 2d10, Religion (Dehua): 2d10, Classics (All): 1d10, History (Era of the Great Emperor): 1d10, History (Era of the Compassionate Daughter): 2d10, History (Era of the Demon Emperor): 1d10, History (Era of the Eastward Bound Invaders): 3d10, History (Era of the Dutiful State): 1d10, History (Era of the Righteous Emperor): 1d10, History (Era of the Glorious Emperor): 2d10
+Qi: 3
+Max Wounds: 7
+Weapons: Iron Hat (4d10 Damage but Damage self if all ones on Attack roll), Jian, Wooden Staff (2d10 Damage)
+Reputation: Calm-Cunning
+Flaws: Hedonist (Gambling)
+Combat Technique: Medium Melee-Counter
+Key Kung Fu Techniques (Waijia 2, Qinggong 1, Neigong 1): Blasting Blade, Calm of Sunan, Curing Palm, Dog Lifting Stick, Drift of the Butterfly Fish, Fierce Strike, Stunning Stick Strike, Tai Lan's Staff Strike, Horizontal Sidestep (Counter)`
+  },
+  {
+    id: "c9venomzhaoze001",
+    name: "Venom of Zhaoze",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Huo Si is known as the Venom of Zhaoze, and widely feared in the martial world. He is tall, strong, broad-shouldered, with cold green eyes. He keeps a trimmed beard and travels with his daughter Little Venom. Venom of Zhaoze was once a Martial Hero and healer, but he turned toward the practice of poison when his wife, Na, was brutally murdered by one of his former masters. He uncovered the secrets of venom Kung Fu to gain revenge. To protect his daughter, he joined Zhaoze sect, knowing others in the martial world would not dare attack them if they were a part of this group. Now he boasts of his own cruelty and seems proud when his daughter demonstrates the trait. His current wish is to find her a worthy husband, someone with powerful Kung Fu and intelligence.`,
+    text: `Venom of Zhaoze
+Defenses: Hardiness 6, Evade 4, Parry 5, Stealth 6, Wits 7, Resolve 7
+Key Skills: Grapple: 3d10, Arm Strike: 3d10, Throw: 1d10, Leg Strike: 2d10, Light Melee: 2d10, Medium Melee: 1d10, Heavy Melee: 1d10, Speed: 1d10, Muscle: 3d10, Endurance: 2d10, Talent (Poison): 3d10, Medicine: 3d10, Meditation: 3d10, Survival (Wilderness): 3d10, Survival (Mountain): 3d10, Survival (Cities): 1d10, Detect: 2d10, Languages (Li Fai): 3d10, Languages (Daoyun): 1d10, Languages (Hai'anese): 3d10
+Qi: 4
+Max Wounds: 9
+Weapons: None
+Reputation: Poisoner
+Key Kung Fu Techniques (Qinggong 1, Neigong 2, Dianxue 1): Cherry Blossom Palm, Croak of the Toad, Curing Palm, First Song of Shan Lushan, Inverted Three-Point Strike, Naga Palm, Nine Divine Snakes, Sealing the Winds of Gushan, Trapping Wind, Zhe Valley Fist, Iron Spirit Reversal (Counter)`
+  },
+  {
+    id: "c9witchzhaoze001",
+    name: "Witch of Zhaoze Zhou",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Li Sou Chao was once part of a pair. She was married and in love with Kang Yin. Both were widely respected and admired heroes. She and her husband found the Wind Sabre of Sunan. This powerful artifact is highly prized and the different sects conspired against the lovers to take it from them. They were tricked by members of the Heiping sect, who masqueraded as helpless maidens in dire peril. The Heiping nuns murdered Kang Yin and tried to take the sabre, but Li Sou Chao massacred them and took back the sword. She then murdered Lu Feiyan, leader of Heiping sect at the time.
+
+Disillusioned by the betrayal, Li Sou Chao forsook her former role as hero and vented her rage and grief by spreading violence and pain. Though hell-bent on revenge and destruction, she has a soft spot for those who resemble her late husband, particularly those of a stoic or somber disposition. This caused her to take pity on a young orphan, whom she raised and nicknamed Frowning Eagle. She also always reciprocates kindness.`,
+    text: `Witch of Zhaoze Zhou
+Defenses: Hardiness 6, Evade 4, Parry 7, Stealth 6, Wits 6, Resolve 7
+Key Skills: Grapple: 2d10, Arm Strike: 2d10, Throw: 1d10, Leg Strike: 3d10, Light Melee: 1d10, Medium Melee: 2d10, Heavy Melee: 2d10, Speed: 2d10, Muscle: 1d10, Endurance: 2d10, Ritual (Spirit Keeping): 2d10, Ritual (Zun Forest Shaping): 2d10, Ritual (Petition to the Five Ghosts): 3d10, Ritual (Paper Talisman): 2d10, Ritual (Western Heavens Ritual): 1d10, Survival (Sea): 3d10, Survival (Wilderness): 3d10, Talent (Poison): 3d10, Religion (Yen Li): 2d10, Meditation: 3d10, Detect: 3d10, Deception: 2d10
+Qi: 3
+Max Wounds: 7
+Weapons: Jian, Dao, Poison Needles (1d10 Damage plus 1d10 for each additional needle)
+Expertise: Survival-Harvest/Fish
+Reputation: Poisoner
+Key Kung Fu Techniques (Waijia 2, Qinggong 1, Neigong 1): Arms of Silk, Merciless Black Claw, Slashing Blade, Storming Needles, Sword Stance, Weapon Stride (Counter), Deflecting Canopy (Counter), Whirling Dodge (Counter)`
+  },
+  {
+    id: "c9xunandanzhi001",
+    name: "Xun and Anzhi",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Xun and Anzhi are the two remaining disciples of Compassionate Monkey. Xun is missing his left arm while Anzhi is missing his right, so they tend to fight next to each other to compensate. Their arms were ripped out by Compassionate Monkey himself when they refused to follow Hen-Shi. Since then they have become reluctant devotees of the goddess, and they now reside on Red Mountain where Compassionate Monkey has ordered them to stop anyone attempting to reach the peak.`,
+    text: `Xun and Anzhi
+Defenses: Hardiness 8, Evade 3, Parry 5, Stealth 6, Wits 6, Resolve 6
+Key Skills: Throw: 0d10, Grapple: 1d10, Arm Strike: 1d10, Leg Strike: 2d10, Medium Melee: 1d10, Speed: 1d10, Muscle: 2d10, Detect: 2d10, Athletics: 2d10, Swim: 0d10
+Qi: 2
+Max Wounds: 5
+Weapons: Jian (3d10 Damage)
+Reputation: Cowardly-Untrustworthy
+Flaws: Missing Limb
+Combat Technique: One-Armed Swordsman
+Key Kung Fu Techniques (Waijia 2, Qinggong 1, Neigong 1): Breath of Fury, Fierce Strike, Twin Strike, Weapon Stride (Counter)`
+  },
+  {
+    id: "c9yangtuo0000001",
+    name: "Yang Tuo",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Yang Tuo is a legendary hero in his own lifetime, known for his kindness and strict adherence to customary etiquette. Despite this, some in the martial world consider him untrustworthy, a recurring problem during his life.
+
+Though he never took the Imperial exams his father was a scholar-official in Hai'an and trained him in the classics. When his family was killed by the Venom of Zhaoze he was orphaned before finding a place at Sun Mai Temple. Despite some early training with the sect, he was forced to leave after a rival student falsely accused him of theft. Since then he has roamed the Banyan, helping the weak and powerless against any who would oppress them. His friendly disposition and righteous temperament has earned him the good graces of many Martial Experts, and this has allowed him to master a range of unusual Techniques. Recently Yang Tuo has been staying in the village of Xi, learning to make pottery as an apprentice under Master Dee.`,
+    text: `Yang Tuo
+Defenses: Hardiness 9, Evade 4, Parry 4, Stealth 10, Wits 7, Resolve 7
+Key Skills: Grapple: 3d10, Arm Strike: 3d10, Throw: 2d10, Leg Strike: 3d10, Light Melee: 2d10, Medium Melee: 2d10, Heavy Melee: 2d10, Athletics: 3d10, Speed: 3d10, Muscle: 2d10, Endurance: 2d10, Meditation: 3d10, Detect: 2d10, Language (Daoyun): 3d10, Read Script (Feishu): 3d10, Language (Li Fai): 3d10, Language (Hai'anese): 3d10, Religion (Qi Zhao): 2d10, Institutions (Sects): 2d10, Places (Dai Bien and Zun River Valley): 3d10, Classics (All): 3d10, History (Era of the Demon Emperor): 2d10, Talent (Calligraphy): 3d10, Trade (Ceramics): 1d10, Ritual (Ancestor Veneration): 2d10, Reasoning: 3d10, Persuade: 3d10
+Qi: 5
+Max Wounds: 11
+Weapons: None
+Reputation: Brave-Untrustworthy
+Flaws: Fated (To Misunderstand)
+Key Kung Fu Techniques (Waijia 1, Qinggong 1, Neigong 2): Clutch of the Hawk, Crawling Tiger, Double Thrust, Drift of the Butterfly Fish, Encompassing Emerald of Sun Mai, Flaming Dragon, Fluttering Kicks, Fourth Fist of Yanshi, Grasp of the Python, Great Stride, Hands of the Hawk Beak, Happy Strike of Laughing Fox, Iron Foot Stance, Kick of the Golden Elephant, Sun Mai Sword, Zhe Valley Fist, Guiding the Crashing Wave (Counter), Whirling Dodge (Counter), Iron Spirit Resistance (Counter)`
+  },
+  {
+    id: "c9zhehu000000000",
+    name: "Zhehu, the Right Hand of Yao-Feng",
+    type: "monster",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `A massive creature with purple skin and a single horn, Zhehu is a terror to behold. His eyes are black with thin red pupils and his nails are the bright white of ivory. Zhehu is an Ogre Demon and the former disciple of Yao-Feng, who brought Ogre Gate to the world of man and became emperor. Before Yao-Feng was defeated by Sunan and Bao, Zhehu was entrusted with the Key of Yao-Feng and escaped before the enemy drove his master back to Ogre Gate. Swallowing the key, he fled, but was ultimately captured and imprisoned beneath Red Mountain Villa, where the Five Immortals watch over him. There he awaits the opportunity to kill his captors and return with the key to Ogre Gate. Zhehu swallowed the key and keeps it in his stomach.`,
+    text: `Zhehu, the Right Hand of Yao-Feng
+Defenses: Hardiness 9, Evade 5, Parry 8, Stealth 7, Wits 6, Resolve 8
+Key Skills: Grapple: 2d10, Arm Strike: 2d10, Throw: 3d10, Leg Strike: 2d10, Light Melee: 2d10, Medium Melee: 3d10, Heavy Melee: 3d10, Speed: 1d10, Muscle: 4d10, Endurance: 2d10, Detect: 3d10
+Max Wounds: 14
+Equipment: Key of Yao-Feng
+Reputation: Loyal-Cruel
+Powers
+Qi Immunity: All Ogre Demons have a natural immunity to Qi and Qi related powers. Zhehu has a resistance of 80% and Qi-based attacks have a flat 80% chance of failing against him.
+Qi Disruption: Any Melee Attack from an Ogre Demon is potentially debilitating to Martial Heroes because it disrupts Qi and blood flow. If they score a total success on their Attack roll, then in addition to doing normal Damage, they temporarily drain an amount of Qi equal to the Wounds they inflict that round.
+Mighty: All physical attacks by Zhehu roll Open Damage.
+Weakness: Emerald. Any weapon made of Emerald can harm Zhehu.`
+  },
+  {
+    id: "c9zhougui0000001",
+    name: "Zhou Gui",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Zhou Gui is the proprietor of the Silk Tavern. A seemingly gentle and elegant man, Zhou Gui has a dark heart and exploits his position at the Silk Tavern to murder people and feed them to his guests. Zhou Gui is affable and friendly but deeply disturbed, delighting in tricking his clientele into eating human flesh. In conversation he can discuss a wide range of topics and has a particular interest in music. Chef Wu is Zhou Gui's right hand man and protector. Both share an interest in food and drink.`,
+    text: `Zhou Gui
+Defenses: Hardiness 7, Evade 6, Parry 6, Stealth 10, Wits 10, Resolve 7
+Key Skills: Grapple: 1d10, Light Melee: 2d10, Speed: 3d10, Detect: 2d10, Persuade: 3d10, Deception: 2d10, Medicine: 2d10, Talent (Cooking): 3d10, Talent (Brewing): 2d10, Talent (Tea Preparation): 2d10, Talent (Horse Headed Fiddle): 3d10, Talent (Pipa): 3d10, Classics (All): 3d10, History (Era of the Demon Emperor): 1d10, History (Era of the Righteous Emperor): 1d10, History (Era of Great Emperor): 2d10, History (Era of the Compassionate Daughter): 2d10, Creatures (Demons): 2d10, Trade (Alchemy): 2d10
+Max Wounds: 1
+Expertise: Detect-Taste`
+  },
+  {
+    id: "c9chefwu00000000",
+    name: "Chef Wu",
+    folderKey: "chapter9Named",
+    sourceChapter: 9,
+    sourceSection: "Non-Player Characters",
+    biography: `Chef Wu is the head chef at the Silk Tavern and also serves as Zhou Gui's personal bodyguard and accomplice in murder. If Zhou Gui is disturbed, Chef Wu is positively crazed. While he gains no pleasure from tricking guests into eating human meat, he greatly enjoys butchering and killing. Chef Wu is incredibly focused on whatever task he happens to choose, but in a battle becomes a raging beast.`,
+    text: `Chef Wu
+Defenses: Hardiness 9, Evade 3, Parry 7, Stealth 6, Wits 6, Resolve 6
+Key Skills: Grapple: 1d10, Throw: 3d10, Arm Strike: 3d10, Leg Strike: 2d10, Light Melee: 1d10, Heavy Melee: 3d10, Athletics: 1d10, Speed: 2d10, Muscle: 3d10, Endurance: 3d10, Meditation: 1d10, Detect: 3d10, Reasoning: 1d10, Command: 1d10, Talent (Cooking): 3d10, Institutions (Military): 2d10, Language (Hai'anese): 3d10, Languages (Li Fai and Daoyun): 1d10
+Qi: 3
+Max Wounds: 7
+Weapons: Cleaver (4d10 Damage), Qiang (Heavy Spear)
+Expertise: Detect-Taste
+Combat Technique: Counter (Heavy Melee-Set-up)
+Key Kung Fu Techniques (Waijia 1, Qinggong 2, Neigong 1): Breath of Fury, Clutch of the Hawk, Drift of the Butterfly Fish, Flaming Dragon, Flight of the Hawk, Iron Foot Stance, Iron Spirit, Lashing Dragon, Palm of the Dragon, Spear of the Infinite Emperor, Spear Swipe, Trapping Wind, Guiding the Crashing Wave (Counter), Whirling Dodge (Counter)`
+  },
   {
     id: "b40a2c37b5f9f2a1",
     name: "Bandit",
@@ -1716,9 +3003,18 @@ function techniqueItem(actorId, name) {
   };
 }
 
+function cleanNoteText(value = "") {
+  return String(value ?? "")
+    .split(/\n\s*\n/g)
+    .map((paragraph) => paragraph.replace(/\s+/g, " ").trim())
+    .filter(Boolean)
+    .join("\n\n");
+}
+
 async function actorDoc(entry) {
   const parsed = parseOgreGateStatblock(entry.text);
   const folder = FOLDERS[entry.folderKey ?? "humanThreats"] ?? FOLDERS.humanThreats;
+  const biography = cleanNoteText(entry.biography ?? parsed.description);
   const items = (await statblockItemData(parsed)).map((item, index) => ({
     _id: item._id ?? idFrom(`${entry.id}-embedded-${index}-${item.type}-${item.name}`),
     ...item,
@@ -1750,7 +3046,8 @@ async function actorDoc(entry) {
     },
     notes: {
       status: "",
-      description: parsed.description ? `<p>${parsed.description}</p>` : ""
+      biography,
+      description: ""
     }
   };
   for (const [key, value] of Object.entries(parsed.defenses ?? {})) {
@@ -1772,8 +3069,8 @@ async function actorDoc(entry) {
     folder: folder.id,
     flags: {
       ogregatefoundry: {
-        sourceChapter: 10,
-        sourceSection: folder.section,
+        sourceChapter: entry.sourceChapter ?? 10,
+        sourceSection: entry.sourceSection ?? folder.section,
         statblock: entry.text
       }
     },
